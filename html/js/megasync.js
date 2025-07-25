@@ -618,6 +618,10 @@ var megasync = (function() {
         SyncAPI({ a: "ufo", h: handle, bid: getNewBid() }, next);
     };
 
+    ns.uploadFilesAndFolders = function(handle,next) {
+        SyncAPI({ a: "uff", h: handle, bid: getNewBid() }, next);
+    };
+
     ns.syncFolder = function(handle,next) {
         SyncAPI({a: "s", h: handle, u: u_handle}, next);
     };
