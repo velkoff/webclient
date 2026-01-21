@@ -284,7 +284,7 @@ lazy(mega.ui, 'mInfoPanel', () => {
                     break;
                 }
                 case TYPES.SHARE_USERS: {
-                    this.users = { userHandles: M.getNodeShareUsers(this.node, 'EXP') };
+                    this.users = { userHandles: Object.keys(M.getOutShares(this.node, 'EXP', true)) };
                     break;
                 }
                 case TYPES.STATUS: {
