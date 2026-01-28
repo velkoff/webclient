@@ -2056,11 +2056,7 @@ lazy(mega.gallery, 'albums', () => {
 
             // Cases for errors
             switch (true) {
-                case value.length > 250:
-                    validation.err = l.album_name_too_long;
-                    break;
-                case value.trim().length && !M.isSafeName(value):
-                    validation.err = l[24708];
+                case validation.err = M.safeNameError(value, 'album', 250):
                     break;
                 case isSystemAlbumName(value):
                     validation.err = l.album_name_not_allowed;

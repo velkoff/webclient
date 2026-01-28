@@ -1406,10 +1406,7 @@ function renameDialog() {
                 errMsg = '';
 
                 if (n.name && value !== n.name) {
-                    if (!value.trim()) {
-                        errMsg = l[5744];
-                    }
-                    else if (s4Folder || M.isSafeName(value)) {
+                    if (s4Folder || value.trim() && !(errMsg = M.safeNameError(value, n.t))) {
                         var targetFolder = n.p;
                         if (duplicated(value, targetFolder)) {
                             errMsg = l[23219];
@@ -1418,11 +1415,8 @@ function renameDialog() {
                             M.rename(n.h, value).catch(tell);
                         }
                     }
-                    else if (value.length > 250) {
-                        errMsg = n.t === 1 ? l.LongName : l.LongName1;
-                    }
                     else {
-                        errMsg = l[24708];
+                        errMsg = M.safeNameError(value, n.t, 250, l[5744]);
                     }
 
                     if (errMsg) {
@@ -2018,16 +2012,9 @@ function createFolderDialog(close) {
     }
 
     var doCreateFolder = function(v) {
-        var errorMsg = '';
-        if (v.trim() === '') {
-            errorMsg = l.EmptyName;
-        }
-        else if (v.length > 250) {
-            errorMsg = l.LongName;
-        }
-        else if (M.isSafeName(v) === false) {
+        var errorMsg = M.safeNameError(v, 1, 250);
+        if (errorMsg) {
             $dialog.removeClass('active');
-            errorMsg = l[24708];
         }
         else {
             var specifyTarget = null;
@@ -2039,7 +2026,7 @@ function createFolderDialog(close) {
             }
         }
 
-        if (errorMsg !== '') {
+        if (errorMsg) {
             showErrorCreatingFileFolder(errorMsg, $dialog, $input);
 
             return;
@@ -2238,20 +2225,13 @@ function createFileDialog(close, action, params) {
 
         var errorMsg = '';
 
-        if (v === '' || v === l[17506]) {
-            errorMsg = l[8566];
-        }
-        else if (v.length > 250) {
-            errorMsg = l.LongName1;
-        }
-        else if (!M.isSafeName(v)) {
+        if ((errorMsg = M.safeNameError(v, 0, 250, l[8566]))) {
             $dialog.removeClass('active');
-            errorMsg = l[24708];
         }
         else if (duplicated(v, target)) {
             errorMsg = l[23219];
         }
-        if (errorMsg !== '') {
+        if (errorMsg) {
             showErrorCreatingFileFolder(errorMsg, $dialog, $input);
             return;
         }
