@@ -1,221 +1,194 @@
 /**
- * The language selection dialog code
+ * Language selection dialog
  */
 var langDialog = {
 
-    $dialog: null,
-    $overlay: null,
+    _CHECK_ICON_SIZE: 24,
+    _CHECK_ICON: 'sprite-fm-mono icon-check-thin-outline',
+    _NAMESPACE: 'language-dialog',
 
     /**
-     * Initialises and shows the dialog
+     * Currently selected language code.
+     * Used to track the pending language selection before saving.
+     *
+     * @type {string|null}
      */
-    show: function() {
+    _selectedLang: null,
 
-        // Cache some selectors for performance
-        let langDialogSelector = '.languages-dialog';
-        if (is_mobile) {
-            langDialogSelector = '.languages-dialog-mobile';
-        }
+    /**
+     * List of rendered language items.
+     * Used to manage active state between selections.
+     *
+     * @type {Array<MegaInteractable>}
+     */
+    _langItems: null,
 
-        langDialog.$dialog = $(`.mega-dialog${langDialogSelector}`);
-        langDialog.$overlay = $('.fm-dialog-overlay');
+    /**
+     * Show the language selection dialog inside a sheet.
+     *
+     * @returns {void}
+     */
+    show() {
+        'use strict';
 
-        var $tierOneLanguages = langDialog.$dialog.find('.tier-one-languages');
-        var $tierTwoLanguages = langDialog.$dialog.find('.tier-two-languages');
+        this._selectedLang = lang;
+        this._langItems = [];
 
-        // Main tier 1 languages that we support (based on usage analysis)
-        var tierOneLangCodes = [
-            'es', 'en', 'br', 'ct', 'fr', 'de', 'ru', 'it', 'ar',
-            'nl', 'cn', 'jp', 'kr', 'ro', 'id', 'th', 'vi', 'pl',
-            'tr'
-        ];
+        const langCodes = this._getSortedLangCodes();
+        const list = this._createLanguageList(langCodes);
+        const footerElements = this._createFooter();
 
-        // Remove all the tier 1 languages and we have only the tier 2 languages remaining
-        var allLangCodes = Object.keys(languages);
-        var tierTwoLangCodes = allLangCodes.filter(function(langCode) {
-            return (tierOneLangCodes.indexOf(langCode) < 0);
-        });
+        mega.ui.sheet.clear();
 
-        // Generate the HTML for tier one and tier two languages (second param set to true shows beta icon)
-        var tierOneHtml = langDialog.renderLanguages(tierOneLangCodes, false);
-
-        // Display the HTML
-        $tierOneLanguages.safeHTML(tierOneHtml);
-
-        if (tierTwoLangCodes.length) {
-
-            var tierTwoHtml = langDialog.renderLanguages(tierTwoLangCodes, true);
-            $tierTwoLanguages.safeHTML(tierTwoHtml);
-        }
-        else {
-            $('.show-more-languages', langDialog.$dialog).addClass('hidden');
-        }
-
-        // Cache some selectors for performance
-        var $languageLinks = langDialog.$dialog.find('.nlanguage-lnk');
-        var $showMoreLanguages = langDialog.$dialog.find('.show-more-languages');
-        var $arrowIcon = $showMoreLanguages.find('.round-arrow');
-        var $showHideText = $showMoreLanguages.find('.show-more-text');
-
-        // When the user clicks on 'Show more languages', show the Tier 2 languages
-        $showMoreLanguages.rebind('click', function() {
-
-            // If the extra languages section is already open
-            if ($arrowIcon.hasClass('opened')) {
-
-                // Extra languages hidden
-                $arrowIcon.removeClass('opened');
-                $showHideText.safeHTML(l[7657]);        // Show more languages
-                $tierTwoLanguages.hide();
-                langDialog.centerDialog();
-            }
-            else {
-                // Extra languages visible
-                $arrowIcon.addClass('opened');
-                $showHideText.safeHTML(l[7658]);        // Hide languages
-                $tierTwoLanguages.show();
-                langDialog.centerDialog();
+        mega.ui.sheet.show({
+            name: 'languages',
+            type: 'normal',
+            sheetHeight: 'auto',
+            showClose: true,
+            title: l[1038],
+            preventBgClosing: false,
+            contents: [list],
+            footer: {
+                slot: [footerElements]
+            },
+            onClose: () => {
+                mega.ui.sheet.removeClass(this._NAMESPACE);
             }
         });
 
-        // Show tier two languages if a language is already selected from that list
-        if (tierTwoLangCodes.indexOf(lang) > -1) {
-            $arrowIcon.addClass('opened');
-            $showHideText.safeHTML(l[7658]);        // Hide languages
-            $tierTwoLanguages.show();
-            langDialog.centerDialog();
-        }
-
-        // Show the dialog
-        langDialog.$dialog.removeClass('hidden');
-        langDialog.$overlay.removeClass('hidden');
-        $('body').addClass('overlayed');
-        $.dialog = 'languages';
-
-        // Initialise the close button
-        langDialog.$dialog.find('button.js-close').rebind('click', function() {
-            langDialog.hide();
-        });
-
-        // Initialise the save button
-        langDialog.initSaveButton();
-
-        // Show different style when language is selected
-        $languageLinks.rebind('click', function() {
-
-            $languageLinks.removeClass('selected');
-            $(this).addClass('selected');
-
-            return false;
-        });
+        mega.ui.sheet.addClass(this._NAMESPACE);
     },
 
     /**
-     * Re-center the dialog vertically because the height can change when showing/hiding the extra languages
+     * Get the list of available language codes sorted using locale-aware comparison.
+     *
+     * @returns {Array<string>} Sorted language codes.
      */
-    centerDialog: function() {
+    _getSortedLangCodes() {
+        'use strict';
 
-        var currentHeight = langDialog.$dialog.outerHeight();
-        var newTopMargin = (currentHeight / 2) * -1;
-
-        langDialog.$dialog.css('margin-top', newTopMargin);
+        return Object.keys(languages || {})
+            .sort((a, b) => a.localeCompare(b));
     },
 
     /**
-     * Hides the language dialog
-     * @returns {false}
+     * Create the list of available languages as selectable items.
+     *
+     * @param {Array<string>} langCodes - Sorted list of language codes.
+     * @returns {HTMLElement} The generated language list element.
      */
-    hide: function() {
+    _createLanguageList(langCodes) {
+        'use strict';
 
-        langDialog.$dialog.addClass('hidden');
-        langDialog.$overlay.addClass('hidden');
-        $('body').removeClass('overlayed');
-        $.dialog = false;
+        const list = document.createElement('ul');
+        list.className = 'lang-list';
 
-        return false;
-    },
-
-    /**
-     * Create the language HTML from a list of language codes
-     * @param {Array} langCodes Array of language codes e.g. ['en', 'es', ...]
-     * @param {Boolean} tierTwo If this is a tier two / beta language
-     * @returns {String} Returns the HTML to be rendered
-     */
-    renderLanguages: function(langCodes, tierTwo) {
-
-        let langDialogSelector = '.languages-dialog';
-        if (is_mobile) {
-            langDialogSelector = '.languages-dialog-mobile';
-        }
-
-        var $template = $(`${langDialogSelector} .language-template`).clone();
-        var html = '';
-
-        // Remove template class
-        $template.removeClass('language-template');
-
-        // Sort languages by ISO 639-1 two letter language code (which is reasonably ordered anyway)
-        langCodes.sort(function(codeA, codeB) {
-            return codeA.localeCompare(codeB);
-        });
-
-        // Make single array with code, native lang name, and english lang name
-        for (var i = 0, length = langCodes.length; i < length; i++) {
-
-            var langCode = langCodes[i];                 // Two letter language code e.g. de
-            var langItem = Object(languages[langCode]);  // map to languages object
-            var nativeName = langItem[2];                // Deutsch
-            var englishName = langItem[1];               // German
+        for (const code of langCodes) {
+            const item = languages ? languages[code] : null;
+            const nativeName = item ? item[2] : '';
+            const englishName = item ? item[1] : '';
 
             if (!nativeName) {
-                console.warn('Language %s not found...', langCode);
+                console.warn('Language %s not found...', code);
                 continue;
             }
 
-            // Clone the template
-            var $langHtml = $template.clone();
+            const isSelected = code === this._selectedLang;
 
-            // Update the template details
-            $langHtml.attr('data-lang-code', langCode);
-            $langHtml.find('.native-language-name').text(nativeName);
-            $langHtml.attr('title', englishName);
+            const langItem = new MegaInteractable({
+                parentNode: list,
+                nodeType: 'li',
+                type: 'normal',
+                text: nativeName,
+                dataset: { langCode: code },
+                rightIcon: isSelected
+                    ? this._CHECK_ICON
+                    : false,
+                rightIconSize: this._CHECK_ICON_SIZE,
+                onClick: () => {
+                    this._select(code, langItem);
+                }
+            });
 
-            // If they have already chosen a language show it as selected
-            if (langCode === lang) {
-                $langHtml.addClass('selected');
+            if (englishName) {
+                langItem.domNode.title = englishName;
             }
 
-            // If the beta language, show the beta icon
-            if (tierTwo) {
-                $langHtml.find('.beta').removeClass('hidden');
-            }
-
-            // Build up the HTML to be rendered
-            html += $langHtml.prop('outerHTML');
+            langItem.active = isSelected;
+            this._langItems.push(langItem);
         }
 
-        return html;
+        return list;
     },
 
     /**
-     * Initialise the Save button to set the language and reload the page
+     * Create the footer containing Save and Cancel actions.
+     *
+     * @returns {HTMLElement} The footer container element.
      */
-    initSaveButton: function() {
+    _createFooter() {
+        'use strict';
 
-        // Initialise the save button
-        langDialog.$dialog.find('.fm-languages-save').rebind('click', function() {
+        const footer = mCreateElement('div', { class: 'flex flex-row-reverse' });
 
-            langDialog.hide();
+        const onHide = () => {
+            mega.ui.sheet.hide();
+            mega.ui.sheet.removeClass(this._NAMESPACE);
+        };
 
-            // Get the selected code
-            var selectedLangCode = langDialog.$dialog.find('.nlanguage-lnk.selected').attr('data-lang-code');
+        const onSave = () => {
+            const selected = this._selectedLang || lang;
+            onHide();
 
-            // If not the currently selected language, change to the selected language
-            if (selectedLangCode !== lang) {
-                M.uiSaveLang(selectedLangCode)
+            if (selected !== lang) {
+                M.uiSaveLang(selected)
                     .then(() => location.reload())
                     .catch(dump);
             }
-        });
+        };
+
+        MegaButton.factory({
+            parentNode: footer,
+            text: l[776],
+            componentClassname: 'slim font-600 primary',
+            type: 'normal'
+        }).on('click.langSave', onSave);
+
+        MegaButton.factory({
+            parentNode: footer,
+            text: l[82],
+            componentClassname: 'slim font-600 mx-2 secondary',
+            type: 'normal'
+        }).on('click.langCancel', onHide);
+
+        return footer;
+    },
+
+    /**
+     * Handle language selection.
+     * Ensures only one item is marked as active at a time.
+     *
+     * @param {string} code - Selected language code.
+     * @param {MegaInteractable} clickedItem - The clicked language item component.
+     * @returns {void}
+     */
+    _select(code, clickedItem) {
+        'use strict';
+
+        if (!code || code === this._selectedLang) {
+            return;
+        }
+
+        this._selectedLang = code;
+
+        const activeItem = this._langItems.find(item => item.active);
+        if (activeItem) {
+            activeItem.active = false;
+            activeItem.rightIcon = false;
+        }
+
+        clickedItem.active = true;
+        clickedItem.rightIcon = this._CHECK_ICON;
+        clickedItem.rightIconSize = this._CHECK_ICON_SIZE;
     }
 };
