@@ -6660,17 +6660,6 @@ body.de .mega-dialog.contact-picker-widget {
 
 /* end storage-dialog */
 
-/* copyrights-dialog */
-
-    .mega-dialog.copyrights-dialog {
-        width: 644px;
-    }
-    .mega-dialog.copyrights-dialog p {
-        margin-top: 20px;
-    }
-
-/* end copyrights-dialog */
-
 /* achievements-list-dialog */
 
     .mega-dialog.achievements-list-dialog {
