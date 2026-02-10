@@ -2254,6 +2254,15 @@ FileManager.prototype.initUIKeyEvents = function() {
             }
         }
 
+        // If the user has opened a context menu don't allow most actions.
+        if (mega.ui.contextMenu && (mega.ui.contextMenu.selectedItems && mega.ui.contextMenu.selectedItems.length
+            || mega.ui.contextMenu.hiding)) {
+            if (e.keyCode === 27 || e.key === 'Escape') {
+                $.hideContextMenu();
+            }
+            return false;
+        }
+
         var is_transfers_or_accounts = (
             M.currentdirid && (M.currentdirid.substr(0, 7) === 'account' || M.currentdirid === 'transfers')
         );
