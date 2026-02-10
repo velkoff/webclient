@@ -1411,6 +1411,8 @@ lazy(pro, 'proplan2', () => {
                 let basePricePlan = pro.getPlanObj(currentPlan);
                 basePricePlan = basePricePlan.months === 12 ? basePricePlan.correlatedPlan : basePricePlan;
 
+                basePricePlan = basePricePlan || pro.getPlanObj(currentPlan[pro.UTQA_RES_INDEX_ACCOUNTLEVEL]);
+
                 $('.pricing-plan-only', $planCard).addClass('line-through')
                     .text(basePricePlan.getFormattedPrice('narrowSymbol', false, false, 1));
             }

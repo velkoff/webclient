@@ -463,11 +463,13 @@ var pro = {
                     else {
                         anyDiscount12 = true;
                         if (matchingDiscount12 === null) {
-                            matchingDiscount12 = plan[pro.UTQA_RES_INDEX_EXTRAS].insdis;
+                            matchingDiscount12 = pro.getPlanObj(plan).correlatedPlan
+                                && plan[pro.UTQA_RES_INDEX_EXTRAS].insdis;
                         }
                         else if (matchingDiscount12
                             && (matchingDiscount12.dg !== plan[pro.UTQA_RES_INDEX_EXTRAS].insdis.dg)
-                            || (matchingDiscount12.dp !== plan[pro.UTQA_RES_INDEX_EXTRAS].insdis.dp)) {
+                            || (matchingDiscount12.dp !== plan[pro.UTQA_RES_INDEX_EXTRAS].insdis.dp)
+                            || !pro.getPlanObj(plan).correlatedPlan) {
                             matchingDiscount12 = false;
                         }
                     }
