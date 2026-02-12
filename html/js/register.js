@@ -371,8 +371,8 @@ function init_register() {
     });
 
     $inputs.rebind('keyup.registerforminteraction', () => {
-        eventlog(501133, errReasons.join(','), true);
         $inputs.off('keyup.registerforminteraction');
+        eventlog(501132, true);
     });
 
     $inputs.rebind('keydown.initregister', function(e) {
