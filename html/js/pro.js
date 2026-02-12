@@ -504,7 +504,7 @@ var pro = {
 
         // The amount is inverted, so ceil will round the final result down
         if (roundDown) {
-            multiplier = Math.ceil(multiplier);
+            multiplier = pro.softCeil(multiplier);
         }
 
         return (asMult ? multiplier : 100 - multiplier) / 100;
@@ -1494,6 +1494,17 @@ var pro = {
     softFloor(number) {
         'use strict';
         return Math.floor(Math.round(number * 10) / 10);
+    },
+
+    /**
+     * Rounds the number up to the nearest whole number, unless it is within 0.05 of the nearest whole number in which
+     * case it rounds down
+     * @param {number} number - The number to round up
+     * @returns {number} - The rounded number
+     */
+    softCeil(number) {
+        'use strict';
+        return Math.ceil(Math.round(number * 10) / 10);
     },
 
     getStandardisedTaxInfo(planTaxInfo, type) {
