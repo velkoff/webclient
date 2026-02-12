@@ -121,8 +121,8 @@ MegaData.prototype.menuItems = async function menuItems(evt, isTree) {
                 items['.open-item'] = 1;
             }
 
-            if ((sourceRoot === M.RootID || sourceRoot === M.InboxID || sourceRoot === 's4'
-                || M.isDynPage(M.currentrootid)) && !folderlink) {
+            if ((sourceRoot === M.RootID || sourceRoot === M.InboxID || sourceRoot === 's4' ||
+                sourceRoot === 'out-shares' || M.isDynPage(M.currentrootid)) && !folderlink) {
 
                 let exp = false;
                 const shares = this.getNodeShareUsers(selNode);
