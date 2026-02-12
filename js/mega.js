@@ -3367,7 +3367,6 @@ function processPS(pendingShares, ignoreDB) {
                     M.nodeShare(nodeHandle, {
                         h: ps.n,
                         o: ps.n,
-                        p: ps.p,
                         u: ps.u,
                         r: ps.r,
                         ts: ps.ts
