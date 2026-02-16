@@ -234,11 +234,12 @@ lazy(mega.gallery, 'AlbumTimeline', () => {
                                 selectedItems.push('.set-thumbnail');
                             }
 
-                            if (
-                                mega.gallery.canShowAddToAlbum() &&
-                                selections.every(h => M.isGalleryNode(mega.gallery.getNodeCache(h)))
-                            ) {
-                                selectedItems.push('.add-to-album');
+                            if (selections.every(h => M.isGalleryNode(mega.gallery.getNodeCache(h)))) {
+                                if (mega.gallery.canShowAddToAlbum()) {
+                                    selectedItems.push('.add-to-album');
+                                }
+
+                                selectedItems.push('.album-remove-items');
                             }
 
                             if (toApplySensitive) {
