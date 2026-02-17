@@ -887,7 +887,7 @@ lazy(mega.ui, 'searchbar', () => {
                 if (is_video(n)) {
                     $.autoplay = h;
                 }
-                slideshow(h);
+                slideshow(h, undefined, undefined, [h]);
             }
             else if (is_text(n)) {
                 $.selected = [h];
