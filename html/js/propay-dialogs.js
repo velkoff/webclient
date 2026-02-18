@@ -3182,6 +3182,13 @@ var addressDialog = {
                     }
                 }
                 if (eventData.type === 'loading' && eventData.action === 'end') {
+                    if (addressDialog.stripeStartTime && pro.propay.onPropayPage() && pro.propay.currentGateway) {
+                        eventlog(501136, JSON.stringify({
+                            gateway: pro.propay.currentGateway.gatewayName,
+                            loadingTime: Math.round(performance.now() - addressDialog.stripeStartTime)
+                        }));
+                        delete addressDialog.stripeStartTime;
+                    }
                     $('.sk-stripe-loading', addressDialog.getStripeDialog()).addClass('hidden');
                     if (pro.propay.skItems.continueBtn) {
                         pro.propay.skItems.continueBtn.endLoad('purchase');
@@ -3393,6 +3400,9 @@ var addressDialog = {
         if (isStripe && !((typeof utcResult.EUR === 'object') && utcResult.EUR.error)) {
             this.stripeSaleId = null;
             if (utcResult.EUR) {
+                if (pro.propay.onPropayPage() && pro.propay.currentGateway) {
+                    addressDialog.stripeStartTime = performance.now();
+                }
                 const $stripeDialog = this.getStripeDialog().toggleClass('edit', !!utcResult.edit);
                 const $iframeContainer = $('.iframe-container', $stripeDialog);
                 let $stripeIframe = $('iframe#stripe-widget');

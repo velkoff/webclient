@@ -571,7 +571,6 @@ lazy(s4, 'utils', () => {
 
             const tableNode = parentNode.querySelector('.js-endpoints-table');
             const tipsNode = parentNode.querySelector('.js-endpoints-desc');
-            const s4TipNode = parentNode.querySelector('.js-endpoints-s4');
             let rowNode = null;
 
             if (!tableNode || !tipsNode) {
@@ -607,19 +606,11 @@ lazy(s4, 'utils', () => {
                 mCreateElement('i', { class: 'sprite-fm-mono icon-copy' }, subNode);
             }
 
-            // Fill URL exapmles in the tips
+            // Fill URL examples in the tips
             mCreateElement('li', undefined, tipsNode).append(parseHTML(l.s4_s3_prefix_usage));
             mCreateElement('li', undefined, tipsNode).append(parseHTML(
                 l.s4_iam_prefix_usage.replace('%1', `iam.${endpoints[0][0]}`)
             ));
-
-            if (s4TipNode) {
-                $(s4TipNode).safeHTML(
-                    l.s4_s3_g_endpoint_tip
-                        .replace('%1', `<span class="code">s3.g.s4.mega.io</span>`)
-                        .replace('%2', `<span class="code">s3.eu-central-1.s4.mega.io</span>`)
-                );
-            }
 
             // Copy to clipboard buttons
             $('.mega-button.copy', parentNode).rebind('click.copyUrl', (e) => {

@@ -211,8 +211,6 @@ async function setupSingleDownloadPage(res) {
 
                 if (is_image2(dl_node) || isVideo) {
 
-                    window.mediaConIsDl = true;
-
                     if (is_mobile) {
                         $('.mobile.slideshow-image-previewer').addClass('browserscreen');
                         if (slideshow(dl_node.h) === false) {
@@ -220,6 +218,7 @@ async function setupSingleDownloadPage(res) {
                         }
                     }
                     else {
+                        window.mediaConIsDl = true;
                         const $preview = $('.js-image-preview', $pageScrollBlock);
                         $('.media-viewer-container').appendTo('.js-image-preview');
                         $('.media-viewer', $preview).removeAttr('style');
@@ -694,9 +693,9 @@ function dlPageCleanup() {
         delete window.textConIsDl;
     }
 
-    if (window.mediaConIsDl) {
-        const wrapper = is_mobile ? '#startholder' : 'body';
-        const container = is_mobile ? '.mobile.slideshow-image-previewer' : '.media-viewer-container';
+    if (!is_mobile && window.mediaConIsDl) {
+        const wrapper = 'body';
+        const container = '.media-viewer-container';
         $(container).appendTo(wrapper);
         delete window.mediaConIsDl;
     }

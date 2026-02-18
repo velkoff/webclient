@@ -2495,6 +2495,12 @@ lazy(mega.gallery, 'albums', () => {
                         else {
                             const { nodes, filterFn } = scope.albums.store[albumId];
 
+                            if (!filterFn) {
+                                selectedItems.push('.select-thumbnail');
+                            }
+                            if (scope.nodesAllowSlideshow(nodes)) {
+                                selectedItems.push('.play-slideshow');
+                            }
                             if (M.currentdirid !== `albums/${albumId}`) {
                                 selectedItems.push('.open-item');
                             }
@@ -4771,6 +4777,8 @@ lazy(mega.gallery, 'albums', () => {
             }
         }
     }
+
+    mBroadcaster.addListener('fm:albums:select-thumbnail', h => (new AlbumCoverDialog(h)).show());
 
     return new Albums();
 });
