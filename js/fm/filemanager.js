@@ -1145,7 +1145,14 @@ FileManager.prototype.initFileManagerUI = function() {
             if (this.active) {
                 return;
             }
-            mega.ui.secondaryNav.openNewMenu(ev);
+            if (!fmconfig.dlThroughMEGAsync || window.useMegaSync) {
+                mega.ui.secondaryNav.openNewMenu(ev);
+            }
+            else {
+                megasync.preCheck().then(() => {
+                    mega.ui.secondaryNav.openNewMenu(ev);
+                });
+            }
             this.active = true;
             return false;
         }
