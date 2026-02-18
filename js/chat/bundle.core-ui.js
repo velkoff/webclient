@@ -2537,6 +2537,9 @@ const ConversationsListItem = (_dec = utils.Ay.SoonFcWrap(40, true), _dec2 = (0,
     if (chatRoom.type === 'private') {
       const handle = chatRoom.getParticipantsExceptMe()[0];
       contact = handle ? M.u[handle] : M.u[u_handle];
+      if (!contact) {
+        return `Unknown conversation id for ${chatRoom.roomId}`;
+      }
       id = `conversation_${htmlentities(contact.u)}`;
     } else if (chatRoom.type === 'group') {
       contactId = roomId;

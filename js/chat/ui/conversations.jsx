@@ -426,22 +426,24 @@ class ConversationsApp extends MegaRenderMixin {
                     </Suspense>
 
                     <Suspense fallback={<Fallback />}>
-                        <LeftPanel
-                            view={view}
-                            views={VIEWS}
-                            routingSection={routingSection}
-                            conversations={chats}
-                            renderView={view => this.renderView(view)}
-                            startMeeting={() => {
-                                this.startMeeting();
-                                eventlog(500293);
-                            }}
-                            scheduleMeeting={() => {
-                                this.setState({ scheduleMeetingDialog: true });
-                                delay('chat-event-sm-button-main', () => eventlog(99918));
-                            }}
-                            createNewChat={() => this.setState({ contactSelectorDialog: true })}
-                        />
+                        {routingSection &&
+                            <LeftPanel
+                                view={view}
+                                views={VIEWS}
+                                routingSection={routingSection}
+                                conversations={chats}
+                                renderView={view => this.renderView(view)}
+                                startMeeting={() => {
+                                    this.startMeeting();
+                                    eventlog(500293);
+                                }}
+                                scheduleMeeting={() => {
+                                    this.setState({ scheduleMeetingDialog: true });
+                                    delay('chat-event-sm-button-main', () => eventlog(99918));
+                                }}
+                                createNewChat={() => this.setState({ contactSelectorDialog: true })}
+                            />
+                        }
                     </Suspense>
 
                     {freeCallEndedDialog && (
