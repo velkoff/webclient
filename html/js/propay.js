@@ -570,6 +570,8 @@ pro.propay = {
     sendPurchaseToApi(paymentTypeId) {
         'use strict';
 
+        const startTime = performance.now();
+
         if (paymentTypeId === undefined) {
             console.error('No payment type ID provided for purchase');
             return;
@@ -823,6 +825,11 @@ pro.propay = {
                         if (shouldEndLoading.includes(pro.lastPaymentProviderId)) {
                             this.skItems.continueBtn.endLoad('purchase');
                         }
+                        eventlog(501135, JSON.stringify({
+                            gateway: pro.propay.currentGateway.gatewayName,
+                            loadingTime: Math.round(performance.now() - startTime)
+                        }));
+
                     });
                 });
             })
