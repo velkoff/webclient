@@ -1027,6 +1027,13 @@ class MEGACanvasElement extends MEGAImageElement {
             sx = width - sw >> 2;
             sy = height - sh >> 2;
         }
+        else if (ratio === 1 && sw * sh < maxWidth * maxHeight) {
+            // xxx: dumb protection, move forward if source is smaller than target size.
+            if (self.d > -1) {
+                this.debug(`dummy ${crop} crop for ${sw}x${sh} image, intending ${maxWidth}x${maxHeight}`);
+            }
+            crop = false;
+        }
 
         if (crop === 'center') {
             sw = Math.round(sw / ratio);
@@ -1111,6 +1118,7 @@ class MEGACanvasElement extends MEGAImageElement {
         const defType = MEGAImageElement.PREVIEW_TYPE;
         const defQuality = MEGAImageElement.PREVIEW_QUALITY;
         const {
+            cIBitMap,
             crop = 'none',
             type = defType,
             maxWidth = defSize,
@@ -1121,6 +1129,18 @@ class MEGACanvasElement extends MEGAImageElement {
         source = await this.getCanvasImageSource(source);
         const {sx, sy, sw, sh, dx, dy, dw, dh} =
             await this.getBoundingRect({crop, source, maxWidth, maxHeight, ...options});
+
+        if (cIBitMap && (this.bitmaprenderer || this.doesSupport('BitmapRenderer'))) {
+            // xxx: cIBitMap is only safe to use with already-generated preview-type images, given below crbug.
+            const res = await this.resample(source, sx, sy, sw, sh, dw, dh, type, quality).catch(dump);
+
+            if (res) {
+                if (self.d > 1) {
+                    this.debug(`cIBitMap succeeded.`, source, res);
+                }
+                return res;
+            }
+        }
 
         /** @todo https://crbug.com/1082451
         const {width, height} = image;
@@ -2517,6 +2537,7 @@ lazy(self, 'faceDetector', () => Promise.resolve((async() => {
          */
         lazy(webgl, 'getDynamicThumbnail', () => {
             const type = self.supWebPEncoding === false ? 'image/png' : 'image/webp';
+            const cIBitMap = self.createImageBitmap && tryCatch(() => parseInt(localStorage.cIBitMap) !== 0)();
 
             return async(buffer, size, options, branch) => {
                 if (typeof options === 'string') {
@@ -2525,14 +2546,19 @@ lazy(self, 'faceDetector', () => Promise.resolve((async() => {
                 }
                 if (typeof size === 'object') {
                     options = size;
-                    size = 0;
+                    size = options.size | 0;
                 }
                 if ((size | 0) < 1) {
                     size = MEGAImageElement.THUMBNAIL_SIZE << 1;
                 }
 
-                options = {type, maxWidth: size, maxHeight: size, quality: 1.0, ...options};
+                options = {type, cIBitMap, maxWidth: size, maxHeight: size, quality: 1.0, ...options};
                 return webgl.worker('thumbnail', {buffer, options}, branch);
+                // const tag = makeUUID();
+                // console.time(tag);
+                // const res = await webgl.worker('thumbnail', {buffer, options}, branch);
+                // console.timeEnd(tag);
+                // return res;
             };
         });
 
