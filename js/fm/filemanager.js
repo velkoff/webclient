@@ -1903,15 +1903,9 @@ FileManager.prototype.createFolderUI = function() {
 
         var $input = $('input', $inputWrapper);
         var name = $input.val();
-        var errorMsg = '';
+        var errorMsg = M.safeNameError(name, 1, 250);
 
-        if (name.trim() === '') { // Check if enter a folder name
-            errorMsg = l.EmptyName;
-        }
-        else if (!M.isSafeName(name)) { // Check if folder name is valid
-            errorMsg = name.length > 250 ? l.LongName : l[24708];
-        }
-        else if (duplicated(name, M.currentdirid)) { // Check if folder name already exists
+        if (!errorMsg && duplicated(name, M.currentdirid)) {
             errorMsg = l[23219];
         }
 

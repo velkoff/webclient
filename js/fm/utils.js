@@ -1610,6 +1610,58 @@ MegaUtils.prototype.isSafeName = function(name, allowPathSep) {
 };
 
 /**
+ * Returns a localized error message if the given name is not safe for use as a file or folder name.
+ * @param {String} name - The filename or folder name to check.
+ * @param {Number|String} [nodeType] - The type of node (0 for file, 1 for folder, 'album' for album, 'device'
+ *  for device) to determine the appropriate error message.
+ * @param {Number} [maxLength] - The maximum allowed length for the name.
+ * @param {String} [emptyMessageOverride] - An optional custom message to use when the name is empty,
+ *  overriding the default messages based on node type.
+ * @returns {String|undefined} - The error message if the name is not safe, otherwise undefined.
+ */
+MegaUtils.prototype.safeNameError = function(name, nodeType, maxLength, emptyMessageOverride) {
+    'use strict';
+
+    const trimmedName = name.trim();
+    if (trimmedName === l[17506] && nodeType === 0) { // file cannot be named l[17506]
+        return l[8566];
+    }
+
+    if (maxLength > 0 && name.length > maxLength) { // max length exceeded
+        return {
+            0: l.LongName1,
+            1: l.LongName,
+            album: l.album_name_too_long,
+            device: mega.icu.format(
+                l.device_rename_dialog_warning_length,
+                maxLength
+            )
+        }[nodeType];
+    }
+    else if (M.isSafeName(name)) {
+        // need to check if node name is in not allowed list ('..', '.').
+        // Even if the name is safe, it can not be used as a node name.
+        return {
+            '.': l.invalid_node_name_as_dot,
+            '..': l.invalid_node_name_as_doubledot
+        }[name];
+    }
+    else if (trimmedName.length === 0) { // empty name
+        if (emptyMessageOverride) {
+            return escapeHTML(emptyMessageOverride);
+        }
+
+        return {
+            0: l[8566],
+            1: l.EmptyName,
+            device: l.device_rename_dialog_warning_empty
+        }[nodeType];
+    }
+
+    return l[24708];
+};
+
+/**
  * Sanitise path components so that saving to local disk won't cause any issue...
  * @param {String} path   The full path to sanitise
  * @param {String} [file] Optional filename to append

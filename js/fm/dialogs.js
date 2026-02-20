@@ -2959,13 +2959,7 @@
 
                 var errMsg = '';
 
-                if (!saveAsName.trim()) {
-                    errMsg = l[5744];
-                    $('.error-text', $saveErr).text(errMsg);
-                    $saveErr.removeClass('hidden');
-                }
-                else if (!M.isSafeName(saveAsName)) {
-                    errMsg = saveAsName.length > 250 ? l.LongName1 : l[24708];
+                if ((errMsg = M.safeNameError(saveAsName, 0, 250, l[5744]))) { // nodeSaveAs is only for files
                     $('.error-text', $saveErr).text(errMsg);
                     $saveErr.removeClass('hidden');
                 }

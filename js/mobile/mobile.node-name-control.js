@@ -131,20 +131,12 @@ class MobileNodeNameControl {
 
         const newName = nameInput.$input.val();
 
-        var errorMsg = '';
-
-        if (!newName.trim()) {
-            errorMsg = typeInfo.empty;
-        }
-        else if (!M.isSafeName(newName)) { // Check if folder/file name is valid
-            errorMsg = newName.length > 250 ? nodeType === 1 ? escapeHTML(l.LongName) : escapeHTML(l.LongName1)
-                : l[24708];
-        }
-        else if (this.duplicated(newName, node ? node.p : null)) { // Check if folder/file name already exists
+        var errorMsg = M.safeNameError(newName, nodeType, 250, typeInfo.empty);
+        if (!errorMsg && this.duplicated(newName, node ? node.p : null)) { // Check if folder/file name already exists
             errorMsg = escapeHTML(l[23219]);
         }
 
-        if (errorMsg !== '') {
+        if (errorMsg) {
             const alertIcon = '<i class="alert sprite-mobile-fm-mono icon-alert-triangle-thin-outline"></i>';
             nameInput.showError(`${alertIcon}${errorMsg}`);
 
