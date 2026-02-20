@@ -3112,36 +3112,58 @@ function logExportEvt(evtId, data) {
             return false;
         }
 
-        // Cache selector
-        var $copyrightDialog = $('.copyrights-dialog');
-
         if ($.dialog === 'onboardingDialog') {
             closeDialog();
         }
         // Otherwise show the copyright warning dialog
-        M.safeShowDialog('copyrights', function() {
+        const copyrightsDialog = (() => {
 
-            $.copyrightsDialog = 'copyrights';
+            const content = `
+                <div class="copyrights-warning-message">
+                    <div>${l[7647]}</div>
+                    <div class="mt-2">${l[7648]}</div>
+                </div>
+            `;
 
-            return $copyrightDialog;
-        });
+            const footer = mCreateElement('div', { class: 'flex flex-row-reverse' });
 
-        // Init click handler for 'I disagree' button: User disagrees with copyright warning
-        $('button.cancel', $copyrightDialog).rebind('click.disagreeAction', closeDialog);
+            MegaButton.factory({
+                parentNode: footer,
+                text: l[7645],
+                componentClassname: 'slim font-600 primary',
+                type: 'normal'
+            }).on('click.copyrightsSave', () => {
+                mega.ui.sheet.hide();
+                mega.config.set('cws', 1);
+                openGetLinkDialog();
+            });
 
-        // Init click handler for 'I agree'
-        $('button.accept', $copyrightDialog).rebind('click.agreeAction', function() {
-            closeDialog();
+            MegaButton.factory({
+                parentNode: footer,
+                text: l[82],
+                componentClassname: 'slim font-600 mx-2 secondary',
+                type: 'normal'
+            }).on('click.copyrightsCancel', () => mega.ui.sheet.hide());
 
-            // User agrees, store flag so they don't see it again
-            mega.config.set('cws', 1);
+            return { content, footer };
+        })();
 
-            // Go straight to Get Link dialog
-            openGetLinkDialog();
-        });
-
-        // Init click handler for 'Close' button
-        $('button.js-close', $copyrightDialog).rebind('click.closeDialog', closeDialog);
+        megaMsgDialog.render(
+            l[7696],
+            copyrightsDialog.content,
+            '',
+            '',
+            {
+                icon: 'warning-3d',
+                sheetType: 'normal',
+                footer: {
+                    slot: [copyrightsDialog.footer],
+                    confirmButton: false
+                }
+            },
+            false,
+            true
+        );
     };
 
     Object.defineProperty(ExportLink, 'pullShareLink', {

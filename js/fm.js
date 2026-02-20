@@ -1780,11 +1780,6 @@ function closeDialog(ev) {
         fm_showoverlay();
         delete $.dialog;
     }
-    else if (($.dialog === 'slideshow') && $.copyrightsDialog) {
-        $('.copyrights-dialog').addClass('hidden');
-
-        delete $.copyrightsDialog;
-    }
     else if ($.dialog === 'fingerprint-dialog' && $.shareCollaboratorsDialog && $.shareDialog) {
 
         // Update rendering to account for new contact verified status
@@ -1877,14 +1872,11 @@ function closeDialog(ev) {
             delete $.removedContactsFromShare;
         }
 
-        $('.copyrights-dialog').addClass('hidden');
-
         delete $.copyDialog;
         delete $.moveDialog;
         delete $.copyToShare;
         delete $.copyToUpload;
         delete $.shareToContactId;
-        delete $.copyrightsDialog;
         delete $.selectFolderDialog;
         delete $.saveAsDialog;
         delete $.nodeSaveAs;
