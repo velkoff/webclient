@@ -3558,6 +3558,12 @@ BusinessAccountUI.prototype.showAddSubUserDialog = function (result, callback) {
             var $uPhone = $('input.sub-ph', $dialog);
             var $uLocation = $('input.sub-lo', $dialog);
 
+            const phoneNumber = $uPhone.val().trim();
+            if ($uPhone.is(':visible') && phoneNumber && !M.validatePhoneNumber(phoneNumber)) {
+                $uPhone.megaInputsShowError(l[8814]);
+                return;
+            }
+
             var addUserOptionals = Object.create(null);
             // check if optional section is visible, then collect fields values
             if ($('.dialog-input-container .opti-add-suba', $dialog).hasClass('hide')) {
@@ -4027,6 +4033,10 @@ BusinessAccountUI.prototype.showEditSubUserDialog = function (subUserHandle) {
                             return;
                         }
                     }
+                }
+                if (changedVals.tel && !M.validatePhoneNumber(changedVals.tel)) {
+                    $phoneInput.megaInputsShowError(l[8814]);
+                    return;
                 }
                 var editPromise = mySelf.business.editSubAccount(subUserHandle, changedVals.email,
                     changedVals.fname, changedVals.lname,
