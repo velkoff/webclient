@@ -52,6 +52,7 @@ class TutorialPasswordItemForm extends PasswordItemForm {
             title: options.title || '',
             contents: [this.domNode],
             showClose: true,
+            scrollOverlay: true,
             confirmClose: () => this.discard(this.isFormChanged),
         });
     }

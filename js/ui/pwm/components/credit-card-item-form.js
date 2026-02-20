@@ -287,6 +287,7 @@ class CreditCardItemForm extends MegaForm {
             title: this.formType === 'create' ? l.cc_title : l.edit_credit_card,
             contents: [this.domNode],
             showClose: true,
+            scrollOverlay: true,
             confirmClose: () => {
                 let eventID = '500880';
                 if (this.formType === 'update') {
