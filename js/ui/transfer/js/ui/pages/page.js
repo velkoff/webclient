@@ -105,8 +105,10 @@ lazy(T.ui, 'page', () => {
                 }
             }
             else {
+                const [p] = getSitePath().replace(/^\/+/, '').split(/[^\w-]/);
                 document.body.classList.remove('subpage');
                 footer.querySelector('.js-main-footer').classList.remove('hidden');
+                footer.querySelector('.js-report-abuse').classList[p === 't' ? 'remove' : 'add']('hidden');
                 footer.querySelector('.js-subpage-footer').classList.add('hidden');
             }
         }

@@ -36,9 +36,14 @@ a.link.sm-size {
     font: var(--text-body-sm);
 }
 
-.link.sm-size.bold,
-a.link.sm-size.bold {
-    font: bold var(--text-body-sm);
+.link.xs-size,
+a.link.xs-size {
+    font: var(--text-btn-sm);
+}
+
+.link.bold,
+a.link.bold {
+    font-weight: 700;
 }
 
 .link:focus,
@@ -56,6 +61,50 @@ a.link:focus {
     .link:hover,
     a.link:hover {
         text-decoration: none;
+    }
+
+}
+
+
+/* Expandable link type */
+
+.link.expandable {
+    align-items: center;
+    display: flex;
+    text-decoration: none;
+}
+
+.link.expandable span {
+    color: var(--main-neutral-primary);
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: var(--transition-all);
+    transition-duration: .4s;
+    white-space: nowrap;
+}
+
+/* Expandable link type.States */
+
+/* Expandable link type. States. Focused state. */
+
+.link.expandable:focus span {
+    max-width: 200px;
+    opacity: 1;
+    padding: 0 8px;
+    padding-inline-start: 4px;
+}
+
+
+/* Expandable type link. States. Hover state. Only for non-touch devices. */
+
+@media (hover: hover) {
+
+    .link.expandable:hover span {
+        opacity: 1;
+        max-width: 200px;
+        padding: 0 8px;
+        padding-inline-start: 4px;
     }
 
 }
