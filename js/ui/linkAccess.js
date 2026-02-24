@@ -180,6 +180,9 @@ lazy(mega.ui, 'linkAccess', () => {
                             this.showInputError(l[9048]);
                         }
                         else {
+                            if (M.RootID && u_sharekeys[M.RootID]) {
+                                delete u_sharekeys[M.RootID];
+                            }
                             loadSubPage(path);
                         }
                     }
