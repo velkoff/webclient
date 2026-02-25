@@ -163,7 +163,9 @@ class MegaGallery {
     }
 
     get onpage() {
-        return this.id === M.currentCustomView.nodeID || (M.gallery && M.currentrootid === M.RootID);
+        return !M.onDeviceCenter
+            && (this.id === M.currentCustomView.nodeID
+                || M.gallery && M.currentrootid === M.RootID);
     }
 
     mainViewNodeMapper(h) {
