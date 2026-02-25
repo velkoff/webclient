@@ -152,6 +152,12 @@ pro.propay = {
 
     },
 
+
+    /**
+     * Shows the errors on the page
+     * @param {Object | True} reasons - The reasons for the errors, or true to remove all errors
+     * @returns {boolean} - Returns true if there are errors, false otherwise
+     */
     showErrors(reasons) {
         'use strict';
 
@@ -2733,6 +2739,8 @@ pro.propay = {
             const options = optionArrays[type];
 
             $('.payment-method .selected').removeClass('selected');
+
+            pro.propay.showErrors(true);
 
             if (type === 'primary') {
 
