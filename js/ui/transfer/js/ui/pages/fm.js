@@ -105,6 +105,9 @@ lazy(T.ui, 'viewFilesLayout', () => {
             if (this.viewContent.cn) {
                 this.renderViewContent(xh);
             }
+            else if (!first) {
+                this.renderReadyToDownload(xh);
+            }
             thumbnailer(M.v);
         },
 

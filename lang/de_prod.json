@@ -3763,6 +3763,8 @@
     "invalid_emails_error": "{count, plural, one {Ung\u00fcltige E-Mail-Adresse} other {Ung\u00fcltige E-Mail-Adressen: %1}}",
     "invalid_expiration_date": "Ung\u00fcltiges Ablaufdatum. \u00dcberpr\u00fcfen Sie, ob der Monat und das Jahr korrekt sind.",
     "invalid_invitation_sent": "Leider ist beim Senden Ihrer Einladung ein Fehler aufgetreten.",
+    "invalid_node_name_as_dot": "Der Name \u201e.\u201c ist ung\u00fcltig",
+    "invalid_node_name_as_doubledot": "Der Name \u201e..\u201c ist ung\u00fcltig",
     "invite_body_text": "%1 l\u00e4dt Sie zu einem MEGA-Meeting ein.[BR][BR]Name des Meetings: %2[BR][BR]Meetinglink: %3",
     "invite_body_text_scheduled": "%1 l\u00e4dt Sie zu einem MEGA-Meeting ein.[BR][BR]Name des Meetings: %2[BR][BR]Datum und Uhrzeit: %4 %5[BR][BR]Meetinglink: %3",
     "invite_bonuses": "Einladungsboni",

@@ -1223,7 +1223,7 @@
             },
         ]));
         const trashIcon = 'sprite-fm-mono icon-trash-thin-outline';
-        const minusIcon = 'sprite-fm-mono icon-minus-circle';
+        const minusIcon = 'sprite-fm-mono icon-minus-circle-thin-outline';
         sections.addChild('manipulate', new MegaContextSection(menu, [
             {
                 buttonId: 'add-to-album',
@@ -1959,6 +1959,11 @@
                 });
                 if (lastSection) {
                     lastSection.addClass('last');
+                    this.domNode.classList.remove('hidden', 'fade-out');
+                    if (this.hiding) {
+                        this.hiding.abort();
+                        delete this.hiding;
+                    }
                     return this.domNode;
                 }
                 return prepareOldMenu();
@@ -1967,11 +1972,21 @@
                 if (!this.ready) {
                     return;
                 }
-                sections.each(section => {
-                    section.hide();
-                    section.removeClass('last');
-                });
-                this.domNode.classList.add('hidden');
+                this.domNode.classList.add('fade-out');
+                if (!this.hiding) {
+                    // Block key controls until action has completed.
+                    this.hiding = tSleep(0.05);
+                    this.hiding.finally(() => {
+                        this.domNode.classList.add('hidden');
+                        this.domNode.classList.remove('fade-out');
+                        sections.each(section => {
+                            section.hide();
+                            section.removeClass('last');
+                        });
+                        this.selectedItems = [];
+                        delete this.hiding;
+                    });
+                }
                 const topArrow = this.domNode.querySelector('.context-top-arrow');
                 if (topArrow) {
                     topArrow.remove();
@@ -1979,7 +1994,6 @@
                 }
                 this.domNode.classList.remove('mega-height');
                 this.domNode.style.height = 'auto';
-                this.selectedItems = [];
                 const ctxSources = document.querySelectorAll('.ctx-source');
                 for (const source of ctxSources) {
                     source.classList.remove('ctx-source', 'active');

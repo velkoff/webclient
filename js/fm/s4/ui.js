@@ -656,6 +656,13 @@ lazy(s4, 'ui', () => {
         }
 
         getInvalidNodeNameError(n, name) {
+            // even s4 nodes can't be named as dot or double dot, because it will break the path resolution
+            if (name === '.' || name === '..') {
+                return {
+                    '.': l.invalid_node_name_as_dot,
+                    '..': l.invalid_node_name_as_doubledot
+                }[name];
+            }
             if (s4.kernel.getS4NodeType(n.h) === 'bucket' && !s4.kernel.isValidBucketName(name || n.name)) {
                 return l.s4_invalid_bucket_name;
             }

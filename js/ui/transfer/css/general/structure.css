@@ -63,9 +63,27 @@
     margin: 0 12px 12px;
 }
 
-.page-footer > .it-box.tag {
+.page-footer .main-footer {
+    display: flex;
+    width: 100%;
+}
+
+.page-footer .main-footer > * {
+    flex: 1 1 50%;
+    display: flex;
+}
+
+.page-footer .main-footer > *.mid-align {
     flex: 0 0 auto;
-    margin: 12px 0;
+}
+
+.page-footer .main-footer > *.end-align {
+    justify-content: end;
+}
+
+.page-footer .main-footer .it-box.tag {
+    flex: 0 0 auto;
+    margin: 12px;
 }
 
 

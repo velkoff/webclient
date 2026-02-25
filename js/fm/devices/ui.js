@@ -1572,11 +1572,7 @@ lazy(mega.devices, 'ui', () => {
 
                         value = value.trim();
 
-                        if (!value) {
-                            errMsg = l.device_rename_dialog_warning_empty;
-                        }
-                        else if (M.isSafeName(value) && value.length <= maxDeviceNameLength) {
-
+                        if (!(errMsg = M.safeNameError(value, 'device', maxDeviceNameLength))) {
                             // Check for duplicate device names
                             if (Object.values(devNames).includes(value)) {
                                 errMsg = l.device_rename_dialog_warning_duplicate;
@@ -1587,12 +1583,6 @@ lazy(mega.devices, 'ui', () => {
                                     showToast('info', l.dc_device_renamed, null, null, null, null, 5000);
                                 });
                             }
-                        }
-                        else if (value.length > maxDeviceNameLength) {
-                            errMsg = mega.icu.format(l.device_rename_dialog_warning_length, maxDeviceNameLength);
-                        }
-                        else {
-                            errMsg = l[24708];
                         }
 
                         if (errMsg) {

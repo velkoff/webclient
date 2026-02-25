@@ -32,6 +32,7 @@
     --transition-height: height .2s ease-in-out;
     --transition-left: left .2s ease-in-out;
     --transition-margin: margin .2s ease-in-out;
+    --transition-max-width: max-width .2s ease-in-out;
     --transition-opacity: opacity .2s ease-in-out;
     --transition-padding: padding .2s ease-in-out;
     --transition-shadow: box-shadow .2s ease-in-out;
