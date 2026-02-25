@@ -782,7 +782,7 @@ pro.proplan = {
 
             if (!baseMonthlyPrice) {
                 hasMultiDuration = false;
-                baseMonthlyPrice = planObj.priceEuro;
+                baseMonthlyPrice = planObj.price / period;
             }
 
             if (planObj.level === pro.ACCOUNT_LEVEL_BUSINESS && planObj.minUsers) {
@@ -843,12 +843,13 @@ pro.proplan = {
                 $planButton.first().text(l[23776].replace('%1', planName));
             }
 
-            $currentBox.toggleClass('offer', !discountAll && !!(offer || discountAny) && hasMultiDuration);
+            $currentBox.toggleClass('offer', !!(!discountAll && (offer || discountAny) && (hasMultiDuration || offer)));
             $singleOffer.addClass('hidden').removeClass('invisible');
 
-            const saveAmount = pro
-                .calculateSavings([currentPlan[pro.UTQA_RES_INDEX_EXTRAS].insdis.dp, months === 12
-                    ? pro.yearlyDiscountPercentage : 0]);
+            const saveAmount = pro.calculateSavings([
+                offer.dp,
+                planObj.hasYearlyDiscount && offer.dp ? pro.yearlyDiscountPercentage : 0
+            ]);
 
             const text = l.discount_save
                 .replace('%1', currentPlan[pro.UTQA_RES_INDEX_EXTRAS].insdis.dn)
@@ -879,7 +880,7 @@ pro.proplan = {
                 $singleOffer.addClass('hidden');
             }
 
-            showOldPrice = showOldPrice && hasMultiDuration;
+            showOldPrice = showOldPrice && (hasMultiDuration || offer);
 
             if (showOldPrice) {
                 $onlySection.addClass('line-through')
