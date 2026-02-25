@@ -1223,7 +1223,7 @@
             },
         ]));
         const trashIcon = 'sprite-fm-mono icon-trash-thin-outline';
-        const minusIcon = 'sprite-fm-mono icon-minus-circle';
+        const minusIcon = 'sprite-fm-mono icon-minus-circle-thin-outline';
         sections.addChild('manipulate', new MegaContextSection(menu, [
             {
                 buttonId: 'add-to-album',
