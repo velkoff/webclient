@@ -1119,8 +1119,13 @@
                     }
 
                     closeDialog();
+
+                    // when in albums view and the context menu action is called
+                    // then the album id in question is stored in selectionManager.last_selected
+                    const albumId = M.currentdirid === 'albums' ?
+                        selectionManager.last_selected : mega.gallery.getAlbumIdFromPath();
                     mega.gallery.playSlideshow(
-                        mega.gallery.getAlbumIdFromPath(),
+                        albumId,
                         true,
                         false
                     );
@@ -1199,6 +1204,26 @@
                 }
             },
         ]));
+        sections.addChild('select-thumbnail', new MegaContextSection(menu, [
+            {
+                buttonId: 'select-thumbnail',
+                text: l.set_album_cover,
+                icon: 'sprite-fm-mono icon-photo-stack-thin-outline',
+                onClick() {
+                    if (M.isInvalidUserStatus()) {
+                        return;
+                    }
+                    const { albums } = mega.gallery;
+
+                    if (albums.grid.timeline === undefined) {
+                        // selectionManager.last_selected is set when the context menu is opened over an album
+                        mBroadcaster.sendMessage('fm:albums:select-thumbnail', selectionManager.last_selected);
+                    }
+                }
+            },
+        ]));
+        const trashIcon = 'sprite-fm-mono icon-trash-thin-outline';
+        const minusIcon = 'sprite-fm-mono icon-minus-circle-thin-outline';
         sections.addChild('manipulate', new MegaContextSection(menu, [
             {
                 buttonId: 'add-to-album',
@@ -1218,6 +1243,19 @@
                         return;
                     }
                     mega.gallery.albums.openDialog('AlbumItemsDialog', mega.ui.contextMenu.selectedItems[0]);
+                }
+            },
+            {
+                buttonId: 'album-remove-items',
+                text: l.remove_from_album,
+                icon: minusIcon,
+                componentClassname: 'context-button text-icon',
+                onClick() {
+                    if (M.isInvalidUserStatus()) {
+                        return false;
+                    }
+                    closeDialog();
+                    mega.gallery.albums.requestAlbumElementsRemoval();
                 }
             },
             {
@@ -1469,7 +1507,6 @@
                 }
             },
         ]));
-        const trashIcon = 'sprite-fm-mono icon-trash-thin-outline';
         sections.addChild('delete', new MegaContextSection(menu, [
             {
                 buttonId: 'remove-item',
@@ -1922,6 +1959,11 @@
                 });
                 if (lastSection) {
                     lastSection.addClass('last');
+                    this.domNode.classList.remove('hidden', 'fade-out');
+                    if (this.hiding) {
+                        this.hiding.abort();
+                        delete this.hiding;
+                    }
                     return this.domNode;
                 }
                 return prepareOldMenu();
@@ -1930,11 +1972,21 @@
                 if (!this.ready) {
                     return;
                 }
-                sections.each(section => {
-                    section.hide();
-                    section.removeClass('last');
-                });
-                this.domNode.classList.add('hidden');
+                this.domNode.classList.add('fade-out');
+                if (!this.hiding) {
+                    // Block key controls until action has completed.
+                    this.hiding = tSleep(0.05);
+                    this.hiding.finally(() => {
+                        this.domNode.classList.add('hidden');
+                        this.domNode.classList.remove('fade-out');
+                        sections.each(section => {
+                            section.hide();
+                            section.removeClass('last');
+                        });
+                        this.selectedItems = [];
+                        delete this.hiding;
+                    });
+                }
                 const topArrow = this.domNode.querySelector('.context-top-arrow');
                 if (topArrow) {
                     topArrow.remove();
@@ -1942,7 +1994,6 @@
                 }
                 this.domNode.classList.remove('mega-height');
                 this.domNode.style.height = 'auto';
-                this.selectedItems = [];
                 const ctxSources = document.querySelectorAll('.ctx-source');
                 for (const source of ctxSources) {
                     source.classList.remove('ctx-source', 'active');

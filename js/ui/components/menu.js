@@ -29,14 +29,15 @@ class MegaMenu extends MegaOverlay {
         this.event = options.event;
         this.pos = options.pos || 'left';
 
-        // 12px space between the target element and the context menu dialog
-        this.posOffset = options.posOffset || {left: 0, top: 12};
-        this.calcPosition();
-
         // This is opened by click event.
         if (options.eventTarget) {
             this.eventTarget = options.eventTarget;
         }
+
+        // 12px space between the target element and the context menu dialog
+        this.posOffset = options.posOffset || {left: 0, top: 12};
+        this.calcPosition();
+
 
         if (!is_mobile && options.resizeHandler) {
             this.onResize = SoonFc(90, () => {
@@ -93,11 +94,15 @@ class MegaMenu extends MegaOverlay {
         // calculate the max width & height available for the context menu dialog
         const maxHeight = window.innerHeight - psaBannerHeight;
 
+        const target = this.eventTarget || this.event.currentTarget;
+        const rectSource = target.domNode || target;
+        const rect = rectSource.getBoundingClientRect();
+
         if (this.event.type === 'contextmenu' || this.pos === 'bottomRight') {
 
             if (this.pos === 'bottomRight') {
 
-                const {bottom, left} = this.event.currentTarget.domNode.getBoundingClientRect();
+                const {bottom, left} = rect;
 
                 posLeft = left + this.posOffset.left;
                 posTop = bottom + this.posOffset.top;
@@ -117,7 +122,8 @@ class MegaMenu extends MegaOverlay {
             }
         }
         else {
-            const {top, bottom, right} = this.event.currentTarget.domNode.getBoundingClientRect();
+
+            const {top, bottom, right} = rect;
 
             // calculate the position of the context menu dialog from the left & top of the target element
             posLeft = right - menuWidth + this.posOffset.left;

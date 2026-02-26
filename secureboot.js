@@ -2670,10 +2670,6 @@ else if (!browserUpdate) {
 
         jsl.push({f:'html/filerequest.html', n: 'filerequest', j:0 });
         jsl.push({f:'css/filerequest.css', n: 'filerequest_css', j:2,w:5});
-
-        if (is_mobile) {
-            jsl.push({f:'css/filerequest-mobile.css', n: 'filerequest_mobile_css', j:2, w:5});
-        }
     }
 
     // We need to keep a consistent order in loaded resources, so that if users

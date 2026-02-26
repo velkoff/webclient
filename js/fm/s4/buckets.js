@@ -76,12 +76,11 @@ lazy(s4, 'buckets', () => {
                     .then((h) => {
                         logger.assert(M.getNodeByHandle(h), `Failed creating bucket on ${this.containerId}`);
 
-                        $.selected = [h];
-                        reselect(1);
-
                         if (typeof this.callback === 'function') {
-                            this.callback(h);
+                            return this.callback(h);
                         }
+
+                        M.addSelectedNodes(h, 1);
                     })
                     .catch(tell)
                     .finally(() => {

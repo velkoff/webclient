@@ -2056,11 +2056,7 @@ lazy(mega.gallery, 'albums', () => {
 
             // Cases for errors
             switch (true) {
-                case value.length > 250:
-                    validation.err = l.album_name_too_long;
-                    break;
-                case value.trim().length && !M.isSafeName(value):
-                    validation.err = l[24708];
+                case validation.err = M.safeNameError(value, 'album', 250):
                     break;
                 case isSystemAlbumName(value):
                     validation.err = l.album_name_not_allowed;
@@ -2495,6 +2491,12 @@ lazy(mega.gallery, 'albums', () => {
                         else {
                             const { nodes, filterFn } = scope.albums.store[albumId];
 
+                            if (!filterFn) {
+                                selectedItems.push('.select-thumbnail');
+                            }
+                            if (scope.nodesAllowSlideshow(nodes)) {
+                                selectedItems.push('.play-slideshow');
+                            }
                             if (M.currentdirid !== `albums/${albumId}`) {
                                 selectedItems.push('.open-item');
                             }
@@ -4771,6 +4773,8 @@ lazy(mega.gallery, 'albums', () => {
             }
         }
     }
+
+    mBroadcaster.addListener('fm:albums:select-thumbnail', h => (new AlbumCoverDialog(h)).show());
 
     return new Albums();
 });

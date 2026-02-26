@@ -190,6 +190,7 @@ class PasswordItemForm extends MegaForm {
             title: this.formType === 'create' ? l.add_item : l.edit_password,
             contents: [this.domNode],
             showClose: true,
+            scrollOverlay: true,
             confirmClose: () => this.discard(this.isFormChanged, this.formType)
         });
 

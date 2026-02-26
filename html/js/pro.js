@@ -463,11 +463,13 @@ var pro = {
                     else {
                         anyDiscount12 = true;
                         if (matchingDiscount12 === null) {
-                            matchingDiscount12 = plan[pro.UTQA_RES_INDEX_EXTRAS].insdis;
+                            matchingDiscount12 = pro.getPlanObj(plan).correlatedPlan
+                                && plan[pro.UTQA_RES_INDEX_EXTRAS].insdis;
                         }
                         else if (matchingDiscount12
                             && (matchingDiscount12.dg !== plan[pro.UTQA_RES_INDEX_EXTRAS].insdis.dg)
-                            || (matchingDiscount12.dp !== plan[pro.UTQA_RES_INDEX_EXTRAS].insdis.dp)) {
+                            || (matchingDiscount12.dp !== plan[pro.UTQA_RES_INDEX_EXTRAS].insdis.dp)
+                            || !pro.getPlanObj(plan).correlatedPlan) {
                             matchingDiscount12 = false;
                         }
                     }
@@ -504,7 +506,7 @@ var pro = {
 
         // The amount is inverted, so ceil will round the final result down
         if (roundDown) {
-            multiplier = Math.ceil(multiplier);
+            multiplier = pro.softCeil(multiplier);
         }
 
         return (asMult ? multiplier : 100 - multiplier) / 100;
@@ -1494,6 +1496,17 @@ var pro = {
     softFloor(number) {
         'use strict';
         return Math.floor(Math.round(number * 10) / 10);
+    },
+
+    /**
+     * Rounds the number up to the nearest whole number, unless it is within 0.05 of the nearest whole number in which
+     * case it rounds down
+     * @param {number} number - The number to round up
+     * @returns {number} - The rounded number
+     */
+    softCeil(number) {
+        'use strict';
+        return Math.ceil(Math.round(number * 10) / 10);
     },
 
     getStandardisedTaxInfo(planTaxInfo, type) {

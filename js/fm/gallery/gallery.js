@@ -163,7 +163,9 @@ class MegaGallery {
     }
 
     get onpage() {
-        return this.id === M.currentCustomView.nodeID || (M.gallery && M.currentrootid === M.RootID);
+        return !M.onDeviceCenter
+            && (this.id === M.currentCustomView.nodeID
+                || M.gallery && M.currentrootid === M.RootID);
     }
 
     mainViewNodeMapper(h) {
@@ -2873,19 +2875,11 @@ mega.gallery.generateSizedThumbnails = async(keys, onLoad, onErr) => {
     const processBlob = (key, blob) => {
         webgl.readAsArrayBuffer(blob)
             .then((ab) => {
-                if (!isLocationCorrect()) {
-                    return;
-                }
-
                 ab.type = blob.type;
-
-                mega.gallery.lru.set(key, ab).then(() => {
-                    if (!isLocationCorrect()) {
-                        return;
-                    }
-
+                if (isLocationCorrect()) {
                     onLoad(key, ab);
-                });
+                }
+                return mega.gallery.lru.set(key, ab);
             })
             .catch(dump);
     };
@@ -2963,6 +2957,9 @@ mega.gallery.generateSizedThumbnails = async(keys, onLoad, onErr) => {
             )
         ) {
             // The thumbnail and preview did not qualify for conditions, so original image must be fetched
+            if (self.d) {
+                console.warn(`adjustBlobToConditions: (down)loading original for ${handle}...`);
+            }
             const original = await M.gfsfetch(handle, 0, -1).catch(dump);
 
             if (!isLocationCorrect()) {
@@ -2970,7 +2967,7 @@ mega.gallery.generateSizedThumbnails = async(keys, onLoad, onErr) => {
             }
 
             if (original) {
-                blob = await webgl.getDynamicThumbnail(original, size, workerBranch).catch(dump);
+                blob = await webgl.getDynamicThumbnail(original, {size, cIBitMap: 0}, workerBranch).catch(dump);
             }
         }
 
@@ -3015,12 +3012,7 @@ mega.gallery.generateSizedThumbnails = async(keys, onLoad, onErr) => {
         }
 
         if (!blob) {
-            const bak = new ArrayBuffer(thumbAB.byteLength);
-            new Uint8Array(bak).set(new Uint8Array(thumbAB));
-
-            if (bak.byteLength) {
-                blob = await webgl.getDynamicThumbnail(bak, size, workerBranch).catch(dump);
-            }
+            blob = await webgl.getDynamicThumbnail(thumbAB.slice(0), size, workerBranch).catch(dump);
 
             if (!blob) {
                 blob = new Blob([thumbAB], { type: 'image/webp' });

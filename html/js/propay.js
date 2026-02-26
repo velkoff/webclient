@@ -152,6 +152,12 @@ pro.propay = {
 
     },
 
+
+    /**
+     * Shows the errors on the page
+     * @param {Object | True} reasons - The reasons for the errors, or true to remove all errors
+     * @returns {boolean} - Returns true if there are errors, false otherwise
+     */
     showErrors(reasons) {
         'use strict';
 
@@ -255,7 +261,7 @@ pro.propay = {
         if (this.isNewAccount && !skipAccountDetails) {
             const {name, email, password} = this.signup.getNewAccountDetails();
 
-            const nameNeeded = !name || !this.signup.validateName(name);
+            const nameNeeded = !name;
             const emailNeeded = !email || !this.signup.validateEmail(email);
             const passwordValidity = this.signup.validatePassword(password);
             const passwordNeeded = (typeof passwordValidity === 'string')
@@ -570,6 +576,8 @@ pro.propay = {
     sendPurchaseToApi(paymentTypeId) {
         'use strict';
 
+        const startTime = performance.now();
+
         if (paymentTypeId === undefined) {
             console.error('No payment type ID provided for purchase');
             return;
@@ -823,6 +831,11 @@ pro.propay = {
                         if (shouldEndLoading.includes(pro.lastPaymentProviderId)) {
                             this.skItems.continueBtn.endLoad('purchase');
                         }
+                        eventlog(501135, JSON.stringify({
+                            gateway: pro.propay.currentGateway.gatewayName,
+                            loadingTime: Math.round(performance.now() - startTime)
+                        }));
+
                     });
                 });
             })
@@ -1719,9 +1732,16 @@ pro.propay = {
             if (this.anyPlanOfLevelDiscounted) {
                 const months = this.planObj.months;
                 const monthlyPlan = months === 1 ? this.planObj : pro.getPlanObj(this.planObj.level, 1);
-                const {taxAmount, taxAmountEur} = monthlyPlan.taxInfo;
-                localNet = ((!forceEuro && monthlyPlan.price) || monthlyPlan.priceEur) * months;
-                localTaxAmount = ((!forceEuro && taxAmount) || taxAmountEur) * months;
+                if (monthlyPlan) {
+                    const {taxAmount, taxAmountEur} = monthlyPlan.taxInfo;
+                    localNet = ((!forceEuro && monthlyPlan.price) || monthlyPlan.priceEur) * months;
+                    localTaxAmount = ((!forceEuro && taxAmount) || taxAmountEur) * months;
+                }
+                else {
+                    const {taxAmount, taxAmountEur} = this.planObj.taxInfo;
+                    localNet = ((!forceEuro && this.planObj.price) || this.planObj.priceEur);
+                    localTaxAmount = ((!forceEuro && taxAmount) || taxAmountEur);
+                }
             }
             else if (this.discountInfo) {
                 const {ltpn, etpn, ltp, etp} = this.discountInfo;
@@ -1776,7 +1796,7 @@ pro.propay = {
                     lda = monthlyPlan.taxInfo.taxedPrice * months - ldtp;
                     eda = monthlyPlan.taxInfo.taxedPriceEuro * months - edtp;
                 }
-                else {
+                else if (monthlyPlan) {
                     lda = monthlyPlan.price * months - ldtp;
                     eda = monthlyPlan.priceEuro * months - edtp;
                 }
@@ -1808,9 +1828,9 @@ pro.propay = {
 
 
                 let preTaxPrice;
-                if (this.anyPlanOfLevelDiscounted) {
-                    const months = this.planObj.months;
-                    const monthlyPlan = months === 1 ? this.planObj : pro.getPlanObj(this.planObj.level, 1);
+                const months = this.planObj.months;
+                const monthlyPlan = months === 1 ? this.planObj : pro.getPlanObj(this.planObj.level, 1);
+                if (this.anyPlanOfLevelDiscounted && monthlyPlan) {
                     preTaxPrice = monthlyPlan.getFormattedPrice('narrowSymbol', forceEuro, false, months);
                 }
                 else {
@@ -2719,6 +2739,8 @@ pro.propay = {
             const options = optionArrays[type];
 
             $('.payment-method .selected').removeClass('selected');
+
+            pro.propay.showErrors(true);
 
             if (type === 'primary') {
 

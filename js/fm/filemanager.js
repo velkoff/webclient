@@ -1145,7 +1145,14 @@ FileManager.prototype.initFileManagerUI = function() {
             if (this.active) {
                 return;
             }
-            mega.ui.secondaryNav.openNewMenu(ev);
+            if (!fmconfig.dlThroughMEGAsync || window.useMegaSync) {
+                mega.ui.secondaryNav.openNewMenu(ev);
+            }
+            else {
+                megasync.preCheck().then(() => {
+                    mega.ui.secondaryNav.openNewMenu(ev);
+                });
+            }
             this.active = true;
             return false;
         }
@@ -1896,15 +1903,9 @@ FileManager.prototype.createFolderUI = function() {
 
         var $input = $('input', $inputWrapper);
         var name = $input.val();
-        var errorMsg = '';
+        var errorMsg = M.safeNameError(name, 1, 250);
 
-        if (name.trim() === '') { // Check if enter a folder name
-            errorMsg = l.EmptyName;
-        }
-        else if (!M.isSafeName(name)) { // Check if folder name is valid
-            errorMsg = name.length > 250 ? l.LongName : l[24708];
-        }
-        else if (duplicated(name, M.currentdirid)) { // Check if folder name already exists
+        if (!errorMsg && duplicated(name, M.currentdirid)) {
             errorMsg = l[23219];
         }
 
@@ -2245,6 +2246,15 @@ FileManager.prototype.initUIKeyEvents = function() {
             if (e.keyCode !== 27) {
                 return true;
             }
+        }
+
+        // If the user has opened a context menu don't allow most actions.
+        if (mega.ui.contextMenu && (mega.ui.contextMenu.selectedItems && mega.ui.contextMenu.selectedItems.length
+            || mega.ui.contextMenu.hiding)) {
+            if (e.keyCode === 27 || e.key === 'Escape') {
+                $.hideContextMenu();
+            }
+            return false;
         }
 
         var is_transfers_or_accounts = (

@@ -345,7 +345,12 @@ lazy(mega, 'fileRequestUpload', () => {
             });
 
             this.$languageButton.eventOnClick(() => {
-                langDialog.show();
+                if (is_mobile) {
+                    mobile.languageMenu.init();
+                }
+                else {
+                    langDialog.show();
+                }
             });
 
             this.$dialogOverlay.eventOnClick((e) => {
