@@ -2,6 +2,690 @@
 "use strict";
 (self.webpackChunk_meganz_webclient = self.webpackChunk_meganz_webclient || []).push([[313],{
 
+ 6961
+(_, EXP_, REQ_) {
+
+// ESM COMPAT FLAG
+REQ_.r(EXP_);
+
+// EXPORTS
+REQ_.d(EXP_, {
+  "default": () =>  cloudBrowserModalDialog
+});
+
+// EXTERNAL MODULE: external "React"
+const external_React_ = REQ_(1594);
+const REaCt = REQ_.n(external_React_);
+// EXTERNAL MODULE: ./js/ui/modalDialogs.jsx + 1 modules
+const modalDialogs = REQ_(8120);
+;// ./js/ui/jsx/fm/viewModeSelector.jsx
+
+const VIEW_MODE = {
+  'GRID': 1,
+  'LIST': undefined
+};
+const ViewModeSelector = ({
+  viewMode,
+  onChange
+}) => {
+  return JSX_("div", {
+    className: "chat-fm-view-mode-selector"
+  }, JSX_("i", {
+    className: `
+                    sprite-fm-mono
+                    icon-view-medium-list
+                    ${viewMode ? '' : 'active'}
+                `,
+    title: l[5553],
+    onClick: () => onChange == null ? void 0 : onChange(VIEW_MODE.LIST)
+  }), JSX_("i", {
+    className: `
+                    sprite-fm-mono
+                    icon-view-grid
+                    ${viewMode ? " active" : ""}
+                `,
+    title: l[5552],
+    onClick: () => onChange == null ? void 0 : onChange(VIEW_MODE.GRID)
+  }));
+};
+ const viewModeSelector = ViewModeSelector;
+// EXTERNAL MODULE: ./js/chat/mixins.js
+const mixins = REQ_(8264);
+;// ./js/ui/jsx/fm/breadcrumbs.jsx
+
+
+class Breadcrumbs extends mixins.w9 {
+  constructor(props) {
+    super(props);
+    this.domRef = REaCt().createRef();
+    this.state = {
+      'breadcrumbDropdownVisible': false
+    };
+    this.onGlobalClickHandler = this.onGlobalClickHandler.bind(this);
+    this.onBreadcrumbNodeClick = this.onBreadcrumbNodeClick.bind(this);
+  }
+  getBreadcrumbNodeText(nodeId, prevNodeId) {
+    const backupsId = M.BackupsId || 'backups';
+    switch (nodeId) {
+      case M.RootID:
+        return l[164];
+      case M.RubbishID:
+        return l[167];
+      case backupsId:
+        return l.restricted_folder_button;
+      case 'shares':
+        return prevNodeId && M.d[prevNodeId] ? M.d[prevNodeId].m : l[5589];
+      default:
+        return M.d[nodeId] && M.d[nodeId].name;
+    }
+  }
+  getBreadcrumbDropdownContents(items) {
+    const contents = [];
+    for (const item of items) {
+      if (!item.name) {
+        continue;
+      }
+      contents.push(JSX_("a", {
+        className: "crumb-drop-link",
+        key: `drop_link_${  item.nodeId}`,
+        onClick: e => this.onBreadcrumbNodeClick(e, item.nodeId)
+      }, JSX_("i", {
+        className: `sprite-fm-mono icon24 ${{
+          'cloud-drive': 'icon-cloud',
+          'backups': 'icon-database-filled',
+          's4-object-storage': 'icon-bucket-triangle-thin-solid',
+          's4-buckets': 'icon-bucket-outline'
+        }[item.type] || 'folder'}`
+      }), JSX_("span", null, item.name)));
+    }
+    return contents;
+  }
+  onBreadcrumbNodeClick(e, nodeId) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (this._clickToHideListener) {
+      this.removeGlobalClickHandler();
+      this.setState({
+        'breadcrumbDropdownVisible': false
+      });
+    }
+    this.props.onNodeClick(nodeId);
+  }
+  customIsEventuallyVisible() {
+    return true;
+  }
+  onGlobalClickHandler(e) {
+    let _this$domRef;
+    const node = (_this$domRef = this.domRef) == null ? void 0 : _this$domRef.current;
+    if (node.contains(e.target) || node === e.target) {
+      return;
+    }
+    if (this._clickToHideListener) {
+      this.removeGlobalClickHandler();
+    }
+    this.setState({
+      'breadcrumbDropdownVisible': false
+    });
+  }
+  removeGlobalClickHandler() {
+    this._clickToHideListener = false;
+    document.body.removeEventListener("click", this.onGlobalClickHandler);
+  }
+  componentDidUpdate() {
+    super.componentDidUpdate();
+    if (this.state.breadcrumbDropdownVisible) {
+      if (!this._clickToHideListener) {
+        this._clickToHideListener = true;
+        document.body.addEventListener("click", this.onGlobalClickHandler);
+      }
+    } else if (this._clickToHideListener) {
+      this.removeGlobalClickHandler();
+    }
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    this.removeGlobalClickHandler();
+  }
+  render() {
+    const {
+      className,
+      highlighted,
+      currentlyViewedEntry,
+      isSearch,
+      path
+    } = this.props;
+    const breadcrumb = [];
+    const extraPathItems = [];
+    let breadcrumbDropdownContents = [];
+    const entryId = isSearch ? highlighted[0] : currentlyViewedEntry;
+    if (entryId !== undefined) {
+      (path || M.getPath(entryId)).forEach((nodeId, k, path) => {
+        let breadcrumbClasses = '';
+        let folderType = 'folder';
+        if (nodeId === M.RootID) {
+          breadcrumbClasses += " cloud-drive";
+        } else {
+          breadcrumbClasses += " folder";
+        }
+        if (nodeId.length === 11 && M.u[nodeId]) {
+          return;
+        }
+        if (nodeId === "shares") {
+          breadcrumbClasses += " shared-with-me";
+        }
+        const prevNodeId = path[k - 1];
+        let nodeName = this.getBreadcrumbNodeText(nodeId, prevNodeId);
+        if ('utils' in s4) {
+          const data = s4.utils.getBreadcrumbsData(nodeId);
+          if (data) {
+            ({
+              type: folderType,
+              localeName: nodeName
+            } = data);
+          }
+        }
+        if (!nodeName) {
+          return;
+        }
+        ((nodeId, k) => {
+          if (k < 4) {
+            breadcrumb.unshift(JSX_("a", {
+              className: `fm-breadcrumbs contains-directories ${  breadcrumbClasses}`,
+              key: nodeId,
+              onClick: e => this.onBreadcrumbNodeClick(e, nodeId)
+            }, JSX_("span", {
+              className: `right-arrow-bg simpletip`,
+              "data-simpletip": nodeName
+            }, JSX_("span", {
+              className: "selectable-txt"
+            }, nodeName)), k !== 0 && JSX_("i", {
+              className: "next-arrow sprite-fm-mono icon-arrow-right icon16"
+            })));
+          } else {
+            folderType = nodeId === M.RootID ? 'cloud-drive' : folderType;
+            if (M.BackupsId && nodeId === M.BackupsId) {
+              folderType = 'backups';
+            }
+            extraPathItems.push({
+              name: nodeName,
+              type: folderType,
+              nodeId
+            });
+          }
+        })(nodeId, k);
+      });
+      if (extraPathItems.length > 0) {
+        breadcrumbDropdownContents = this.getBreadcrumbDropdownContents(extraPathItems);
+      }
+    }
+    return JSX_("div", {
+      ref: this.domRef,
+      className: `
+                    fm-breadcrumbs-wrapper
+                    ${className || ''}
+                `
+    }, JSX_("div", {
+      className: "fm-breadcrumbs-block"
+    }, breadcrumbDropdownContents.length ? JSX_(REaCt().Fragment, null, JSX_("div", {
+      className: "crumb-overflow-link"
+    }, JSX_("a", {
+      className: "breadcrumb-dropdown-link dropdown",
+      onClick: () => {
+        this.setState({
+          breadcrumbDropdownVisible: !this.state.breadcrumbDropdownVisible
+        });
+      }
+    }, JSX_("i", {
+      className: "menu-icon sprite-fm-mono icon-options icon16"
+    })), JSX_("i", {
+      className: "sprite-fm-mono icon-arrow-right icon16"
+    })), breadcrumb) : breadcrumb), breadcrumbDropdownContents.length ? JSX_("div", {
+      className: this.state.breadcrumbDropdownVisible ? 'breadcrumb-dropdown active' : 'breadcrumb-dropdown'
+    }, breadcrumbDropdownContents) : '');
+  }
+}
+// EXTERNAL MODULE: ./js/ui/jsx/fm/fmView.jsx + 10 modules
+const fmView = REQ_(872);
+;// ./js/ui/cloudBrowserModalDialog.jsx
+
+
+
+
+
+const MIN_SEARCH_LENGTH = 2;
+class CloudBrowserDialog extends modalDialogs.A.SafeShowDialogController {
+  static getFilterFunction(customFilterFn) {
+    return tryCatch(n => {
+      if (n.s4 && n.p === M.RootID && M.getS4NodeType(n) === 'container') {
+        return false;
+      }
+      if (!n.name || missingkeys[n.h] || M.getNodeShare(n).down) {
+        return false;
+      }
+      return !customFilterFn || customFilterFn(n);
+    });
+  }
+  constructor(props) {
+    super(props);
+    this.domRef = REaCt().createRef();
+    this.dialogName = 'attach-cloud-dialog';
+    this.state = {
+      'isActiveSearch': false,
+      'selected': [],
+      'highlighted': [],
+      'currentlyViewedEntry': M.RootID,
+      'selectedTab': M.RootID,
+      'searchValue': '',
+      'searchText': ''
+    };
+    this.onAttachClicked = this.onAttachClicked.bind(this);
+    this.onClearSearchIconClick = this.onClearSearchIconClick.bind(this);
+    this.onPopupDidMount = this.onPopupDidMount.bind(this);
+    this.onSearchChange = this.onSearchChange.bind(this);
+    this.onSearchIconClick = this.onSearchIconClick.bind(this);
+    this.onSelected = this.onSelected.bind(this);
+    this.onHighlighted = this.onHighlighted.bind(this);
+    this.handleTabChange = this.handleTabChange.bind(this);
+    this.onViewModeSwitch = this.onViewModeSwitch.bind(this);
+    this.onBreadcrumbNodeClick = this.onBreadcrumbNodeClick.bind(this);
+    this.onExpand = this.onExpand.bind(this);
+  }
+  onViewModeSwitch(newMode) {
+    const currentViewMode = mega.config.get('cbvm') | 0;
+    if (newMode === currentViewMode) {
+      return;
+    }
+    mega.config.set('cbvm', newMode);
+    this.forceUpdate();
+  }
+  getHeaderButtonsClass() {
+    const classes = ['fm-header-buttons'];
+    if (this.state.isActiveSearch) {
+      classes.push('active-search');
+    }
+    return classes.join(' ');
+  }
+  getSearchIconClass() {
+    const classes = ['sprite-fm-mono', 'icon-preview-reveal'];
+    if (this.state.isActiveSearch && this.state.searchText.length > 0) {
+      classes.push('disabled');
+    }
+    return classes.join(' ');
+  }
+  onSearchIconClick() {
+    const isActiveSearch = !this.state.isActiveSearch;
+    if (isActiveSearch) {
+      this.searchInput.focus();
+      this.setState({
+        isActiveSearch
+      });
+    }
+  }
+  onClearSearchIconClick() {
+    this.setState({
+      'isActiveSearch': false,
+      'searchValue': '',
+      'searchText': '',
+      'currentlyViewedEntry': this.state.selectedTab
+    });
+  }
+  handleTabChange(selectedTab) {
+    const s4Cn = selectedTab === 's4' && M.tree.s4 && Object.keys(M.tree.s4);
+    this.clearSelectionAndHighlight();
+    this.setState({
+      selectedTab,
+      currentlyViewedEntry: s4Cn && s4Cn.length === 1 ? s4Cn[0] : selectedTab,
+      searchValue: '',
+      searchText: '',
+      isLoading: false
+    });
+  }
+  onSearchBlur() {
+    if (this.state.searchText === '') {
+      this.setState({
+        'isActiveSearch': false
+      });
+    }
+  }
+  onSearchChange(e) {
+    const searchValue = e.target.value;
+    const newState = {
+      searchText: searchValue,
+      nodeLoading: searchValue.length >= MIN_SEARCH_LENGTH
+    };
+    if (searchValue && searchValue.length >= MIN_SEARCH_LENGTH) {
+      this.setState(newState);
+      delay('cbd:search-proc', this.searchProc.bind(this), 500);
+      return;
+    }
+    if (this.state.currentlyViewedEntry === 'search' && (!searchValue || searchValue.length < MIN_SEARCH_LENGTH)) {
+      newState.currentlyViewedEntry = this.state.selectedTab;
+      newState.searchValue = undefined;
+    }
+    this.setState(newState);
+    this.clearSelectionAndHighlight();
+  }
+  searchProc() {
+    const {
+      searchText
+    } = this.state;
+    const newState = {
+      nodeLoading: true
+    };
+    if (searchText && searchText.length >= MIN_SEARCH_LENGTH) {
+      this.setState(newState);
+      M.fmSearchNodes(searchText).then(() => {
+        newState.nodeLoading = false;
+        newState.searchValue = searchText;
+        newState.currentlyViewedEntry = 'search';
+        this.setState(newState);
+        this.clearSelectionAndHighlight();
+      });
+    }
+  }
+  onSelected(nodes) {
+    this.setState({
+      'selected': nodes
+    });
+    this.props.onSelected(nodes);
+  }
+  onHighlighted(nodes) {
+    this.setState({
+      'highlighted': nodes
+    });
+    if (this.props.onHighlighted) {
+      this.props.onHighlighted(nodes);
+    }
+  }
+  clearSelectionAndHighlight() {
+    this.onSelected([]);
+    this.onHighlighted([]);
+    if (selectionManager) {
+      selectionManager.clear_selection();
+    }
+  }
+  onPopupDidMount(elem) {
+    this.domNode = elem;
+  }
+  onAttachClicked() {
+    this.props.onAttachClicked();
+  }
+  onBreadcrumbNodeClick(nodeId) {
+    if (nodeId === 'shares' || nodeId === 's4') {
+      return this.handleTabChange(nodeId);
+    }
+    if (M.getNodeByHandle(nodeId).t) {
+      const nodeRoot = M.getNodeRoot(nodeId);
+      this.setState({
+        selectedTab: nodeRoot === "contacts" ? 'shares' : nodeRoot,
+        currentlyViewedEntry: nodeId,
+        selected: [],
+        searchValue: '',
+        searchText: ''
+      });
+    }
+  }
+  onExpand(nodeId) {
+    this.setState({
+      'currentlyViewedEntry': nodeId,
+      'searchValue': '',
+      'searchText': '',
+      'selected': [],
+      'highlighted': []
+    });
+  }
+  render() {
+    assert(this.dialogBecameVisible);
+    const self = this;
+    const viewMode = mega.config.get('cbvm') | 0;
+    const classes = `add-from-cloud ${self.props.className} dialog-template-tool `;
+    let folderIsHighlighted = false;
+    let share = false;
+    let isS4Cn = false;
+    const isSearch = this.state.currentlyViewedEntry === 'search';
+    const entryId = isSearch ? self.state.highlighted[0] : self.state.currentlyViewedEntry;
+    const filterFn = CloudBrowserDialog.getFilterFunction(this.props.customFilterFn);
+    const isIncomingShare = M.getNodeRoot(entryId) === "shares";
+    this.state.highlighted.forEach(nodeId => {
+      if (M.getNodeByHandle(nodeId).t) {
+        folderIsHighlighted = true;
+        if (M.tree.s4 && M.tree.s4[nodeId]) {
+          isS4Cn = true;
+        }
+      }
+      share = M.getNodeShare(nodeId);
+    });
+    const buttons = [{
+      "label": this.props.cancelLabel,
+      "key": "cancel",
+      "onClick": e => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (this.props.onCancel) {
+          this.props.onCancel(this);
+        }
+        this.props.onClose(this);
+      }
+    }];
+    if (folderIsHighlighted) {
+      const {
+        highlighted
+      } = this.state;
+      const className = `${share && share.down ? 'disabled' : ''}`;
+      const highlightedNode = highlighted && highlighted.length && highlighted[0];
+      const allowAttachFolders = this.props.allowAttachFolders && !isIncomingShare && !isS4Cn;
+      buttons.push({
+        "label": this.props.openLabel,
+        "key": "select",
+        className: `positive ${className} ${highlighted.length > 1 ? 'disabled' : ''}`,
+        onClick: e => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (highlighted.length > 1) {
+            return;
+          }
+          this.setState({
+            currentlyViewedEntry: highlightedNode
+          });
+          this.clearSelectionAndHighlight();
+          this.setState({
+            selected: [],
+            searchValue: '',
+            searchText: '',
+            highlighted: []
+          });
+        }
+      }, allowAttachFolders ? {
+        "label": l[8023],
+        "key": "attach",
+        className: `positive ${  className}`,
+        onClick: () => {
+          this.props.onClose();
+          onIdle(() => {
+            const createPublicLink = h => {
+              M.createPublicLink(h).then(({
+                link
+              }) => this.props.room.sendMessage(link));
+            };
+            const frs = [];
+            const files = [];
+            for (let i = 0; i < highlighted.length; i++) {
+              const node = M.getNodeByHandle(highlighted[i]);
+              if (node && M.isFileNode(node)) {
+                if (!M.getNodeShare(node).down) {
+                  files.push(node);
+                }
+              } else if (mega.fileRequestCommon.storage.isDropExist(highlighted[i]).length) {
+                frs.push(highlighted[i]);
+              } else {
+                createPublicLink(highlighted[i]);
+              }
+            }
+            if (files.length) {
+              this.props.onSelected(files);
+              this.props.onAttachClicked();
+            }
+            if (frs.length) {
+              const fldName = frs.length > 1 ? l[17626] : l[17403].replace('%1', escapeHTML(M.getNameByHandle(frs[0])) || l[1049]);
+              msgDialog('confirmation', l[1003], fldName, l[18229], e => {
+                if (e) {
+                  mega.fileRequest.removeList(frs).then(() => {
+                    for (let i = 0; i < frs.length; i++) {
+                      createPublicLink(frs[i]);
+                    }
+                  }).catch(dump);
+                }
+              });
+            }
+          });
+        }
+      } : null);
+    }
+    if (!folderIsHighlighted || this.props.folderSelectable && (!this.props.noShareFolderAttach || !(isIncomingShare && folderIsHighlighted))) {
+      buttons.push({
+        "label": this.props.selectLabel,
+        "key": "select",
+        "className": `positive ${  this.state.selected.length === 0 || share && share.down || isS4Cn ? "disabled" : ""}`,
+        "onClick": e => {
+          if (this.state.selected.length > 0) {
+            this.props.onSelected(this.state.selected);
+            this.props.onAttachClicked();
+          }
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      });
+    }
+    let clearSearchBtn = null;
+    if (self.state.searchText.length >= MIN_SEARCH_LENGTH) {
+      clearSearchBtn = JSX_("i", {
+        className: "sprite-fm-mono icon-close-component",
+        onClick: () => {
+          self.onClearSearchIconClick();
+        }
+      });
+    }
+    const breadcrumbPath = M.getPath(entryId);
+    return JSX_(modalDialogs.A.ModalDialog, {
+      title: self.props.title || l[8011],
+      className: classes + (isSearch && this.state.selected.length > 0 ? 'has-breadcrumbs-bottom' : '') + this.dialogName,
+      onClose: () => {
+        self.props.onClose(self);
+      },
+      dialogName: "add-from-cloud-dialog dialog-template-tool",
+      popupDidMount: self.onPopupDidMount,
+      buttons
+    }, JSX_("section", {
+      ref: this.domRef,
+      className: "content"
+    }, JSX_("div", {
+      className: "content-block"
+    }, JSX_("div", {
+      className: "fm-dialog-tabs"
+    }, JSX_("div", {
+      className: `
+                                    fm-dialog-tab cloud
+                                    ${self.state.selectedTab === M.RootID ? 'active' : ''}
+                                `,
+      onClick: () => self.handleTabChange(M.RootID)
+    }, l[164]), JSX_("div", {
+      className: `
+                                    fm-dialog-tab incoming
+                                    ${self.state.selectedTab === 'shares' ? 'active' : ''}
+                                `,
+      onClick: () => self.handleTabChange('shares')
+    }, l[5542]), JSX_("div", {
+      className: `
+                                    fm-dialog-tab s4
+                                    ${self.state.selectedTab === 's4' ? 'active' : ''}
+                                    ${u_attr.s4 ? '' : 'hidden'}
+                                `,
+      onClick: () => self.handleTabChange('s4')
+    }, l.obj_storage), JSX_("div", {
+      className: "clear"
+    })), JSX_("div", {
+      className: "fm-picker-header"
+    }, JSX_("div", {
+      className: self.getHeaderButtonsClass()
+    }, JSX_(viewModeSelector, {
+      viewMode,
+      onChange: this.onViewModeSwitch
+    }), JSX_("div", {
+      className: "fm-files-search"
+    }, JSX_("i", {
+      className: self.getSearchIconClass(),
+      onClick: () => {
+        self.onSearchIconClick();
+      }
+    }), JSX_("input", {
+      ref: input => {
+        this.searchInput = input;
+      },
+      type: "search",
+      placeholder: l[102],
+      value: self.state.searchText,
+      onChange: self.onSearchChange,
+      onBlur: () => {
+        self.onSearchBlur();
+      }
+    }), clearSearchBtn), JSX_("div", {
+      className: "clear"
+    })), !isSearch && JSX_(Breadcrumbs, {
+      className: "add-from-cloud",
+      nodeId: entryId,
+      path: breadcrumbPath,
+      onNodeClick: this.onBreadcrumbNodeClick,
+      isSearch,
+      highlighted: this.state.highlighted,
+      currentlyViewedEntry: this.state.currentlyViewedEntry
+    })), JSX_(fmView.A, {
+      nodeLoading: this.state.nodeLoading,
+      sortFoldersFirst: true,
+      currentlyViewedEntry: this.state.currentlyViewedEntry,
+      customFilterFn: filterFn,
+      folderSelectNotAllowed: this.props.folderSelectNotAllowed,
+      folderSelectable: this.props.folderSelectable,
+      onSelected: this.onSelected,
+      onHighlighted: this.onHighlighted,
+      onAttachClicked: this.onAttachClicked,
+      initialSelected: this.state.selected,
+      initialHighlighted: this.state.highlighted,
+      searchValue: this.state.searchValue,
+      minSearchLength: MIN_SEARCH_LENGTH,
+      onExpand: this.onExpand,
+      viewMode,
+      initialSortBy: ['name', 'asc'],
+      fmConfigSortEnabled: true,
+      fmConfigSortId: "cbd"
+    }), isSearch && breadcrumbPath.length > 0 && JSX_("div", {
+      className: `
+                            fm-breadcrumbs-wrapper add-from-cloud breadcrumbs-bottom
+                        `
+    }, JSX_("div", {
+      className: "fm-breadcrumbs-block"
+    }, JSX_(Breadcrumbs, {
+      nodeId: entryId,
+      path: breadcrumbPath,
+      onNodeClick: this.onBreadcrumbNodeClick,
+      isSearch,
+      highlighted: this.state.highlighted,
+      currentlyViewedEntry: this.state.currentlyViewedEntry
+    }), JSX_("div", {
+      className: "clear"
+    }))))));
+  }
+}
+CloudBrowserDialog.defaultProps = {
+  'selectLabel': l[8023],
+  'openLabel': l[1710],
+  'cancelLabel': l.msg_dlg_cancel,
+  'hideable': true,
+  'className': ''
+};
+ const cloudBrowserModalDialog = CloudBrowserDialog;
+
+ },
+
  872
 (_, EXP_, REQ_) {
 
@@ -1689,6 +2373,48 @@ class FMView extends mixins.w9 {
 
  },
 
+ 6794
+(_, EXP_, REQ_) {
+
+ REQ_.d(EXP_, {
+   $: () =>  ColumnFavIcon
+ });
+ const react0__ = REQ_(1594);
+ const react0___default = REQ_.n(react0__);
+ const _genericNodePropsComponent1__ = REQ_(4285);
+
+
+class ColumnFavIcon extends _genericNodePropsComponent1__ .B {
+  render() {
+    const {
+      nodeAdapter
+    } = this.props;
+    const {
+      node
+    } = nodeAdapter.props;
+    const isFavouritable = node.r === 2;
+    return JSX_("td", {
+      megatype: ColumnFavIcon.megatype,
+      className: ColumnFavIcon.megatype
+    }, JSX_("span", {
+      className: `grid-status-icon sprite-fm-mono ${  missingkeys[node.h] ? " icon-info" : nodeAdapter.nodeProps.fav ? " icon-favourite-filled" : " icon-dot"  }${!isFavouritable && " disabled" || ""}`,
+      onClick: () => {
+        if (isFavouritable) {
+          M.favourite([node.h], !node.fav);
+        }
+      }
+    }));
+  }
+}
+ColumnFavIcon.sortable = true;
+ColumnFavIcon.id = "fav";
+ColumnFavIcon.label = "";
+ColumnFavIcon.icon = "icon-favourite-filled";
+ColumnFavIcon.megatype = "fav";
+ColumnFavIcon.headerClassName = "grid-first-th fav";
+
+ },
+
  4285
 (_, EXP_, REQ_) {
 
@@ -1911,732 +2637,6 @@ class GenericNodePropsComponent extends mixins.w9 {
     (_this$nodeProps2 = this.nodeProps) == null || _this$nodeProps2.unuse(this.changeListener);
   }
 }
-
- },
-
- 6794
-(_, EXP_, REQ_) {
-
- REQ_.d(EXP_, {
-   $: () =>  ColumnFavIcon
- });
- const react0__ = REQ_(1594);
- const react0___default = REQ_.n(react0__);
- const _genericNodePropsComponent1__ = REQ_(4285);
-
-
-class ColumnFavIcon extends _genericNodePropsComponent1__ .B {
-  render() {
-    const {
-      nodeAdapter
-    } = this.props;
-    const {
-      node
-    } = nodeAdapter.props;
-    const isFavouritable = node.r === 2;
-    return JSX_("td", {
-      megatype: ColumnFavIcon.megatype,
-      className: ColumnFavIcon.megatype
-    }, JSX_("span", {
-      className: `grid-status-icon sprite-fm-mono ${  missingkeys[node.h] ? " icon-info" : nodeAdapter.nodeProps.fav ? " icon-favourite-filled" : " icon-dot"  }${!isFavouritable && " disabled" || ""}`,
-      onClick: () => {
-        if (isFavouritable) {
-          M.favourite([node.h], !node.fav);
-        }
-      }
-    }));
-  }
-}
-ColumnFavIcon.sortable = true;
-ColumnFavIcon.id = "fav";
-ColumnFavIcon.label = "";
-ColumnFavIcon.icon = "icon-favourite-filled";
-ColumnFavIcon.megatype = "fav";
-ColumnFavIcon.headerClassName = "grid-first-th fav";
-
- },
-
- 6961
-(_, EXP_, REQ_) {
-
-// ESM COMPAT FLAG
-REQ_.r(EXP_);
-
-// EXPORTS
-REQ_.d(EXP_, {
-  "default": () =>  cloudBrowserModalDialog
-});
-
-// EXTERNAL MODULE: external "React"
-const external_React_ = REQ_(1594);
-const REaCt = REQ_.n(external_React_);
-// EXTERNAL MODULE: ./js/ui/modalDialogs.jsx + 1 modules
-const modalDialogs = REQ_(8120);
-;// ./js/ui/jsx/fm/viewModeSelector.jsx
-
-const VIEW_MODE = {
-  'GRID': 1,
-  'LIST': undefined
-};
-const ViewModeSelector = ({
-  viewMode,
-  onChange
-}) => {
-  return JSX_("div", {
-    className: "chat-fm-view-mode-selector"
-  }, JSX_("i", {
-    className: `
-                    sprite-fm-mono
-                    icon-view-medium-list
-                    ${viewMode ? '' : 'active'}
-                `,
-    title: l[5553],
-    onClick: () => onChange == null ? void 0 : onChange(VIEW_MODE.LIST)
-  }), JSX_("i", {
-    className: `
-                    sprite-fm-mono
-                    icon-view-grid
-                    ${viewMode ? " active" : ""}
-                `,
-    title: l[5552],
-    onClick: () => onChange == null ? void 0 : onChange(VIEW_MODE.GRID)
-  }));
-};
- const viewModeSelector = ViewModeSelector;
-// EXTERNAL MODULE: ./js/chat/mixins.js
-const mixins = REQ_(8264);
-;// ./js/ui/jsx/fm/breadcrumbs.jsx
-
-
-class Breadcrumbs extends mixins.w9 {
-  constructor(props) {
-    super(props);
-    this.domRef = REaCt().createRef();
-    this.state = {
-      'breadcrumbDropdownVisible': false
-    };
-    this.onGlobalClickHandler = this.onGlobalClickHandler.bind(this);
-    this.onBreadcrumbNodeClick = this.onBreadcrumbNodeClick.bind(this);
-  }
-  getBreadcrumbNodeText(nodeId, prevNodeId) {
-    const backupsId = M.BackupsId || 'backups';
-    switch (nodeId) {
-      case M.RootID:
-        return l[164];
-      case M.RubbishID:
-        return l[167];
-      case backupsId:
-        return l.restricted_folder_button;
-      case 'shares':
-        return prevNodeId && M.d[prevNodeId] ? M.d[prevNodeId].m : l[5589];
-      default:
-        return M.d[nodeId] && M.d[nodeId].name;
-    }
-  }
-  getBreadcrumbDropdownContents(items) {
-    const contents = [];
-    for (const item of items) {
-      if (!item.name) {
-        continue;
-      }
-      contents.push(JSX_("a", {
-        className: "crumb-drop-link",
-        key: `drop_link_${  item.nodeId}`,
-        onClick: e => this.onBreadcrumbNodeClick(e, item.nodeId)
-      }, JSX_("i", {
-        className: `sprite-fm-mono icon24 ${{
-          'cloud-drive': 'icon-cloud',
-          'backups': 'icon-database-filled',
-          's4-object-storage': 'icon-bucket-triangle-thin-solid',
-          's4-buckets': 'icon-bucket-outline'
-        }[item.type] || 'folder'}`
-      }), JSX_("span", null, item.name)));
-    }
-    return contents;
-  }
-  onBreadcrumbNodeClick(e, nodeId) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (this._clickToHideListener) {
-      this.removeGlobalClickHandler();
-      this.setState({
-        'breadcrumbDropdownVisible': false
-      });
-    }
-    this.props.onNodeClick(nodeId);
-  }
-  customIsEventuallyVisible() {
-    return true;
-  }
-  onGlobalClickHandler(e) {
-    let _this$domRef;
-    const node = (_this$domRef = this.domRef) == null ? void 0 : _this$domRef.current;
-    if (node.contains(e.target) || node === e.target) {
-      return;
-    }
-    if (this._clickToHideListener) {
-      this.removeGlobalClickHandler();
-    }
-    this.setState({
-      'breadcrumbDropdownVisible': false
-    });
-  }
-  removeGlobalClickHandler() {
-    this._clickToHideListener = false;
-    document.body.removeEventListener("click", this.onGlobalClickHandler);
-  }
-  componentDidUpdate() {
-    super.componentDidUpdate();
-    if (this.state.breadcrumbDropdownVisible) {
-      if (!this._clickToHideListener) {
-        this._clickToHideListener = true;
-        document.body.addEventListener("click", this.onGlobalClickHandler);
-      }
-    } else if (this._clickToHideListener) {
-      this.removeGlobalClickHandler();
-    }
-  }
-  componentWillUnmount() {
-    super.componentWillUnmount();
-    this.removeGlobalClickHandler();
-  }
-  render() {
-    const {
-      className,
-      highlighted,
-      currentlyViewedEntry,
-      isSearch,
-      path
-    } = this.props;
-    const breadcrumb = [];
-    const extraPathItems = [];
-    let breadcrumbDropdownContents = [];
-    const entryId = isSearch ? highlighted[0] : currentlyViewedEntry;
-    if (entryId !== undefined) {
-      (path || M.getPath(entryId)).forEach((nodeId, k, path) => {
-        let breadcrumbClasses = '';
-        let folderType = 'folder';
-        if (nodeId === M.RootID) {
-          breadcrumbClasses += " cloud-drive";
-        } else {
-          breadcrumbClasses += " folder";
-        }
-        if (nodeId.length === 11 && M.u[nodeId]) {
-          return;
-        }
-        if (nodeId === "shares") {
-          breadcrumbClasses += " shared-with-me";
-        }
-        const prevNodeId = path[k - 1];
-        let nodeName = this.getBreadcrumbNodeText(nodeId, prevNodeId);
-        if ('utils' in s4) {
-          const data = s4.utils.getBreadcrumbsData(nodeId);
-          if (data) {
-            ({
-              type: folderType,
-              localeName: nodeName
-            } = data);
-          }
-        }
-        if (!nodeName) {
-          return;
-        }
-        ((nodeId, k) => {
-          if (k < 4) {
-            breadcrumb.unshift(JSX_("a", {
-              className: `fm-breadcrumbs contains-directories ${  breadcrumbClasses}`,
-              key: nodeId,
-              onClick: e => this.onBreadcrumbNodeClick(e, nodeId)
-            }, JSX_("span", {
-              className: `right-arrow-bg simpletip`,
-              "data-simpletip": nodeName
-            }, JSX_("span", {
-              className: "selectable-txt"
-            }, nodeName)), k !== 0 && JSX_("i", {
-              className: "next-arrow sprite-fm-mono icon-arrow-right icon16"
-            })));
-          } else {
-            folderType = nodeId === M.RootID ? 'cloud-drive' : folderType;
-            if (M.BackupsId && nodeId === M.BackupsId) {
-              folderType = 'backups';
-            }
-            extraPathItems.push({
-              name: nodeName,
-              type: folderType,
-              nodeId
-            });
-          }
-        })(nodeId, k);
-      });
-      if (extraPathItems.length > 0) {
-        breadcrumbDropdownContents = this.getBreadcrumbDropdownContents(extraPathItems);
-      }
-    }
-    return JSX_("div", {
-      ref: this.domRef,
-      className: `
-                    fm-breadcrumbs-wrapper
-                    ${className || ''}
-                `
-    }, JSX_("div", {
-      className: "fm-breadcrumbs-block"
-    }, breadcrumbDropdownContents.length ? JSX_(REaCt().Fragment, null, JSX_("div", {
-      className: "crumb-overflow-link"
-    }, JSX_("a", {
-      className: "breadcrumb-dropdown-link dropdown",
-      onClick: () => {
-        this.setState({
-          breadcrumbDropdownVisible: !this.state.breadcrumbDropdownVisible
-        });
-      }
-    }, JSX_("i", {
-      className: "menu-icon sprite-fm-mono icon-options icon16"
-    })), JSX_("i", {
-      className: "sprite-fm-mono icon-arrow-right icon16"
-    })), breadcrumb) : breadcrumb), breadcrumbDropdownContents.length ? JSX_("div", {
-      className: this.state.breadcrumbDropdownVisible ? 'breadcrumb-dropdown active' : 'breadcrumb-dropdown'
-    }, breadcrumbDropdownContents) : '');
-  }
-}
-// EXTERNAL MODULE: ./js/ui/jsx/fm/fmView.jsx + 10 modules
-const fmView = REQ_(872);
-;// ./js/ui/cloudBrowserModalDialog.jsx
-
-
-
-
-
-const MIN_SEARCH_LENGTH = 2;
-class CloudBrowserDialog extends modalDialogs.A.SafeShowDialogController {
-  static getFilterFunction(customFilterFn) {
-    return tryCatch(n => {
-      if (n.s4 && n.p === M.RootID && M.getS4NodeType(n) === 'container') {
-        return false;
-      }
-      if (!n.name || missingkeys[n.h] || M.getNodeShare(n).down) {
-        return false;
-      }
-      return !customFilterFn || customFilterFn(n);
-    });
-  }
-  constructor(props) {
-    super(props);
-    this.domRef = REaCt().createRef();
-    this.dialogName = 'attach-cloud-dialog';
-    this.state = {
-      'isActiveSearch': false,
-      'selected': [],
-      'highlighted': [],
-      'currentlyViewedEntry': M.RootID,
-      'selectedTab': M.RootID,
-      'searchValue': '',
-      'searchText': ''
-    };
-    this.onAttachClicked = this.onAttachClicked.bind(this);
-    this.onClearSearchIconClick = this.onClearSearchIconClick.bind(this);
-    this.onPopupDidMount = this.onPopupDidMount.bind(this);
-    this.onSearchChange = this.onSearchChange.bind(this);
-    this.onSearchIconClick = this.onSearchIconClick.bind(this);
-    this.onSelected = this.onSelected.bind(this);
-    this.onHighlighted = this.onHighlighted.bind(this);
-    this.handleTabChange = this.handleTabChange.bind(this);
-    this.onViewModeSwitch = this.onViewModeSwitch.bind(this);
-    this.onBreadcrumbNodeClick = this.onBreadcrumbNodeClick.bind(this);
-    this.onExpand = this.onExpand.bind(this);
-  }
-  onViewModeSwitch(newMode) {
-    const currentViewMode = mega.config.get('cbvm') | 0;
-    if (newMode === currentViewMode) {
-      return;
-    }
-    mega.config.set('cbvm', newMode);
-    this.forceUpdate();
-  }
-  getHeaderButtonsClass() {
-    const classes = ['fm-header-buttons'];
-    if (this.state.isActiveSearch) {
-      classes.push('active-search');
-    }
-    return classes.join(' ');
-  }
-  getSearchIconClass() {
-    const classes = ['sprite-fm-mono', 'icon-preview-reveal'];
-    if (this.state.isActiveSearch && this.state.searchText.length > 0) {
-      classes.push('disabled');
-    }
-    return classes.join(' ');
-  }
-  onSearchIconClick() {
-    const isActiveSearch = !this.state.isActiveSearch;
-    if (isActiveSearch) {
-      this.searchInput.focus();
-      this.setState({
-        isActiveSearch
-      });
-    }
-  }
-  onClearSearchIconClick() {
-    this.setState({
-      'isActiveSearch': false,
-      'searchValue': '',
-      'searchText': '',
-      'currentlyViewedEntry': this.state.selectedTab
-    });
-  }
-  handleTabChange(selectedTab) {
-    const s4Cn = selectedTab === 's4' && M.tree.s4 && Object.keys(M.tree.s4);
-    this.clearSelectionAndHighlight();
-    this.setState({
-      selectedTab,
-      currentlyViewedEntry: s4Cn && s4Cn.length === 1 ? s4Cn[0] : selectedTab,
-      searchValue: '',
-      searchText: '',
-      isLoading: false
-    });
-  }
-  onSearchBlur() {
-    if (this.state.searchText === '') {
-      this.setState({
-        'isActiveSearch': false
-      });
-    }
-  }
-  onSearchChange(e) {
-    const searchValue = e.target.value;
-    const newState = {
-      searchText: searchValue,
-      nodeLoading: searchValue.length >= MIN_SEARCH_LENGTH
-    };
-    if (searchValue && searchValue.length >= MIN_SEARCH_LENGTH) {
-      this.setState(newState);
-      delay('cbd:search-proc', this.searchProc.bind(this), 500);
-      return;
-    }
-    if (this.state.currentlyViewedEntry === 'search' && (!searchValue || searchValue.length < MIN_SEARCH_LENGTH)) {
-      newState.currentlyViewedEntry = this.state.selectedTab;
-      newState.searchValue = undefined;
-    }
-    this.setState(newState);
-    this.clearSelectionAndHighlight();
-  }
-  searchProc() {
-    const {
-      searchText
-    } = this.state;
-    const newState = {
-      nodeLoading: true
-    };
-    if (searchText && searchText.length >= MIN_SEARCH_LENGTH) {
-      this.setState(newState);
-      M.fmSearchNodes(searchText).then(() => {
-        newState.nodeLoading = false;
-        newState.searchValue = searchText;
-        newState.currentlyViewedEntry = 'search';
-        this.setState(newState);
-        this.clearSelectionAndHighlight();
-      });
-    }
-  }
-  onSelected(nodes) {
-    this.setState({
-      'selected': nodes
-    });
-    this.props.onSelected(nodes);
-  }
-  onHighlighted(nodes) {
-    this.setState({
-      'highlighted': nodes
-    });
-    if (this.props.onHighlighted) {
-      this.props.onHighlighted(nodes);
-    }
-  }
-  clearSelectionAndHighlight() {
-    this.onSelected([]);
-    this.onHighlighted([]);
-    if (selectionManager) {
-      selectionManager.clear_selection();
-    }
-  }
-  onPopupDidMount(elem) {
-    this.domNode = elem;
-  }
-  onAttachClicked() {
-    this.props.onAttachClicked();
-  }
-  onBreadcrumbNodeClick(nodeId) {
-    if (nodeId === 'shares' || nodeId === 's4') {
-      return this.handleTabChange(nodeId);
-    }
-    if (M.getNodeByHandle(nodeId).t) {
-      const nodeRoot = M.getNodeRoot(nodeId);
-      this.setState({
-        selectedTab: nodeRoot === "contacts" ? 'shares' : nodeRoot,
-        currentlyViewedEntry: nodeId,
-        selected: [],
-        searchValue: '',
-        searchText: ''
-      });
-    }
-  }
-  onExpand(nodeId) {
-    this.setState({
-      'currentlyViewedEntry': nodeId,
-      'searchValue': '',
-      'searchText': '',
-      'selected': [],
-      'highlighted': []
-    });
-  }
-  render() {
-    assert(this.dialogBecameVisible);
-    const self = this;
-    const viewMode = mega.config.get('cbvm') | 0;
-    const classes = `add-from-cloud ${self.props.className} dialog-template-tool `;
-    let folderIsHighlighted = false;
-    let share = false;
-    let isS4Cn = false;
-    const isSearch = this.state.currentlyViewedEntry === 'search';
-    const entryId = isSearch ? self.state.highlighted[0] : self.state.currentlyViewedEntry;
-    const filterFn = CloudBrowserDialog.getFilterFunction(this.props.customFilterFn);
-    const isIncomingShare = M.getNodeRoot(entryId) === "shares";
-    this.state.highlighted.forEach(nodeId => {
-      if (M.getNodeByHandle(nodeId).t) {
-        folderIsHighlighted = true;
-        if (M.tree.s4 && M.tree.s4[nodeId]) {
-          isS4Cn = true;
-        }
-      }
-      share = M.getNodeShare(nodeId);
-    });
-    const buttons = [{
-      "label": this.props.cancelLabel,
-      "key": "cancel",
-      "onClick": e => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (this.props.onCancel) {
-          this.props.onCancel(this);
-        }
-        this.props.onClose(this);
-      }
-    }];
-    if (folderIsHighlighted) {
-      const {
-        highlighted
-      } = this.state;
-      const className = `${share && share.down ? 'disabled' : ''}`;
-      const highlightedNode = highlighted && highlighted.length && highlighted[0];
-      const allowAttachFolders = this.props.allowAttachFolders && !isIncomingShare && !isS4Cn;
-      buttons.push({
-        "label": this.props.openLabel,
-        "key": "select",
-        className: `positive ${className} ${highlighted.length > 1 ? 'disabled' : ''}`,
-        onClick: e => {
-          e.preventDefault();
-          e.stopPropagation();
-          if (highlighted.length > 1) {
-            return;
-          }
-          this.setState({
-            currentlyViewedEntry: highlightedNode
-          });
-          this.clearSelectionAndHighlight();
-          this.setState({
-            selected: [],
-            searchValue: '',
-            searchText: '',
-            highlighted: []
-          });
-        }
-      }, allowAttachFolders ? {
-        "label": l[8023],
-        "key": "attach",
-        className: `positive ${  className}`,
-        onClick: () => {
-          this.props.onClose();
-          onIdle(() => {
-            const createPublicLink = h => {
-              M.createPublicLink(h).then(({
-                link
-              }) => this.props.room.sendMessage(link));
-            };
-            const frs = [];
-            const files = [];
-            for (let i = 0; i < highlighted.length; i++) {
-              const node = M.getNodeByHandle(highlighted[i]);
-              if (node && M.isFileNode(node)) {
-                if (!M.getNodeShare(node).down) {
-                  files.push(node);
-                }
-              } else if (mega.fileRequestCommon.storage.isDropExist(highlighted[i]).length) {
-                frs.push(highlighted[i]);
-              } else {
-                createPublicLink(highlighted[i]);
-              }
-            }
-            if (files.length) {
-              this.props.onSelected(files);
-              this.props.onAttachClicked();
-            }
-            if (frs.length) {
-              const fldName = frs.length > 1 ? l[17626] : l[17403].replace('%1', escapeHTML(M.getNameByHandle(frs[0])) || l[1049]);
-              msgDialog('confirmation', l[1003], fldName, l[18229], e => {
-                if (e) {
-                  mega.fileRequest.removeList(frs).then(() => {
-                    for (let i = 0; i < frs.length; i++) {
-                      createPublicLink(frs[i]);
-                    }
-                  }).catch(dump);
-                }
-              });
-            }
-          });
-        }
-      } : null);
-    }
-    if (!folderIsHighlighted || this.props.folderSelectable && (!this.props.noShareFolderAttach || !(isIncomingShare && folderIsHighlighted))) {
-      buttons.push({
-        "label": this.props.selectLabel,
-        "key": "select",
-        "className": `positive ${  this.state.selected.length === 0 || share && share.down || isS4Cn ? "disabled" : ""}`,
-        "onClick": e => {
-          if (this.state.selected.length > 0) {
-            this.props.onSelected(this.state.selected);
-            this.props.onAttachClicked();
-          }
-          e.preventDefault();
-          e.stopPropagation();
-        }
-      });
-    }
-    let clearSearchBtn = null;
-    if (self.state.searchText.length >= MIN_SEARCH_LENGTH) {
-      clearSearchBtn = JSX_("i", {
-        className: "sprite-fm-mono icon-close-component",
-        onClick: () => {
-          self.onClearSearchIconClick();
-        }
-      });
-    }
-    const breadcrumbPath = M.getPath(entryId);
-    return JSX_(modalDialogs.A.ModalDialog, {
-      title: self.props.title || l[8011],
-      className: classes + (isSearch && this.state.selected.length > 0 ? 'has-breadcrumbs-bottom' : '') + this.dialogName,
-      onClose: () => {
-        self.props.onClose(self);
-      },
-      dialogName: "add-from-cloud-dialog dialog-template-tool",
-      popupDidMount: self.onPopupDidMount,
-      buttons
-    }, JSX_("section", {
-      ref: this.domRef,
-      className: "content"
-    }, JSX_("div", {
-      className: "content-block"
-    }, JSX_("div", {
-      className: "fm-dialog-tabs"
-    }, JSX_("div", {
-      className: `
-                                    fm-dialog-tab cloud
-                                    ${self.state.selectedTab === M.RootID ? 'active' : ''}
-                                `,
-      onClick: () => self.handleTabChange(M.RootID)
-    }, l[164]), JSX_("div", {
-      className: `
-                                    fm-dialog-tab incoming
-                                    ${self.state.selectedTab === 'shares' ? 'active' : ''}
-                                `,
-      onClick: () => self.handleTabChange('shares')
-    }, l[5542]), JSX_("div", {
-      className: `
-                                    fm-dialog-tab s4
-                                    ${self.state.selectedTab === 's4' ? 'active' : ''}
-                                    ${u_attr.s4 ? '' : 'hidden'}
-                                `,
-      onClick: () => self.handleTabChange('s4')
-    }, l.obj_storage), JSX_("div", {
-      className: "clear"
-    })), JSX_("div", {
-      className: "fm-picker-header"
-    }, JSX_("div", {
-      className: self.getHeaderButtonsClass()
-    }, JSX_(viewModeSelector, {
-      viewMode,
-      onChange: this.onViewModeSwitch
-    }), JSX_("div", {
-      className: "fm-files-search"
-    }, JSX_("i", {
-      className: self.getSearchIconClass(),
-      onClick: () => {
-        self.onSearchIconClick();
-      }
-    }), JSX_("input", {
-      ref: input => {
-        this.searchInput = input;
-      },
-      type: "search",
-      placeholder: l[102],
-      value: self.state.searchText,
-      onChange: self.onSearchChange,
-      onBlur: () => {
-        self.onSearchBlur();
-      }
-    }), clearSearchBtn), JSX_("div", {
-      className: "clear"
-    })), !isSearch && JSX_(Breadcrumbs, {
-      className: "add-from-cloud",
-      nodeId: entryId,
-      path: breadcrumbPath,
-      onNodeClick: this.onBreadcrumbNodeClick,
-      isSearch,
-      highlighted: this.state.highlighted,
-      currentlyViewedEntry: this.state.currentlyViewedEntry
-    })), JSX_(fmView.A, {
-      nodeLoading: this.state.nodeLoading,
-      sortFoldersFirst: true,
-      currentlyViewedEntry: this.state.currentlyViewedEntry,
-      customFilterFn: filterFn,
-      folderSelectNotAllowed: this.props.folderSelectNotAllowed,
-      folderSelectable: this.props.folderSelectable,
-      onSelected: this.onSelected,
-      onHighlighted: this.onHighlighted,
-      onAttachClicked: this.onAttachClicked,
-      initialSelected: this.state.selected,
-      initialHighlighted: this.state.highlighted,
-      searchValue: this.state.searchValue,
-      minSearchLength: MIN_SEARCH_LENGTH,
-      onExpand: this.onExpand,
-      viewMode,
-      initialSortBy: ['name', 'asc'],
-      fmConfigSortEnabled: true,
-      fmConfigSortId: "cbd"
-    }), isSearch && breadcrumbPath.length > 0 && JSX_("div", {
-      className: `
-                            fm-breadcrumbs-wrapper add-from-cloud breadcrumbs-bottom
-                        `
-    }, JSX_("div", {
-      className: "fm-breadcrumbs-block"
-    }, JSX_(Breadcrumbs, {
-      nodeId: entryId,
-      path: breadcrumbPath,
-      onNodeClick: this.onBreadcrumbNodeClick,
-      isSearch,
-      highlighted: this.state.highlighted,
-      currentlyViewedEntry: this.state.currentlyViewedEntry
-    }), JSX_("div", {
-      className: "clear"
-    }))))));
-  }
-}
-CloudBrowserDialog.defaultProps = {
-  'selectLabel': l[8023],
-  'openLabel': l[1710],
-  'cancelLabel': l.msg_dlg_cancel,
-  'hideable': true,
-  'className': ''
-};
- const cloudBrowserModalDialog = CloudBrowserDialog;
 
  }
 

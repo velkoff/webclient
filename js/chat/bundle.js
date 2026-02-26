@@ -3,3427 +3,37 @@
     window.JSX_=React.createElement;
  	const __webpack_modules__ = {
 
- 187
+ 8676
 (_, EXP_, REQ_) {
 
 "use strict";
  REQ_.d(EXP_, {
-   d: () =>  getMessageString
+   r: () =>  chatGlobalEventManager
  });
-let getMessageString;
-(function () {
-  let MESSAGE_STRINGS;
-  let MESSAGE_STRINGS_GROUP;
-  let MESSAGE_STRINGS_MEETING;
-  const _sanitizeStrings = function (arg) {
-    if (typeof arg === "undefined") {
-      return arg;
-    } else if (typeof arg === "string") {
-      return escapeHTML(arg);
-    } else if (arg.forEach) {
-      arg.forEach((v, k) => {
-        arg[k] = _sanitizeStrings(v);
-      });
-    } else if (typeof arg === "object") {
-      Object.keys(arg).forEach((k) => {
-        arg[k] = _sanitizeStrings(arg[k]);
-      });
-    }
-    return arg;
-  };
-  getMessageString = function (type, isGroupCall, isMeeting) {
-    if (!MESSAGE_STRINGS) {
-      MESSAGE_STRINGS = {
-        'outgoing-call': l[5891].replace("[X]", "[[[X]]]"),
-        'incoming-call': l[19964] || "[[%s]] is calling...",
-        'call-timeout': [l[18698].replace("[X]", "[[[X]]]")],
-        'call-starting': l[7206].replace("[X]", "[[[X]]]"),
-        'call-feedback': l[7998].replace("[X]", "[[[X]]]"),
-        'call-initialising': l[7207].replace("[X]", "[[[X]]]"),
-        'call-ended': [l[19965] || "Call ended.", l[7208]],
-        'remoteCallEnded': [l[19965] || "Call ended.", l[7208]],
-        'call-failed-media': l[7204],
-        'call-failed': [l[19966] || "Call failed.", l[7208]],
-        'call-handled-elsewhere': l[5895].replace("[X]", "[[[X]]]"),
-        'call-missed': l[17870],
-        'call-rejected': l[19040],
-        'call-canceled': l[19041],
-        'remoteCallStarted': l[5888],
-        'call-started': l[5888].replace("[X]", "[[[X]]]"),
-        'alterParticipants': undefined,
-        'privilegeChange': undefined,
-        'truncated': l[8905]
-      };
-      _sanitizeStrings(MESSAGE_STRINGS);
-    }
-    if (isGroupCall && !MESSAGE_STRINGS_GROUP) {
-      MESSAGE_STRINGS_GROUP = {
-        'call-ended': [l[19967], l[7208]],
-        'remoteCallEnded': [l[19967], l[7208]],
-        'call-handled-elsewhere': l[19968],
-        'call-canceled': l[19969],
-        'call-started': l[19970]
-      };
-      _sanitizeStrings(MESSAGE_STRINGS_GROUP);
-    }
-    if (isMeeting && !MESSAGE_STRINGS_MEETING) {
-      MESSAGE_STRINGS_MEETING = {
-        'call-ended': [l.meeting_mgmt_call_ended, l[7208]],
-        'remoteCallEnded': [l.meeting_mgmt_call_ended, l[7208]],
-        'call-started': l.meeting_mgmt_call_started
-      };
-    }
-    if (isMeeting && MESSAGE_STRINGS_MEETING[type]) {
-      return MESSAGE_STRINGS_MEETING[type];
-    }
-    if (isGroupCall && MESSAGE_STRINGS_GROUP[type]) {
-      return MESSAGE_STRINGS_GROUP[type];
-    }
-    return MESSAGE_STRINGS[type];
-  };
-})();
-
-
- },
-
- 793
-(__webpack_module__, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   A: () =>  _applyDecoratedDescriptor
- });
-function _applyDecoratedDescriptor(i, e, r, n, l) {
-  let a = {};
-  return Object.keys(n).forEach((i) => {
-    a[i] = n[i];
-  }), a.enumerable = !!a.enumerable, a.configurable = !!a.configurable, ("value" in a || a.initializer) && (a.writable = !0), a = r.slice().reverse().reduce((r, n) => {
-    return n(i, e, r) || r;
-  }, a), l && void 0 !== a.initializer && (a.value = a.initializer ? a.initializer.call(l) : void 0, a.initializer = void 0), void 0 === a.initializer ? (Object.defineProperty(i, e, a), null) : a;
-}
-
-
- },
-
- 836
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   SN: () =>  hasContacts,
-   U_: () =>  resetCredentials,
-   X7: () =>  hasRelationship,
-   d_: () =>  LABEL,
-   gR: () =>  VIEW,
-   p4: () =>  isVerified,
-   qH: () =>  verifyCredentials,
-   qY: () =>  EVENTS,
-   ym: () =>  getUserFingerprint
- });
- const react0__ = REQ_(1594);
- const react0___default = REQ_.n(react0__);
-
-const EVENTS = {
-  KEYDOWN: 'keydown'
-};
-const VIEW = {
-  CONTACTS: 0x00,
-  RECEIVED_REQUESTS: 0x01,
-  SENT_REQUESTS: 0x02,
-  PROFILE: 0x03
-};
-const LABEL = {
-  CONTACTS: l[165],
-  RECEIVED_REQUESTS: l[5863],
-  SENT_REQUESTS: l[5862]
-};
-const hasContacts = () => M.u.some(contact => contact.c === 1);
-const hasRelationship = contact => contact && contact.c === 1;
-const isVerified = contact => {
-  if (contact && contact.u) {
-    const {
-      u: handle
-    } = contact;
-    const verificationState = u_authring.Ed25519[handle] || {};
-    return verificationState.method >= authring.AUTHENTICATION_METHOD.FINGERPRINT_COMPARISON;
-  }
-  return null;
-};
-const verifyCredentials = contact => {
-  if (contact.c === 1 && u_authring && u_authring.Ed25519) {
-    const verifyState = u_authring.Ed25519[contact.u] || {};
-    if (typeof verifyState.method === "undefined" || verifyState.method < authring.AUTHENTICATION_METHOD.FINGERPRINT_COMPARISON) {
-      fingerprintDialog(contact.u);
-    }
-  }
-};
-const resetCredentials = contact => {
-  if (M.isInvalidUserStatus()) {
-    return;
-  }
-  authring.resetFingerprintsForUser(contact.u).then(() => contact.trackDataChange()).catch(dump);
-};
-const getUserFingerprint = handle => {
-  const $$FINGERPRINT = [];
-  userFingerprint(handle, fingerprints => {
-    for (let i = 0; i < fingerprints.length; i++) {
-      $$FINGERPRINT.push(JSX_("span", {
-        key: i
-      }, fingerprints[i]));
-    }
-  });
-  return $$FINGERPRINT;
-};
-
- },
-
- 855
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   M: () =>  ConversationMessageMixin
- });
- const react0__ = REQ_(1594);
- const react0___default = REQ_.n(react0__);
- const _mixins_js1__ = REQ_(8264);
- const _ui_buttons_jsx2__ = REQ_(5155);
- const _ui_emojiDropdown_jsx3__ = REQ_(1165);
-
-
-
-
-class ConversationMessageMixin extends _mixins_js1__ .u9 {
-  constructor(props) {
-    super(props);
-    this.attachRerenderCallbacks = false;
-    this._reactionContactHandles = [];
-    this.__cmmUpdateTickCount = 0;
-    this._contactChangeListeners = false;
-    this.onAfterRenderWasTriggered = false;
-    lazy(this, '__cmmId', () => {
-      return `${this.getUniqueId()  }--${  String(Math.random()).slice(-7)}`;
-    });
-    this._emojiOnActiveStateChange = this._emojiOnActiveStateChange.bind(this);
-    this.emojiSelected = this.emojiSelected.bind(this);
-    const {
-      message: msg
-    } = this.props;
-    if (msg instanceof Message && msg._reactions && msg.messageId.length === 11 && msg.isSentOrReceived() && !Object.hasOwnProperty.call(msg, 'reacts')) {
-      msg.reacts.forceLoad().then(() => {
-        this.addContactListenerIfMissing(this._reactionContacts());
-      }).catch(dump.bind(null, `reactions.load.${msg.messageId}`));
-    }
-  }
-  UNSAFE_componentWillMount() {
-    if (super.UNSAFE_componentWillMount) {
-      super.UNSAFE_componentWillMount();
-    }
-    const {chatRoom} = this.props;
-    if (chatRoom) {
-      chatRoom.rebind(`onChatShown.${  this.__cmmId}`, () => {
-        if (!this._contactChangeListeners) {
-          this.addContactListeners();
-        }
-      }).rebind(`onChatHidden.${  this.__cmmId}`, () => {
-        if (this._contactChangeListeners) {
-          this.removeContactListeners();
-        }
-      });
-    }
-    this.addContactListeners();
-  }
-  haveMeetingsCall() {
-    return document.querySelector('.meetings-call') && document.querySelector('.chat-opened');
-  }
-  removeContactListeners() {
-    const users = this._contactChangeListeners;
-    if (d > 3) {
-      console.warn('%s.removeContactListeners', this.getReactId(), [this], users);
-    }
-    for (let i = users.length; i--;) {
-      users[i].removeEventHandler(this);
-    }
-    this._contactChangeListeners = false;
-  }
-  _reactionContacts() {
-    const {
-      message
-    } = this.props;
-    const {
-      reacts
-    } = message;
-    const handles = [];
-    const reactions = Object.values(reacts.reactions);
-    for (let i = 0; i < reactions.length; i++) {
-      handles.push(...Object.keys(reactions[i]));
-    }
-    this._reactionContactHandles = array.unique(handles);
-    return this._reactionContactHandles;
-  }
-  addContactListeners() {
-    const users = this._contactChangeListeners || [];
-    const addUser = user => {
-      if (user instanceof MegaDataMap && users.indexOf(user) < 0) {
-        users.push(user);
-      }
-    };
-    addUser(this.getContact());
-    if (this.haveMoreContactListeners) {
-      const moreIds = this.haveMoreContactListeners();
-      if (moreIds) {
-        for (let i = moreIds.length; i--;) {
-          const handle = moreIds[i];
-          addUser(handle in M.u && M.u[handle]);
-        }
-      }
-    }
-    for (let i = this._reactionContactHandles.length; i--;) {
-      addUser(this._reactionContactHandles[i] in M.u && M.u[this._reactionContactHandles[i]]);
-    }
-    if (d > 3) {
-      console.warn('%s.addContactListeners', this.getReactId(), [this], users);
-    }
-    for (let i = users.length; i--;) {
-      users[i].addChangeListener(this);
-    }
-    this._contactChangeListeners = users;
-  }
-  addContactListenerIfMissing(contacts) {
-    if (!this._contactChangeListeners) {
-      return false;
-    }
-    if (!Array.isArray(contacts)) {
-      contacts = [contacts];
-    }
-    const added = [];
-    for (let i = 0; i < contacts.length; i++) {
-      const user = M.u[contacts[i]];
-      if (user && !this._contactChangeListeners.includes(user)) {
-        this._contactChangeListeners.push(user);
-        user.addChangeListener(this);
-        added.push(user.h);
-      }
-    }
-    if (d > 1) {
-      console.warn('%s.addContactListenerIfMissing', this.getReactId(), [this], added);
-    }
-  }
-  eventuallyUpdate() {
-    super.eventuallyUpdate();
-    this.__cmmUpdateTickCount = -2;
-  }
-  handleChangeEvent(x, z, k) {
-    if (k === 'ts' || k === 'ats') {
-      return;
-    }
-    if (this.isComponentEventuallyVisible()) {
-      if (++this.__cmmUpdateTickCount > 5) {
-        this.eventuallyUpdate();
-        delay.cancel(this.__cmmId);
-      } else {
-        delay(this.__cmmId, () => this.eventuallyUpdate(), 90);
-      }
-    } else {
-      this._requiresUpdateOnResize = true;
-    }
-  }
-  componentWillUnmount() {
-    super.componentWillUnmount();
-    const {chatRoom} = this.props;
-    if (chatRoom) {
-      chatRoom.off(`onChatShown.${  this.__cmmId}`).off(`onChatHidden.${  this.__cmmId}`);
-    }
-    if (this._contactChangeListeners) {
-      this.removeContactListeners();
-    }
-  }
-  getContact() {
-    if (this.props.contact) {
-      return this.props.contact;
-    }
-    const {message} = this.props;
-    return Message.getContactForMessage(message);
-  }
-  getTimestampAsString() {
-    return toLocaleTime(this.getTimestamp());
-  }
-  getTimestamp(forUpdated) {
-    const {
-      message
-    } = this.props;
-    const timestamp = (message.getDelay == null ? void 0 : message.getDelay()) || message.delay || unixtime();
-    return forUpdated && message.updated > 0 ? timestamp + message.updated : timestamp;
-  }
-  componentDidUpdate() {
-    const self = this;
-    const {chatRoom} = self.props.message;
-    if (!self.onAfterRenderWasTriggered) {
-      const msg = self.props.message;
-      let shouldRender = true;
-      if (msg.isManagement && msg.isManagement() === true && msg.isRenderableManagement() === false) {
-        shouldRender = false;
-      }
-      if (shouldRender) {
-        chatRoom.trigger("onAfterRenderMessage", self.props.message);
-        self.onAfterRenderWasTriggered = true;
-      }
-    }
-  }
-  getCurrentUserReactions() {
-    const {
-      reactions
-    } = this.props.message.reacts;
-    return Object.keys(reactions).filter(utf => {
-      let _reactions$utf;
-      return (_reactions$utf = reactions[utf]) == null ? void 0 : _reactions$utf[u_handle];
-    });
-  }
-  emojiSelected(e, slug, meta) {
-    const {
-      chatRoom,
-      message,
-      onEmojiBarChange
-    } = this.props;
-    if (chatRoom.isReadOnly()) {
-      return false;
-    }
-    const {
-      reactions
-    } = this.props.message.reacts;
-    const CURRENT_USER_REACTIONS = this.getCurrentUserReactions().length;
-    const REACTIONS_LIMIT = {
-      TOTAL: 50,
-      PER_PERSON: 24
-    };
-    const addReaction = () => chatRoom.messagesBuff.userAddReaction(message.messageId, slug, meta);
-    const emoji = megaChat._emojiData.emojisSlug[slug] || meta;
-    if (emoji && message.reacts.getReaction(u_handle, emoji.u)) {
-      if (onEmojiBarChange && Object.keys(reactions).length === 1 && Object.keys(reactions[emoji.u]).length === 1) {
-        onEmojiBarChange(false);
-      }
-      return chatRoom.messagesBuff.userDelReaction(message.messageId, slug, meta);
-    }
-    if (emoji && reactions[emoji.u] && CURRENT_USER_REACTIONS < REACTIONS_LIMIT.PER_PERSON) {
-      return addReaction();
-    }
-    if (CURRENT_USER_REACTIONS >= REACTIONS_LIMIT.PER_PERSON) {
-      return msgDialog('info', '', l[24205].replace('%1', REACTIONS_LIMIT.PER_PERSON));
-    }
-    if (Object.keys(reactions).length >= REACTIONS_LIMIT.TOTAL) {
-      return msgDialog('info', '', l[24206].replace('%1', REACTIONS_LIMIT.TOTAL));
-    } else if (onEmojiBarChange && Object.keys(reactions).length === 0) {
-      onEmojiBarChange(true);
-    }
-    return addReaction();
-  }
-  _emojiOnActiveStateChange(newVal) {
-    this.setState(() => {
-      return {
-        reactionsDropdownActive: newVal
-      };
-    });
-  }
-  getEmojisImages() {
-    const {
-      chatRoom,
-      message
-    } = this.props;
-    const isReadOnlyClass = chatRoom.isReadOnly() ? " disabled" : "";
-    let emojisImages = message._reactions && message.reacts.reactions && Object.keys(message.reacts.reactions).map(utf => {
-      const reaction = message.reacts.reactions[utf];
-      const count = Object.keys(reaction).length;
-      if (!count) {
-        return null;
-      }
-      const filename = twemoji.convert.toCodePoint(utf);
-      const currentUserReacted = !!reaction[u_handle];
-      const names = [];
-      if (reaction) {
-        ChatdIntegration._ensureContactExists(Object.keys(reaction));
-        const rKeys = Object.keys(reaction);
-        for (let i = 0; i < rKeys.length; i++) {
-          const uid = rKeys[i];
-          if (reaction[uid]) {
-            if (uid === u_handle) {
-              names.push(l[24071] || 'You');
-            } else if (uid in M.u) {
-              names.push(M.getNameByHandle(uid) || megaChat.plugins.userHelper.SIMPLETIP_USER_LOADER);
-            }
-          }
-        }
-      }
-      let emojiData = megaChat._emojiData.emojisUtf[utf];
-      if (!emojiData) {
-        emojiData = Object.create(null);
-        emojiData.u = utf;
-      }
-      let slug = emojiData && emojiData.n || "";
-      let tipText;
-      slug = slug ? `:${slug}:` : utf;
-      if (Object.keys(reaction).length === 1 && reaction[u_handle]) {
-        tipText = (l[24068] || "You (click to remove) [G]reacted with %s[/G]").replace("%s", slug);
-      } else {
-        tipText = mega.utils.trans.listToString(names, (l[24069] || "%s [G]reacted with %s2[/G]").replace("%s2", slug));
-      }
-      const notFoundEmoji = slug && slug[0] !== ":";
-      return JSX_("div", {
-        key: slug,
-        onClick: ((e, slug, meta) => () => this.emojiSelected(e, slug, meta))(null, slug, emojiData),
-        className: `
-                            reactions-bar__reaction
-                            simpletip
-                            ${currentUserReacted ? 'user-reacted' : ''}
-                            ${notFoundEmoji ? 'emoji-loading-error' : ''}
-                            ${isReadOnlyClass}
-                        `,
-        "data-simpletip": tipText,
-        "data-simpletipoffset": "3",
-        "data-simpletipposition": "top"
-      }, JSX_("img", {
-        width: "10",
-        height: "10",
-        className: "emoji emoji-loading",
-        draggable: "false",
-        onError: e => {
-          const textNode = document.createElement("em");
-          textNode.classList.remove('emoji-loading');
-          textNode.append(document.createTextNode(utf));
-          e.target.replaceWith(textNode);
-          textNode.parentNode.classList.add('emoji-loading-error');
-        },
-        onLoad: e => {
-          e.target.classList.remove('emoji-loading');
-        },
-        src: `${staticpath  }images/mega/twemojis/2_v2/72x72/${  filename  }.png`
-      }), JSX_("span", {
-        className: "message text-block"
-      }, count));
-    });
-    emojisImages = emojisImages && emojisImages.filter((v) => {
-      return !!v;
-    });
-    if (emojisImages && emojisImages.length > 0) {
-      const reactionBtn = !chatRoom.isReadOnly() ? JSX_(_ui_buttons_jsx2__ .$, {
-        className: "popup-button reactions-button hover-colorized simpletip",
-        icon: "sprite-fm-theme icon-emoji-reactions reactions-icon",
-        disabled: false,
-        key: "add-reaction-button",
-        attrs: {
-          'data-simpletip': l[24070] || "Add reaction...",
-          'data-simpletipoffset': "3",
-          'data-simpletipposition': "top"
-        }
-      }, JSX_(_ui_emojiDropdown_jsx3__ .A, {
-        horizOffset: this.haveMeetingsCall() ? -150 : 0,
-        onActiveChange: this._emojiOnActiveStateChange,
-        className: "popup emoji reactions-dropdown",
-        onClick: this.emojiSelected
-      })) : null;
-      emojisImages.push(reactionBtn);
-    }
-    return emojisImages ? JSX_("div", {
-      className: "reactions-bar",
-      id: "reactions-bar",
-      onMouseEnter: () => {
-        if (this._loadedReacts) {
-          return false;
-        }
-        this._loadedReacts = megaChat.plugins.userHelper.fetchAllNames(this._reactionContacts(), chatRoom).catch(dump).finally(() => {
-          this._loadedReacts = true;
-          this.safeForceUpdate();
-        });
-      }
-    }, emojisImages) : null;
-  }
-  getMessageActionButtons() {
-    const {
-      chatRoom,
-      message
-    } = this.props;
-    return message instanceof Message && message.isSentOrReceived() && !chatRoom.isReadOnly() ? JSX_(_ui_buttons_jsx2__ .$, {
-      className: "popup-button reactions-button tiny-button simpletip",
-      icon: `${"sprite-fm-theme reactions-icon"} icon-emoji-reactions`,
-      iconHovered: `${"sprite-fm-theme reactions-icon"} icon-emoji-reactions-active`,
-      disabled: false,
-      key: "add-reaction-button",
-      attrs: {
-        'data-simpletip': l[24070] || "Add reaction...",
-        'data-simpletipoffset': "3",
-        'data-simpletipposition': "top"
-      }
-    }, JSX_(_ui_emojiDropdown_jsx3__ .A, {
-      horizOffset: this.haveMeetingsCall() ? -110 : 0,
-      noArrow: true,
-      onActiveChange: this._emojiOnActiveStateChange,
-      className: "popup emoji reactions-dropdown",
-      onClick: this.emojiSelected
-    })) : null;
-  }
-}
-
-
- },
-
- 1165
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   A: () =>  DropdownEmojiSelector
- });
- const _babel_runtime_helpers_extends0__ = REQ_(8168);
- const react1__ = REQ_(1594);
- const react1___default = REQ_.n(react1__);
- const _chat_mixins_js2__ = REQ_(8264);
- const _dropdowns_jsx3__ = REQ_(1510);
- const _perfectScrollbar_jsx4__ = REQ_(1301);
-
-
-
-
-
-class DropdownEmojiSelector extends _chat_mixins_js2__ .w9 {
-  constructor(props) {
-    super(props);
-    this.domRef = react1___default().createRef();
-    this.emojiSearchRef = react1___default().createRef();
-    this.data_categories = null;
-    this.data_emojis = null;
-    this.data_emojiByCategory = null;
-    this.customCategoriesOrder = ["frequently_used", "people", "nature", "food", "activity", "travel", "objects", "symbols", "flags"];
-    this.frequentlyUsedEmojis = ['slight_smile', 'grinning', 'smile', 'rofl', 'wink', 'yum', 'rolling_eyes', 'stuck_out_tongue', 'smiling_face_with_3_hearts', 'heart_eyes', 'kissing_heart', 'sob', 'pleading_face', 'thumbsup', 'pray', 'wave', 'fire', 'sparkles'];
-    this.heightDefs = {
-      'categoryTitleHeight': 55,
-      'emojiRowHeight': 35,
-      'containerHeight': 302,
-      'totalScrollHeight': 302,
-      'numberOfEmojisPerRow': 9
-    };
-    this.categoryLabels = {
-      'frequently_used': l[17737],
-      'people': l[8016],
-      'objects': l[17735],
-      'activity': l[8020],
-      'nature': l[8017],
-      'travel': l[8021],
-      'symbols': l[17736],
-      'food': l[8018],
-      'flags': l[17703]
-    };
-    this.state = this.getInitialState();
-    this.onSearchChange = this.onSearchChange.bind(this);
-    this.onUserScroll = this.onUserScroll.bind(this);
-    this._onScrollChanged = this._onScrollChanged.bind(this);
-  }
-  getInitialState() {
-    return clone({
-      'previewEmoji': null,
-      'searchValue': '',
-      'browsingCategory': false,
-      'isActive': false,
-      'isLoading': true,
-      'loadFailed': false,
-      'visibleCategories': "0"
-    });
-  }
-  _generateEmoji(meta) {
-    const filename = twemoji.convert.toCodePoint(meta.u);
-    return JSX_("img", {
-      width: "20",
-      height: "20",
-      className: "emoji emoji-loading",
-      draggable: "false",
-      alt: meta.u,
-      title: `:${  meta.n  }:`,
-      onLoad: e => {
-        e.target.classList.remove('emoji-loading');
-      },
-      onError: e => {
-        e.target.classList.remove('emoji-loading');
-        e.target.classList.add('emoji-loading-error');
-      },
-      src: `${staticpath  }images/mega/twemojis/2_v2/72x72/${  filename  }.png`
-    });
-  }
-  _generateEmojiElement(emoji, cat) {
-    const self = this;
-    const categoryName = self.data_categories[cat];
-    return JSX_("div", {
-      "data-emoji": emoji.n,
-      className: "button square-button emoji",
-      key: `${categoryName  }_${  emoji.n}`,
-      onMouseEnter: e => {
-        if (self.mouseEnterTimer) {
-          clearTimeout(self.mouseEnterTimer);
-        }
-        e.stopPropagation();
-        e.preventDefault();
-        self.mouseEnterTimer = setTimeout(() => {
-          self.setState({
-            'previewEmoji': emoji
-          });
-        }, 250);
-      },
-      onMouseLeave: e => {
-        if (self.mouseEnterTimer) {
-          clearTimeout(self.mouseEnterTimer);
-        }
-        e.stopPropagation();
-        e.preventDefault();
-        self.setState({
-          'previewEmoji': null
-        });
-      },
-      onClick: e => {
-        if (self.props.onClick) {
-          self.props.onClick(e, emoji.n, emoji);
-          $(document).trigger('closeDropdowns');
-        }
-      }
-    }, self._generateEmoji(emoji));
-  }
-  UNSAFE_componentWillUpdate(nextProps, nextState) {
-    if (nextState.searchValue !== this.state.searchValue || nextState.browsingCategories !== this.state.browsingCategories) {
-      this._cachedNodes = {};
-      if (this.scrollableArea) {
-        this.scrollableArea.scrollToY(0);
-      }
-      this._onScrollChanged(0, nextState);
-    }
-    if (nextState.isActive === true) {
-      const self = this;
-      if (nextState.isLoading === true || !self.loadingPromise && (!self.data_categories || !self.data_emojis)) {
-        const p = [megaChat.getEmojiDataSet('categories'), megaChat.getEmojiDataSet('emojis')];
-        this.loadingPromise = Promise.all(p).then(([categories, emojis]) => {
-          this.data_emojis = emojis;
-          this.data_categories = categories;
-          self.data_categories.push('frequently_used');
-          self.data_categoriesWithCustomOrder = [];
-          self.customCategoriesOrder.forEach((catName) => {
-            self.data_categoriesWithCustomOrder.push(self.data_categories.indexOf(catName));
-          });
-          self.data_emojiByCategory = {};
-          const frequentlyUsedEmojisMeta = {};
-          self.data_emojis.forEach((emoji) => {
-            const cat = emoji.c;
-            if (!self.data_emojiByCategory[cat]) {
-              self.data_emojiByCategory[cat] = [];
-            }
-            if (self.frequentlyUsedEmojis.indexOf(emoji.n) > -1) {
-              frequentlyUsedEmojisMeta[emoji.n] = emoji.u;
-            }
-            emoji.element = self._generateEmojiElement(emoji, cat);
-            self.data_emojiByCategory[cat].push(emoji);
-          });
-          self.data_emojiByCategory[8] = [];
-          self.frequentlyUsedEmojis.forEach((slug) => {
-            const emoji = {
-              'n': slug,
-              'u': frequentlyUsedEmojisMeta[slug]
-            };
-            emoji.element = self._generateEmojiElement(emoji, 99);
-            self.data_emojiByCategory[8].push(emoji);
-          });
-          self._onScrollChanged(0);
-          self.setState({
-            'isLoading': false
-          });
-        }).catch(ex => {
-          if (d) {
-            console.error("Emoji loading failed.", ex);
-          }
-          this.setState({
-            'loadFailed': true,
-            'isLoading': false
-          });
-        });
-      }
-    } else if (nextState.isActive === false) {
-      if (this.data_emojis) {
-        for (let i = this.data_emojis.length; i--;) {
-          delete this.data_emojis[i].element;
-        }
-      }
-      this.data_emojis = null;
-      this.data_categories = null;
-      this.data_emojiByCategory = null;
-      this.loadingPromise = null;
-    }
-  }
-  onSearchChange(e) {
-    const self = this;
-    self.setState({
-      searchValue: e.target.value,
-      browsingCategory: false
-    });
-  }
-  onUserScroll($ps) {
-    if (this.state.browsingCategory) {
-      const $cat = $(`.emoji-category-container[data-category-name="${  this.state.browsingCategory  }"]`);
-      if (!elementInViewport($cat)) {
-        this.setState({
-          'browsingCategory': false
-        });
-      }
-    }
-    this._onScrollChanged($ps.getScrollPositionY());
-  }
-  generateEmojiElementsByCategory(categoryId, posTop, stateObj) {
-    const self = this;
-    if (!self._cachedNodes) {
-      self._cachedNodes = {};
-    }
-    if (!stateObj) {
-      stateObj = self.state;
-    }
-    if (typeof self._cachedNodes[categoryId] !== 'undefined') {
-      return self._cachedNodes[categoryId];
-    }
-    const categoryName = self.data_categories[categoryId];
-    const emojis = [];
-    const {searchValue} = stateObj;
-    let totalEmojis = 0;
-    self.data_emojiByCategory[categoryId].forEach((meta) => {
-      const slug = meta.n;
-      if (searchValue.length > 0) {
-        if (`:${  slug  }:`.toLowerCase().indexOf(searchValue.toLowerCase()) < 0) {
-          return;
-        }
-      }
-      totalEmojis++;
-      emojis.push(meta.element);
-    });
-    if (emojis.length > 0) {
-      const totalHeight = self.heightDefs.categoryTitleHeight + Math.ceil(totalEmojis / self.heightDefs.numberOfEmojisPerRow) * self.heightDefs.emojiRowHeight;
-      return self._cachedNodes[categoryId] = [totalHeight, JSX_("div", {
-        key: categoryName,
-        "data-category-name": categoryName,
-        className: "emoji-category-container",
-        style: {
-          'position': 'absolute',
-          'top': posTop
-        }
-      }, emojis.length > 0 ? JSX_("div", {
-        className: "clear"
-      }) : null, JSX_("div", {
-        className: "emoji-type-txt"
-      }, self.categoryLabels[categoryName] ? self.categoryLabels[categoryName] : categoryName), JSX_("div", {
-        className: "clear"
-      }), emojis, JSX_("div", {
-        className: "clear"
-      }))];
-    } else {
-      return self._cachedNodes[categoryId] = undefined;
-    }
-  }
-  _isVisible(scrollTop, scrollBottom, elTop, elBottom) {
-    const visibleTop = elTop < scrollTop ? scrollTop : elTop;
-    const visibleBottom = elBottom > scrollBottom ? scrollBottom : elBottom;
-    return visibleBottom - visibleTop > 0;
-  }
-  _onScrollChanged(scrollPositionY, stateObj) {
-    const self = this;
-    if (!self.data_categoriesWithCustomOrder) {
-      return;
-    }
-    if (scrollPositionY === false) {
-      scrollPositionY = self.scrollableArea.getScrollPositionY();
-    }
-    if (!stateObj) {
-      stateObj = self.state;
-    }
-    const visibleStart = scrollPositionY;
-    const visibleEnd = visibleStart + self.heightDefs.containerHeight;
-    let currentPos = 0;
-    let visibleCategories = [];
-    self._emojiReactElements = [];
-    self.data_categoryPositions = {};
-    self.data_categoriesWithCustomOrder.forEach((k) => {
-      const categoryDivMeta = self.generateEmojiElementsByCategory(k, currentPos, stateObj);
-      if (categoryDivMeta) {
-        const startPos = currentPos;
-        currentPos += categoryDivMeta[0];
-        const endPos = currentPos;
-        self.data_categoryPositions[k] = startPos;
-        if (self._isVisible(visibleStart, visibleEnd, startPos, endPos)) {
-          visibleCategories.push(k);
-          self._emojiReactElements.push(categoryDivMeta[1]);
-        }
-      }
-    });
-    if (self._emojiReactElements.length === 0) {
-      const emojisNotFound = JSX_("span", {
-        className: "emojis-not-found",
-        key: 'emojis-not-found'
-      }, l[20920]);
-      self._emojiReactElements.push(emojisNotFound);
-    }
-    visibleCategories = visibleCategories.join(',');
-    self.setState({
-      'totalScrollHeight': currentPos,
-      visibleCategories
-    });
-  }
-  _renderEmojiPickerPopup() {
-    const self = this;
-    let preview;
-    if (self.state.previewEmoji) {
-      const meta = self.state.previewEmoji;
-      preview = JSX_("div", {
-        className: "emoji-preview"
-      }, self._generateEmoji(meta), JSX_("div", {
-        className: "emoji title"
-      }, `:${  meta.n  }:`));
-    }
-    const categoryIcons = {
-      "frequently_used": "icon-emoji-type-frequent",
-      "people": "icon-emoji-type-people",
-      "nature": "icon-emoji-type-nature",
-      "food": "icon-emoji-type-food",
-      "activity": "icon-emoji-type-activity",
-      "travel": "icon-emoji-type-travel",
-      "objects": "icon-emoji-type-objects",
-      "symbols": "icon-emoji-type-symbol",
-      "flags": "icon-emoji-type-flag"
-    };
-    const categoryButtons = [];
-    let activeCategoryName = false;
-    if (!self.state.searchValue) {
-      const firstActive = self.state.visibleCategories.split(",")[0];
-      if (firstActive) {
-        activeCategoryName = self.data_categories[firstActive];
-      }
-    }
-    self.customCategoriesOrder.forEach(categoryName => {
-      categoryButtons.push(JSX_("div", {
-        visiblecategories: this.state.visibleCategories,
-        className: `
-                        button square-button emoji
-                        ${activeCategoryName === categoryName ? 'active' : ''}
-                    `,
-        key: categoryIcons[categoryName],
-        onClick: e => {
-          e.stopPropagation();
-          e.preventDefault();
-          this.setState({
-            browsingCategory: categoryName,
-            searchValue: ''
-          });
-          this._cachedNodes = {};
-          const categoryPosition = this.data_categoryPositions[this.data_categories.indexOf(categoryName)] + 10;
-          this.scrollableArea.scrollToY(categoryPosition);
-          this._onScrollChanged(categoryPosition);
-          const {
-            current
-          } = this.emojiSearchRef || !1;
-          current == null || current.focus();
-        }
-      }, JSX_("i", {
-        className: `sprite-fm-mono ${categoryIcons[categoryName]}`
-      })));
-    });
-    return JSX_(react1___default().Fragment, null, JSX_("div", {
-      className: "popup-header emoji"
-    }, preview || JSX_("div", {
-      className: "search-block emoji"
-    }, JSX_("i", {
-      className: "sprite-fm-mono icon-preview-reveal"
-    }), JSX_("input", {
-      ref: this.emojiSearchRef,
-      type: "search",
-      placeholder: l[102],
-      onChange: this.onSearchChange,
-      autoFocus: true,
-      value: this.state.searchValue
-    }))), JSX_(_perfectScrollbar_jsx4__ .O, {
-      className: "popup-scroll-area emoji perfectScrollbarContainer",
-      searchValue: this.state.searchValue,
-      onUserScroll: this.onUserScroll,
-      visibleCategories: this.state.visibleCategories,
-      ref: ref => {
-        this.scrollableArea = ref;
-      }
-    }, JSX_("div", {
-      className: "popup-scroll-content emoji"
-    }, JSX_("div", {
-      style: {
-        height: this.state.totalScrollHeight
-      }
-    }, this._emojiReactElements))), JSX_("div", {
-      className: "popup-footer emoji"
-    }, categoryButtons));
-  }
-  render() {
-    const self = this;
-    let popupContents = null;
-    if (self.state.isActive === true) {
-      if (self.state.loadFailed === true) {
-        popupContents = JSX_("div", {
-          className: "loading"
-        }, l[1514]);
-      } else if (this.state.isLoading || !this.data_emojiByCategory || !this.data_categories) {
-        popupContents = JSX_("div", {
-          className: "loading"
-        }, l[5533]);
-      } else {
-        popupContents = self._renderEmojiPickerPopup();
-      }
-    } else {
-      popupContents = null;
-    }
-    return JSX_(_dropdowns_jsx3__ .ms, (0,_babel_runtime_helpers_extends0__ .A)({
-      className: "popup emoji"
-    }, self.props, {
-      isLoading: self.state.isLoading,
-      loadFailed: self.state.loadFailed,
-      visibleCategories: this.state.visibleCategories,
-      forceShowWhenEmpty: true,
-      onActiveChange: newValue => {
-        if (newValue === false) {
-          self.setState(self.getInitialState());
-          self._cachedNodes = {};
-          self._onScrollChanged(0);
-        } else {
-          self.setState({
-            'isActive': true
-          });
-        }
-        if (self.props.onActiveChange) {
-          self.props.onActiveChange(newValue);
-        }
-      },
-      searchValue: self.state.searchValue,
-      browsingCategory: self.state.browsingCategory,
-      previewEmoji: self.state.previewEmoji
-    }), JSX_("div", {
-      ref: this.domRef
-    }, popupContents));
-  }
-}
-DropdownEmojiSelector.defaultProps = {
-  'requiresUpdateOnResize': true,
-  'hideable': true
-};
-
- },
-
- 1301
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   O: () =>  PerfectScrollbar
- });
- const _babel_runtime_helpers_applyDecoratedDescriptor0__ = REQ_(793);
- const react1__ = REQ_(1594);
- const react1___default = REQ_.n(react1__);
- const _chat_mixins2__ = REQ_(8264);
-
-let _dec, _dec2, _class, _PerfectScrollbar;
-
-
-const PerfectScrollbar = (_dec = (0,_chat_mixins2__ .hG)(30, true), _dec2 = (0,_chat_mixins2__ .hG)(30, true), _class = (_PerfectScrollbar = class PerfectScrollbar extends _chat_mixins2__ .w9 {
-  constructor(props) {
-    super(props);
-    this.domRef = react1___default().createRef();
-    this.isUserScroll = true;
-    this.scrollEventIncId = 0;
-  }
-  get$Node() {
-    if (!this.$Node) {
-      let _this$domRef;
-      this.$Node = $((_this$domRef = this.domRef) == null ? void 0 : _this$domRef.current);
-    }
-    return this.$Node;
-  }
-  doProgramaticScroll(newPos, forced, isX, skipReinitialised) {
-    if (!this.isMounted()) {
-      return;
-    }
-    const self = this;
-    const $elem = self.get$Node();
-    let animFrameInner = false;
-    const prop = !isX ? 'scrollTop' : 'scrollLeft';
-    const event = `scroll.progscroll${  self.scrollEventIncId++}`;
-    $elem.rebind(event, () => {
-      if (animFrameInner) {
-        cancelAnimationFrame(animFrameInner);
-        animFrameInner = false;
-      }
-      $elem.off(event);
-      if (!skipReinitialised) {
-        self.reinitialised(true);
-      } else if (typeof skipReinitialised === 'function') {
-        onIdle(skipReinitialised);
-      }
-      self.isUserScroll = true;
-    });
-    self.isUserScroll = false;
-    $elem[0][prop] = Math.round(newPos);
-    Ps.update($elem[0]);
-    animFrameInner = requestAnimationFrame(() => {
-      animFrameInner = false;
-      self.isUserScroll = true;
-      $elem.off(event);
-    });
-    return true;
-  }
-  componentDidMount() {
-    let _this$props$didMount, _this$props;
-    super.componentDidMount();
-    const self = this;
-    const $elem = self.get$Node();
-    $elem.height('100%');
-    const options = Object.assign({}, {
-      'handlers': ['click-rail', 'drag-thumb', 'keyboard', 'wheel', 'touch'],
-      'minScrollbarLength': 20
-    }, self.props.options);
-    Ps.initialize($elem[0], options);
-    if (self.props.onFirstInit) {
-      self.props.onFirstInit(self, $elem);
-    }
-    $elem.rebind(`ps-scroll-y.ps${  self.getUniqueId()}`, (e) => {
-      if ($elem.attr('data-scroll-disabled') === "true") {
-        e.stopPropagation();
-        e.preventDefault();
-        e.originalEvent.stopPropagation();
-        e.originalEvent.preventDefault();
-        return false;
-      }
-      if (self.props.onUserScroll && self.isUserScroll === true && $elem.is(e.target)) {
-        self.props.onUserScroll(self, $elem, e);
-      }
-    });
-    $elem.rebind(`disable-scroll.ps${  self.getUniqueId()}`, () => {
-      Ps.destroy($elem[0]);
-    });
-    $elem.rebind(`enable-scroll.ps${  self.getUniqueId()}`, () => {
-      Ps.initialize($elem[0], options);
-    });
-    $elem.rebind(`forceResize.ps${  self.getUniqueId()}`, (e, forced, scrollPositionYPerc, scrollToElement) => {
-      self.onResize(forced, scrollPositionYPerc, scrollToElement);
-    });
-    self.onResize();
-    this.attachAnimationEvents();
-    (_this$props$didMount = (_this$props = this.props).didMount) == null || _this$props$didMount.call(_this$props, this.getUniqueId(), this);
-  }
-  componentWillUnmount() {
-    let _this$props$willUnmou, _this$props2;
-    super.componentWillUnmount();
-    const $elem = this.get$Node();
-    $elem.off(`ps-scroll-y.ps${  this.getUniqueId()}`);
-    const ns = `.ps${  this.getUniqueId()}`;
-    $elem.parents('.have-animation').unbind(`animationend${  ns  } webkitAnimationEnd${  ns  } oAnimationEnd${  ns}`);
-    (_this$props$willUnmou = (_this$props2 = this.props).willUnmount) == null || _this$props$willUnmou.call(_this$props2, this.getUniqueId(), this);
-  }
-  attachAnimationEvents() {}
-  eventuallyReinitialise(forced, scrollPositionYPerc, scrollToElement) {
-    const self = this;
-    if (!self.isComponentEventuallyVisible()) {
-      return;
-    }
-    const $elem = self.get$Node();
-    const h = self.getContentHeight();
-    if (forced || self._currHeight !== h) {
-      self._currHeight = h;
-      self._doReinit(scrollPositionYPerc, scrollToElement, forced, $elem);
-    }
-  }
-  _doReinit(scrollPositionYPerc, scrollToElement, forced, $elem) {
-    let fired = false;
-    if (this.props.onReinitialise) {
-      fired = this.props.onReinitialise(this, $elem, forced, scrollPositionYPerc, scrollToElement);
-    }
-    if (fired === false) {
-      if (scrollPositionYPerc) {
-        if (scrollPositionYPerc === -1) {
-          this.scrollToBottom(true);
-        } else {
-          this.scrollToPercentY(scrollPositionYPerc, true);
-        }
-      } else if (scrollToElement) {
-        this.scrollToElement(scrollToElement, true);
-      }
-    }
-  }
-  scrollToBottom(skipReinitialised) {
-    this.reinitialise(skipReinitialised, true);
-  }
-  reinitialise(skipReinitialised, bottom) {
-    let _this$domRef2;
-    const $elem = (_this$domRef2 = this.domRef) == null ? void 0 : _this$domRef2.current;
-    if (!$elem) {
-      return;
-    }
-    this.isUserScroll = false;
-    if (bottom) {
-      $elem.scrollTop = this.getScrollHeight();
-    }
-    Ps.update($elem);
-    this.isUserScroll = true;
-    if (!skipReinitialised) {
-      this.reinitialised(true);
-    }
-  }
-  getDOMRect(node) {
-    let _this$domRef3;
-    node = node || ((_this$domRef3 = this.domRef) == null ? void 0 : _this$domRef3.current);
-    return node && node.getBoundingClientRect();
-  }
-  getScrollOffset(value) {
-    let _this$domRef4;
-    const $elem = (_this$domRef4 = this.domRef) == null ? void 0 : _this$domRef4.current;
-    if ($elem) {
-      return this.getDOMRect($elem.children[0])[value] - this.getDOMRect($elem)[value];
-    }
-    return 0;
-  }
-  getScrollHeight() {
-    const res = this.getScrollOffset('height');
-    if (res < 1) {
-      return this._lastKnownScrollHeight || 0;
-    }
-    this._lastKnownScrollHeight = res;
-    return res;
-  }
-  getScrollWidth() {
-    const res = this.getScrollOffset('width');
-    if (res < 1) {
-      return this._lastKnownScrollWidth || 0;
-    }
-    this._lastKnownScrollWidth = res;
-    return res;
-  }
-  getContentHeight() {
-    const $elem = this.get$Node();
-    return $elem[0].scrollHeight;
-  }
-  getContentWidth() {
-    const $elem = this.get$Node();
-    return $elem[0].scrollWidth;
-  }
-  setCssContentHeight(h) {
-    const $elem = this.get$Node();
-    return $elem.css('height', h);
-  }
-  isAtTop() {
-    let _this$domRef5;
-    return ((_this$domRef5 = this.domRef) == null ? void 0 : _this$domRef5.current.scrollTop) === 0;
-  }
-  isAtBottom() {
-    return Math.round(this.getScrollPositionY()) === Math.round(this.getScrollHeight());
-  }
-  isCloseToBottom(minPixelsOff) {
-    return this.getScrollHeight() - this.getScrollPositionY() <= minPixelsOff;
-  }
-  getScrolledPercentY() {
-    return 100 / this.getScrollHeight() * this.getScrollPositionY();
-  }
-  getScrollPositionY() {
-    let _this$domRef6;
-    return (_this$domRef6 = this.domRef) == null ? void 0 : _this$domRef6.current.scrollTop;
-  }
-  getScrollPositionX() {
-    let _this$domRef7;
-    return (_this$domRef7 = this.domRef) == null ? void 0 : _this$domRef7.current.scrollLeft;
-  }
-  getClientWidth() {
-    let _this$domRef8;
-    return (_this$domRef8 = this.domRef) == null ? void 0 : _this$domRef8.current.clientWidth;
-  }
-  getClientHeight() {
-    let _this$domRef9;
-    return (_this$domRef9 = this.domRef) == null ? void 0 : _this$domRef9.current.clientHeight;
-  }
-  scrollToPercentY(posPerc, skipReinitialised) {
-    const $elem = this.get$Node();
-    const targetPx = this.getScrollHeight() / 100 * posPerc;
-    if ($elem[0].scrollTop !== targetPx) {
-      this.doProgramaticScroll(targetPx, 0, 0, skipReinitialised);
-    }
-  }
-  scrollToPercentX(posPerc, skipReinitialised) {
-    const $elem = this.get$Node();
-    const targetPx = this.getScrollWidth() / 100 * posPerc;
-    if ($elem[0].scrollLeft !== targetPx) {
-      this.doProgramaticScroll(targetPx, false, true, skipReinitialised);
-    }
-  }
-  scrollToY(posY, skipReinitialised) {
-    const $elem = this.get$Node();
-    if ($elem[0].scrollTop !== posY) {
-      this.doProgramaticScroll(posY, 0, 0, skipReinitialised);
-    }
-  }
-  scrollToElement(element, skipReinitialised) {
-    if (element && element.offsetParent) {
-      this.doProgramaticScroll(element.offsetTop, 0, 0, skipReinitialised);
-    }
-  }
-  disable() {
-    if (this.isMounted()) {
-      const $elem = this.get$Node();
-      $elem.attr('data-scroll-disabled', true);
-      $elem.addClass('ps-disabled');
-      Ps.disable($elem[0]);
-    }
-  }
-  enable() {
-    if (this.isMounted()) {
-      const $elem = this.get$Node();
-      $elem.removeAttr('data-scroll-disabled');
-      $elem.removeClass('ps-disabled');
-      Ps.enable($elem[0]);
-    }
-  }
-  reinitialised(forced) {
-    if (this.props.onReinitialise) {
-      this.props.onReinitialise(this, this.get$Node(), forced ? forced : false);
-    }
-  }
-  onResize(forced, scrollPositionYPerc, scrollToElement) {
-    if (forced && forced.originalEvent) {
-      forced = true;
-      scrollPositionYPerc = undefined;
-    }
-    this.eventuallyReinitialise(forced, scrollPositionYPerc, scrollToElement);
-  }
-  inViewport(domNode) {
-    return verge.inViewport(domNode);
-  }
-  componentDidUpdate() {
-    if (this.props.requiresUpdateOnResize || this.requiresUpdateOnResize) {
-      this.onResize(true);
-    }
-    this.attachAnimationEvents();
-  }
-  customIsEventuallyVisible() {
-    const {chatRoom} = this.props;
-    return !chatRoom || chatRoom.isCurrentlyActive;
-  }
-  render() {
-    const {
-      style,
-      className,
-      children
-    } = this.props;
-    return JSX_("div", {
-      ref: this.domRef,
-      style,
-      className
-    }, children);
-  }
-}, _PerfectScrollbar.defaultProps = {
-  className: "perfectScrollbarContainer",
-  requiresUpdateOnResize: true
-}, _PerfectScrollbar), (0,_babel_runtime_helpers_applyDecoratedDescriptor0__ .A)(_class.prototype, "eventuallyReinitialise", [_dec], Object.getOwnPropertyDescriptor(_class.prototype, "eventuallyReinitialise"), _class.prototype), (0,_babel_runtime_helpers_applyDecoratedDescriptor0__ .A)(_class.prototype, "onResize", [_dec2], Object.getOwnPropertyDescriptor(_class.prototype, "onResize"), _class.prototype), _class);
-
- },
-
- 1510
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   ms: () =>  Dropdown,
-   tJ: () =>  DropdownItem
- });
-
- const react0__ = REQ_(1594);
- const react0___default = REQ_.n(react0__);
- const _utils_jsx1__ = REQ_(6411);
- const _chat_mixins2__ = REQ_(8264);
- const _chat_ui_contacts_jsx3__ = REQ_(8022);
-
-
-
-
-class Dropdown extends _chat_mixins2__ .w9 {
-  constructor(props) {
-    super(props);
-    this.domRef = react0___default().createRef();
-    this.onActiveChange = this.onActiveChange.bind(this);
-    this.onResized = this.onResized.bind(this);
-  }
-  UNSAFE_componentWillUpdate(nextProps) {
-    if (this.props.active != nextProps.active) {
-      this.onActiveChange(nextProps.active);
-    }
-  }
-  specShouldComponentUpdate(nextProps, nextState) {
-    if (this.props.active != nextProps.active) {
-      if (this.props.onBeforeActiveChange) {
-        this.props.onBeforeActiveChange(nextProps.active);
-      }
-      return true;
-    } else if (this.props.focused != nextProps.focused) {
-      return true;
-    } else if (this.state && this.state.active != nextState.active) {
-      return true;
-    }
-    return undefined;
-  }
-  onActiveChange(newVal) {
-    if (this.props.onActiveChange) {
-      this.props.onActiveChange(newVal);
-    }
-  }
-  reposElementUsing(element, obj, info) {
-    let $element;
-    if (this.popupElement) {
-      $element = $(this.popupElement);
-    } else {
-      return;
-    }
-    const self = this;
-    let vertOffset = 0;
-    let horizOffset = 0;
-    if (!self.props.noArrow) {
-      const $arrow = $('.dropdown-white-arrow', $element);
-      let arrowHeight;
-      if (self.props.arrowHeight) {
-        arrowHeight = self.props.arrowHeight;
-        if (info.vertical === "top") {
-          arrowHeight = 0;
-        } else {
-          arrowHeight *= -1;
-        }
-      } else {
-        arrowHeight = $arrow.outerHeight();
-      }
-      if (info.vertical === "top") {
-        $(element).removeClass("down-arrow").addClass("up-arrow");
-      } else {
-        $(element).removeClass("up-arrow").addClass("down-arrow");
-      }
-      vertOffset += info.vertical === "top" ? arrowHeight : 0;
-    }
-    if (self.props.vertOffset) {
-      vertOffset += self.props.vertOffset * (info.vertical === "top" ? 1 : -1);
-    }
-    if (self.props.horizOffset) {
-      horizOffset += self.props.horizOffset;
-    }
-    $(element).css({
-      left: `${obj.left + 0 + horizOffset  }px`,
-      top: `${obj.top + vertOffset  }px`
-    });
-    if (this.props.positionLeft) {
-      $(element).css({
-        left: this.props.positionLeft
-      });
-    }
-  }
-  onResized() {
-    const self = this;
-    if (this.props.active === true && this.popupElement) {
-      const $element = $(this.popupElement);
-      const $positionToElement = $('.button.active-dropdown:visible');
-      if ($positionToElement.length === 0) {
-        return;
-      }
-      let $container = $positionToElement.closest('.messages.scroll-area');
-      if ($container.length === 0) {
-        $container = $(document.body);
-      }
-      $element.css('margin-left', '');
-      $element.position({
-        of: $positionToElement,
-        my: self.props.positionMy ? self.props.positionMy : "center top",
-        at: self.props.positionAt ? self.props.positionAt : "center bottom",
-        collision: this.props.collision || 'flipfit',
-        within: self.props.wrapper || $container,
-        using (obj, info) {
-          self.reposElementUsing(this, obj, info);
-        }
-      });
-    }
-  }
-  componentDidMount() {
-    super.componentDidMount();
-    chatGlobalEventManager.addEventListener('resize', `drpdwn${  this.getUniqueId()}`, this.onResized.bind(this));
-    this.onResized();
-    const self = this;
-    $(document.body).rebind(`closeAllDropdownsExcept.drpdwn${  this.getUniqueId()}`, (e, target) => {
-      if (self.props.active && target !== self) {
-        if (self.props && self.props.closeDropdown) {
-          self.props.closeDropdown();
-        }
-      }
-    });
-  }
-  componentDidUpdate() {
-    this.onResized();
-  }
-  componentWillUnmount() {
-    super.componentWillUnmount();
-    $(document.body).unbind(`closeAllDropdownsExcept.drpdwn${  this.getUniqueId()}`);
-    if (this.props.active) {
-      this.onActiveChange(false);
-    }
-    chatGlobalEventManager.removeEventListener('resize', `drpdwn${  this.getUniqueId()}`);
-  }
-  doRerender() {
-    const self = this;
-    setTimeout(() => {
-      self.safeForceUpdate();
-    }, 100);
-    setTimeout(() => {
-      self.onResized();
-    }, 200);
-  }
-  renderChildren() {
-    const self = this;
-    return react0___default().Children.map(this.props.children, (child) => {
-      if (child) {
-        let activeVal = self.props.active || self.state.active;
-        activeVal = String(activeVal);
-        return react0___default().cloneElement(child, {
-          active: activeVal
-        });
-      }
-      return null;
-    });
-  }
-  render() {
-    if (this.props.active !== true) {
-      return null;
-    }
-    const self = this;
-    let child = null;
-    if (this.props.children) {
-      child = JSX_("div", {
-        ref: this.domRef
-      }, self.renderChildren());
-    } else if (this.props.dropdownItemGenerator) {
-      child = this.props.dropdownItemGenerator(this);
-    }
-    if (!child && !this.props.forceShowWhenEmpty) {
-      if (this.props.active !== false) {
-        queueMicrotask(() => {
-          self.onActiveChange(false);
-        });
-      }
-      return null;
-    }
-    return JSX_(_utils_jsx1__ .Ay.RenderTo, {
-      element: document.body,
-      className: `
-                    dropdown
-                    body
-                    ${this.props.noArrow ? '' : 'dropdown-arrow up-arrow'}
-                    ${this.props.className || ''}
-                `,
-      style: this.popupElement && {
-        zIndex: 123,
-        position: 'absolute',
-        width: this.props.styles ? this.props.styles.width : undefined
-      },
-      popupDidMount: popupElement => {
-        this.popupElement = popupElement;
-        this.onResized();
-      },
-      popupWillUnmount: () => {
-        delete this.popupElement;
-      }
-    }, JSX_("div", {
-      ref: this.domRef,
-      onClick: () => {
-        $(document.body).trigger('closeAllDropdownsExcept', this);
-      }
-    }, this.props.noArrow ? null : JSX_("i", {
-      className: "dropdown-white-arrow"
-    }), child));
-  }
-}
-Dropdown.defaultProps = {
-  'requiresUpdateOnResize': true
-};
-class DropdownContactsSelector extends _chat_mixins2__ .w9 {
-  constructor(props) {
-    super(props);
-    this.state = {
-      'selected': this.props.selected ? this.props.selected : []
-    };
-    this.onSelectClicked = this.onSelectClicked.bind(this);
-    this.onSelected = this.onSelected.bind(this);
-  }
-  specShouldComponentUpdate(nextProps, nextState) {
-    if (this.props.active != nextProps.active) {
-      return true;
-    } else if (this.props.focused != nextProps.focused) {
-      return true;
-    } else if (this.state && this.state.active != nextState.active) {
-      return true;
-    } else if (this.state && JSON.stringify(this.state.selected) != JSON.stringify(nextState.selected)) {
-      return true;
-    } else {
-      return undefined;
-    }
-  }
-  onSelected(nodes) {
-    this.setState({
-      'selected': nodes
-    });
-    if (this.props.onSelected) {
-      this.props.onSelected(nodes);
-    }
-    this.forceUpdate();
-  }
-  onSelectClicked() {
-    this.props.onSelectClicked();
-  }
-  render() {
-    return JSX_(Dropdown, {
-      className: `
-                    popup contacts-search
-                    ${this.props.className}
-                    tooltip-blur
-                `,
-      active: this.props.active,
-      closeDropdown: this.props.closeDropdown,
-      ref: ref => {
-        this.dropdownRef = ref;
-      },
-      positionMy: this.props.positionMy,
-      positionAt: this.props.positionAt,
-      arrowHeight: this.props.arrowHeight,
-      horizOffset: this.props.horizOffset,
-      vertOffset: this.props.vertOffset,
-      noArrow: true
-    }, JSX_(_chat_ui_contacts_jsx3__ .hU, {
-      onClose: this.props.closeDropdown,
-      onEventuallyUpdated: () => {
-        let _this$dropdownRef;
-        return (_this$dropdownRef = this.dropdownRef) == null ? void 0 : _this$dropdownRef.doRerender();
-      },
-      active: this.props.active,
-      className: "popup contacts-search tooltip-blur small-footer",
-      contacts: M.u,
-      selectFooter: this.props.selectFooter,
-      megaChat: this.props.megaChat,
-      exclude: this.props.exclude,
-      allowEmpty: this.props.allowEmpty,
-      multiple: this.props.multiple,
-      topButtons: this.props.topButtons,
-      showAddContact: this.props.showAddContact,
-      onAddContact: () => eventlog(500237),
-      onSelected: () => eventlog(500238),
-      onSelectDone: this.props.onSelectDone,
-      multipleSelectedButtonLabel: this.props.multipleSelectedButtonLabel,
-      singleSelectedButtonLabel: this.props.singleSelectedButtonLabel,
-      nothingSelectedButtonLabel: this.props.nothingSelectedButtonLabel
-    }));
-  }
-}
-DropdownContactsSelector.defaultProps = {
-  requiresUpdateOnResize: true
-};
-class DropdownItem extends _chat_mixins2__ .w9 {
-  constructor(props) {
-    super(props);
-    this.domRef = react0___default().createRef();
-    this.state = {
-      'isClicked': false
-    };
-    this.onClick = this.onClick.bind(this);
-    this.onMouseOver = this.onMouseOver.bind(this);
-  }
-  renderChildren() {
-    const self = this;
-    return react0___default().Children.map(this.props.children, (child) => {
-      const props = {
-        active: self.state.isClicked,
-        closeDropdown () {
-          self.setState({
-            'isClicked': false
-          });
-        }
-      };
-      return react0___default().cloneElement(child, props);
-    });
-  }
-  onClick(ev) {
-    const {
-      children,
-      persistent,
-      onClick
-    } = this.props;
-    if (children) {
-      ev.stopPropagation();
-      ev.preventDefault();
-      this.setState({
-        isClicked: !this.state.isClicked
-      });
-    }
-    if (!persistent) {
-      $(document).trigger('closeDropdowns');
-    }
-    return onClick && onClick(ev);
-  }
-  onMouseOver(e) {
-    if (this.props.submenu) {
-      const $contextItem = $(e.target).closest(".contains-submenu");
-      const $subMenu = $contextItem.next('.submenu');
-      const contextTopPos = $contextItem.position().top;
-      let contextleftPos = 0;
-      $contextItem.addClass("opened");
-      $subMenu.addClass("active");
-      contextleftPos = $contextItem.offset().left + $contextItem.outerWidth() + $subMenu.outerWidth() + 10;
-      if (contextleftPos > $(document.body).width()) {
-        $subMenu.addClass("left-position");
-      }
-      $subMenu.css({
-        "top": contextTopPos
-      });
-    } else if (!$(e.target).parent('.submenu').length) {
-      const $dropdown = $(e.target).closest(".dropdown.body");
-      $dropdown.find(".contains-submenu").removeClass("opened");
-      $dropdown.find(".submenu").removeClass("active");
-    }
-  }
-  render() {
-    const {
-      className,
-      disabled,
-      label,
-      icon,
-      submenu
-    } = this.props;
-    return JSX_("div", {
-      ref: this.domRef,
-      className: `
-                    dropdown-item
-                    ${className ? className : ''}
-                    ${submenu ? 'contains-submenu' : ''}
-                    ${disabled ? 'disabled' : ''}
-                `,
-      onClick: disabled ? undefined : ev => this.onClick(ev),
-      onMouseOver: this.onMouseOver
-    }, icon && JSX_("i", {
-      className: icon
-    }), label && JSX_("span", null, label), submenu ? JSX_("i", {
-      className: "sprite-fm-mono icon-arrow-right submenu-icon"
-    }) : '', JSX_("div", null, this.renderChildren()));
-  }
-}
-DropdownItem.defaultProps = {
-  requiresUpdateOnResize: true
-};
-
- },
-
- 1594
-(module) {
-
-"use strict";
-module.exports = React;
-
- },
-
- 3439
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   A: () =>  Fallback
- });
- const react0__ = REQ_(1594);
- const react0___default = REQ_.n(react0__);
-
-class Fallback extends react0___default().Component {
-  render() {
-    return JSX_("div", {
-      className: "loading-spinner light"
-    }, JSX_("div", {
-      className: "main-loader"
-    }));
-  }
-}
-
- },
-
- 3901
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   $A: () =>  MAX_STREAMS,
-   Av: () =>  isExpanded,
-   Bq: () =>  PAGINATION,
-   Cy: () =>  isModerator,
-   Fj: () =>  EXPANDED_FLAG,
-   HV: () =>  getUnsupportedBrowserMessage,
-   P: () =>  isGuest,
-   ZE: () =>  TYPE,
-   _F: () =>  renderEndConfirm,
-   dQ: () =>  inProgressAlert,
-   g: () =>  MODE,
-   gR: () =>  VIEW,
-   gh: () =>  STREAMS_PER_PAGE,
-   hK: () =>  STREAM_ACTIONS,
-   sX: () =>  renderLeaveConfirm
- });
-const EXPANDED_FLAG = 'in-call';
-const MODE = {
-  THUMBNAIL: 1,
-  MAIN: 2,
-  MINI: 3
-};
-const VIEW = {
-  DEFAULT: 0,
-  CHAT: 1,
-  PARTICIPANTS: 2
-};
-const TYPE = {
-  AUDIO: 1,
-  VIDEO: 2
-};
-const STREAM_ACTIONS = {
-  ADD: 1,
-  REMOVE: 2
-};
-const PAGINATION = {
-  PREV: -1,
-  NEXT: 1
-};
-const MAX_STREAMS = 99;
-const STREAMS_PER_PAGE = {
-  MIN: 9,
-  MED: 21,
-  MAX: 49
-};
-const isGuest = () => !u_type;
-const inProgressAlert = (isJoin, chatRoom) => {
-  return new Promise((resolve, reject) => {
-    if (megaChat.haveAnyActiveCall()) {
-      if (window.sfuClient) {
-        const {
-          chatRoom: activeCallRoom
-        } = megaChat.activeCall;
-        const peers = activeCallRoom ? activeCallRoom.getParticipantsExceptMe(activeCallRoom.getCallParticipants()).map(h => M.getNameByHandle(h)) : [];
-        let body = isJoin ? l.cancel_to_join : l.cancel_to_start;
-        if (peers.length) {
-          body = mega.utils.trans.listToString(peers, isJoin ? l.cancel_with_to_join : l.cancel_with_to_start);
-        }
-        msgDialog('warningb', null, l.call_in_progress, body, null, 1);
-        return reject();
-      }
-      if (chatRoom.getCallParticipants().includes(u_handle)) {
-        return resolve();
-      }
-      return msgDialog(`warningb:!^${l[2005]}!${isJoin ? l.join_call_anyway : l.start_call_anyway}`, null, isJoin ? l.join_multiple_calls_title : l.start_multiple_calls_title, isJoin ? l.join_multiple_calls_text : l.start_multiple_calls_text, join => {
-        if (join) {
-          return resolve();
-        }
-        return reject();
-      }, 1);
-    }
-    resolve();
-  });
-};
-window.inProgressAlert = inProgressAlert;
-const isModerator = (chatRoom, handle) => {
-  if (chatRoom && handle) {
-    return chatRoom.members[handle] === ChatRoom.MembersSet.PRIVILEGE_STATE.OPERATOR;
-  }
-  return false;
-};
-const isExpanded = () => document.body.classList.contains(EXPANDED_FLAG);
-const getUnsupportedBrowserMessage = () => navigator.userAgent.match(/Chrom(e|ium)\/(\d+)\./) ? l.alert_unsupported_browser_version : l.alert_unsupported_browser;
-const renderLeaveConfirm = (onConfirm, onRecordingToggle) => msgDialog(`confirmation:!^${l.leave_call_recording_dialog_cta}!${l.leave_call_recording_dialog_nop_cta}`, undefined, l.leave_call_recording_dialog_heading, l.leave_call_recording_dialog_body, cb => {
-  if (cb) {
-    onRecordingToggle();
-    onConfirm();
-  }
-}, 1);
-const renderEndConfirm = (onConfirm, onRecordingToggle) => msgDialog(`confirmation:!^${l.end_call_recording_dialog_cta}!${l.end_call_recording_dialog_nop_cta}`, undefined, l.end_call_recording_dialog_heading, l.end_call_recording_dialog_body, cb => {
-  if (cb) {
-    onRecordingToggle();
-    onConfirm();
-  }
-}, 1);
-
- },
-
- 4372
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   Y: () =>  withUpdateObserver
- });
- const _babel_runtime_helpers_extends0__ = REQ_(8168);
- const react1__ = REQ_(1594);
- const react1___default = REQ_.n(react1__);
- const _mixins_js2__ = REQ_(8264);
-
-
-
-const withUpdateObserver = Component => class extends _mixins_js2__ .w9 {
-  constructor(...args) {
-    super(...args);
-    this.updateInterval = 600000;
-    this.instanceRef = react1___default().createRef();
-    this.intervalRef = undefined;
-    this.state = {
-      updated: 0
-    };
-    this.updateListener = () => {
-      return this.isComponentVisible() && document.visibilityState === 'visible' && this.setState(state => ({
-        updated: ++state.updated
-      }), () => this.safeForceUpdate());
-    };
-  }
-  componentWillUnmount() {
-    super.componentWillUnmount();
-    document.removeEventListener('visibilitychange', this.updateListener);
-    clearInterval(this.intervalRef);
-  }
-  componentDidMount() {
-    super.componentDidMount();
-    document.addEventListener('visibilitychange', this.updateListener);
-    this.intervalRef = setInterval(this.instanceRef.current[Component.updateListener] || this.updateListener, Component.updateInterval || this.updateInterval);
-  }
-  render() {
-    return JSX_(Component, (0,_babel_runtime_helpers_extends0__ .A)({
-      ref: this.instanceRef
-    }, this.state, this.props));
-  }
-};
-
- },
-
- 4649
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   A: () =>  Link
- });
- const react0__ = REQ_(1594);
- const react0___default = REQ_.n(react0__);
-
-class Link extends react0___default().Component {
-  constructor(props) {
-    super(props);
-    this.IS_CLICK_URL = undefined;
-    this.IS_CLICK_URL = this.props.to && (this.props.to.startsWith('/') || this.props.to.includes('mega.io'));
-  }
-  componentDidMount() {
-    if (this.IS_CLICK_URL) {
-      clickURLs();
-    }
-  }
-  render() {
-    const {
-      className,
-      to,
-      target,
-      children,
-      onClick
-    } = this.props;
-    if (this.IS_CLICK_URL) {
-      return JSX_("a", {
-        className: `
-                        clickurl
-                        ${className || ''}
-                    `,
-        href: to,
-        target
-      }, children);
-    }
-    return JSX_("a", {
-      className,
-      href: "#",
-      onClick: ev => {
-        if (onClick) {
-          ev.preventDefault();
-          return onClick(ev);
-        }
-        return null;
-      }
-    }, children);
-  }
-}
-
- },
-
- 4664
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   C: () =>  NAMESPACE,
-   x: () =>  FILTER
- });
-const NAMESPACE = 'lhp';
-const FILTER = {
-  MUTED: 'muted',
-  UNREAD: 'unread'
-};
-
- },
-
- 4904
-(_, EXP_, REQ_) {
-
-"use strict";
-
-// EXPORTS
-REQ_.d(EXP_, {
-  qY: () =>  EVENTS,
-  Vw: () =>  VIEWS,
-  Ay: () =>  conversations
+const ChatGlobalEventManager = function () {};
+lazy(ChatGlobalEventManager.prototype, 'listeners', function () {
+  window.addEventListener('hashchange', ev => this.triggered(ev));
+  $(window).rebind('resize.chatGlobalEventManager', ev => this.triggered(ev));
+  const listeners = Object.create(null);
+  listeners.resize = Object.create(null);
+  listeners.hashchange = Object.create(null);
+  return listeners;
 });
-
-// EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/extends.js
-const esm_extends = REQ_(8168);
-// EXTERNAL MODULE: external "React"
-const external_React_ = REQ_(1594);
-const REaCt = REQ_.n(external_React_);
-// EXTERNAL MODULE: ./js/chat/mixins.js
-const mixins = REQ_(8264);
-// EXTERNAL MODULE: ./js/chat/ui/meetings/utils.jsx
-const utils = REQ_(3901);
-// EXTERNAL MODULE: ./js/ui/modalDialogs.jsx + 1 modules
-const modalDialogs = REQ_(8120);
-;// ./js/chat/ui/meetings/workflow/freeCallEnded.jsx
-
-
-const NAMESPACE = 'free-call-ended-dlg';
-class FreeCallEnded extends REaCt().Component {
-  constructor(...args) {
-    super(...args);
-    this.domRef = REaCt().createRef();
-  }
-  componentWillUnmount() {
-    if ($.dialog === NAMESPACE) {
-      closeDialog();
-    }
-  }
-  componentDidMount() {
-    M.safeShowDialog(NAMESPACE, () => {
-      if (!this.domRef.current) {
-        throw new Error(`${NAMESPACE} dialog: component ${NAMESPACE} not mounted.`);
-      }
-      eventlog(500295);
-      return $(`#${NAMESPACE}`);
-    });
-  }
-  render() {
-    const {
-      onClose
-    } = this.props;
-    return JSX_(modalDialogs.A.ModalDialog, {
-      id: NAMESPACE,
-      ref: this.domRef,
-      className: "mega-dialog",
-      dialogType: "action",
-      dialogName: NAMESPACE,
-      onClose
-    }, JSX_("header", null, JSX_("div", {
-      className: "free-call-ended graphic"
-    }, JSX_("img", {
-      src: `${staticpath}images/mega/chat-upgrade-rocket.png`
-    }))), JSX_("section", {
-      className: "content"
-    }, JSX_("div", {
-      className: "content-block"
-    }, JSX_("div", {
-      className: "dialog-body-text"
-    }, JSX_("h3", null, l.free_call_ended_dlg_text), JSX_("span", null, l.free_call_ended_dlg_subtext)))), JSX_("footer", null, JSX_("div", {
-      className: "footer-container"
-    }, JSX_("button", {
-      className: "mega-button positive large",
-      onClick: () => {
-        loadSubPage('pro');
-        eventlog(500261);
-        onClose();
-      }
-    }, JSX_("span", null, l.upgrade_now)))));
-  }
-}
-// EXTERNAL MODULE: ./js/chat/ui/contactsPanel/utils.jsx
-const contactsPanel_utils = REQ_(836);
-// EXTERNAL MODULE: ./js/chat/ui/leftPanel/utils.jsx
-const leftPanel_utils = REQ_(4664);
-// EXTERNAL MODULE: ./js/chat/ui/link.jsx
-const ui_link = REQ_(4649);
-;// ./js/chat/ui/errorBoundary.jsx
-
-
-class ErrorBoundary extends REaCt().Component {
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      hasError: false,
-      error: null
-    };
-    this.handleRetry = () => this.setState({
-      hasError: false,
-      error: null
-    });
-  }
-  static getDerivedStateFromError(error) {
-    return {
-      hasError: true,
-      error
-    };
-  }
-  componentDidCatch(error, errorInfo) {
-    console.error(error, errorInfo);
-  }
-  render() {
-    const {
-      hasError,
-      error
-    } = this.state;
-    if (hasError) {
-      return JSX_("div", {
-        className: "meetings-error"
-      }, JSX_("div", {
-        className: "meetings-error--content"
-      }, JSX_("i", {
-        className: `
-                                sprite-fm-illustration-wide
-                                ${mega.ui.isDarkTheme() ? 'mega-logo-dark' : 'img-mega-logo-light'}
-                            `
-      }), JSX_("h1", null, l[200]), JSX_("span", null, "Please ", JSX_(ui_link.A, {
-        onClick: this.handleRetry
-      }, "try again"), " or\xA0", JSX_(ui_link.A, {
-        onClick: () => location.reload()
-      }, "reload the page"), "."), d && JSX_("div", {
-        className: "meetings-error--details"
-      }, error.toString())));
-    }
-    return this.props.children;
-  }
-}
-// EXTERNAL MODULE: ./js/chat/ui/fallback.jsx
-const fallback = REQ_(3439);
-;// ./js/chat/ui/conversations.jsx
-
-
-
-
-
-
-
-
-
-const LeftPanel = (0,external_React_.lazy)(() => REQ_.e( 493).then(REQ_.bind(REQ_, 4907)));
-const EmptyConversationsPanel = (0,external_React_.lazy)(() => REQ_.e( 493).then(REQ_.bind(REQ_, 8596)));
-const ChatToaster = (0,external_React_.lazy)(() => REQ_.e( 493).then(REQ_.bind(REQ_, 8491)));
-const ConversationPanels = (0,external_React_.lazy)(() => REQ_.e( 493).then(REQ_.bind(REQ_, 5677)).then(m => ({
-  default: m.ConversationPanels
-})));
-const ContactsPanel = (0,external_React_.lazy)(() => REQ_.e( 253).then(REQ_.bind(REQ_, 5392)));
-const ScheduleMeetingDialog = (0,external_React_.lazy)(() => REQ_.e( 716).then(REQ_.bind(REQ_, 8389)));
-const ScheduleOccurrenceDialog = (0,external_React_.lazy)(() => REQ_.e( 716).then(REQ_.bind(REQ_, 4156)));
-const ContactSelectorDialog = (0,external_React_.lazy)(() => REQ_.e( 543).then(REQ_.bind(REQ_, 2678)));
-const StartGroupChatWizard = (0,external_React_.lazy)(() => REQ_.e( 543).then(REQ_.bind(REQ_, 5199)));
-const StartMeetingDialog = (0,external_React_.lazy)(() => REQ_.e( 543).then(REQ_.bind(REQ_, 7190)));
-const VIEWS = {
-  CHATS: 0x00,
-  MEETINGS: 0x01,
-  LOADING: 0x02
+ChatGlobalEventManager.prototype.addEventListener = function (eventName, namespace, cb) {
+  this.listeners[eventName][namespace] = this.listeners[namespace] || cb;
 };
-const EVENTS = {
-  NAV_RENDER_VIEW: 'navRenderView'
+ChatGlobalEventManager.prototype.removeEventListener = function (eventName, namespace) {
+  delete this.listeners[eventName][namespace];
 };
-window.convAppConstants = {
-  VIEWS,
-  EVENTS
-};
-class ConversationsApp extends mixins.w9 {
-  constructor(props) {
-    super(props);
-    this.domRef = REaCt().createRef();
-    this.chatRoomRef = null;
-    this.occurrenceRef = null;
-    this.state = {
-      startGroupChatDialog: false,
-      startMeetingDialog: false,
-      scheduleMeetingDialog: false,
-      scheduleOccurrenceDialog: false,
-      freeCallEndedDialog: false,
-      contactSelectorDialog: false,
-      view: VIEWS.LOADING,
-      callExpanded: false,
-      ipcData: null
-    };
-    this._cacheRouting();
-    megaChat.rebind('onStartNewMeeting.convApp', () => this.startMeeting());
-  }
-  startMeeting() {
-    if (megaChat.hasSupportForCalls) {
-      return (0,utils.dQ)().then(() => this.setState({
-        startMeetingDialog: true
-      })).catch(() => d && console.warn('Already in a call.'));
-    }
-    return showToast('warning', l[7211]);
-  }
-  _cacheRouting() {
-    this.routingSection = this.props.megaChat.routingSection;
-    this.routingSubSection = this.props.megaChat.routingSubSection;
-    this.routingParams = this.props.megaChat.routingParams;
-  }
-  hasOpenDialog() {
-    return [...document.querySelectorAll('.mega-dialog')].some(dialog => !!(dialog.offsetParent || dialog.offsetWidth || dialog.offsetHeight));
-  }
-  specShouldComponentUpdate() {
-    if (this.routingSection !== this.props.megaChat.routingSection || this.routingSubSection !== this.props.megaChat.routingSubSection || this.routingParams !== this.props.megaChat.routingParams) {
-      this._cacheRouting();
-      return true;
+ChatGlobalEventManager.prototype.triggered = SoonFc(140, function _chatEVDispatcher(ev) {
+  if (M.chat) {
+    const listeners = this.listeners[ev.type];
+    for (const k in listeners) {
+      listeners[k](ev);
     }
   }
-  componentDidMount() {
-    super.componentDidMount();
-    $(document).rebind('keydown.megaChatTextAreaFocus', e => {
-      if (!M.chat || e.megaChatHandled) {
-        return;
-      }
-      const {
-        currentlyOpenedChat
-      } = megaChat;
-      const currentRoom = megaChat.getCurrentRoom();
-      if (currentlyOpenedChat) {
-        if (currentRoom && currentRoom.isReadOnly() || $(e.target).is(".messages-textarea, input, textarea") || (e.ctrlKey || e.metaKey || e.which === 19) && e.keyCode === 67 || e.keyCode === 91 || e.keyCode === 17 || e.keyCode === 27 || e.altKey || e.metaKey || e.ctrlKey || e.shiftKey || this.hasOpenDialog() || document.querySelector('textarea:focus,select:focus,input:focus')) {
-          return;
-        }
-        const $typeArea = $('.messages-textarea:visible:first');
-        moveCursortoToEnd($typeArea);
-        e.megaChatHandled = true;
-        $typeArea.triggerHandler(e);
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-    });
-    $(document).rebind('mouseup.megaChatTextAreaFocus', e => {
-      if (!M.chat || e.megaChatHandled || slideshowid) {
-        return;
-      }
-      const $target = $(e.target);
-      if (megaChat.currentlyOpenedChat) {
-        if ($target.is(".messages-textarea,a,input,textarea,select,button") || $target.is('i') && $target.parent().is('a,input,select,button') || $target.closest('.messages.scroll-area').length > 0 || $target.closest('.mega-dialog').length > 0 || this.hasOpenDialog() || document.querySelector('textarea:focus,select:focus,input:focus') || window.getSelection().toString()) {
-          return;
-        }
-        const $typeArea = $('.messages-textarea:visible:first');
-        if ($typeArea.length === 1 && !$typeArea.is(":focus")) {
-          $typeArea.trigger("focus");
-          e.megaChatHandled = true;
-        }
-      }
-    });
-    megaChat.rebind(megaChat.plugins.meetingsManager.EVENTS.EDIT, (ev, chatOrOccurrence) => {
-      if (chatOrOccurrence instanceof ChatRoom || !chatOrOccurrence) {
-        this.chatRoomRef = chatOrOccurrence;
-        this.setState({
-          scheduleMeetingDialog: true
-        });
-      } else {
-        this.occurrenceRef = chatOrOccurrence;
-        this.setState({
-          scheduleOccurrenceDialog: true
-        });
-      }
-    });
-    megaChat.rebind(EVENTS.NAV_RENDER_VIEW, ({
-      data
-    }) => {
-      if (Object.values(VIEWS).includes(data)) {
-        this.renderView(data);
-      }
-    });
-    megaChat.rebind('onCallTimeLimitExceeded', () => {
-      this.setState({
-        freeCallEndedDialog: true
-      });
-    });
-    if (megaChat.WITH_SELF_NOTE && !megaChat.getNoteChat() && !is_chatlink) {
-      api.req({
-        a: 'mcc',
-        u: [],
-        m: 0,
-        g: 0,
-        v: Chatd.VERSION
-      }).catch(dump);
-    }
-    this.requestReceivedListener = mBroadcaster.addListener('fmViewUpdate:ipc', () => {
-      this.setState({
-        ipcData: this.makeIpcData()
-      });
-    });
-    this.setState({
-      ipcData: this.makeIpcData()
-    });
-  }
-  componentWillUnmount() {
-    super.componentWillUnmount();
-    $(document).off('keydown.megaChatTextAreaFocus');
-    mBroadcaster.removeListener('fmViewUpdate:ipc', this.requestReceivedListener);
-  }
-  componentDidUpdate(prevProps, prevState) {
-    this.handleOnboardingStep();
-    const {
-      names: prevNames
-    } = prevState.ipcData;
-    const newIpcData = this.makeIpcData();
-    const {
-      names: newNames
-    } = newIpcData;
-    if (newNames.size !== prevNames.size) {
-      this.setState({
-        ipcData: newIpcData
-      });
-      return;
-    }
-    let different = false;
-    for (const [email, name] of newNames) {
-      if (!prevNames.has(email) || prevNames.get(email) !== name) {
-        different = true;
-        break;
-      }
-    }
-    if (different) {
-      this.setState({
-        ipcData: newIpcData
-      });
-    }
-  }
-  handleOnboardingStep() {
-    if (this.state.view === VIEWS.LOADING) {
-      return;
-    }
-    megaChat.plugins.chatOnboarding.checkAndShowStep();
-  }
-  renderView(view) {
-    this.setState({
-      view
-    }, () => {
-      const {
-        $chatTreePanePs,
-        routingSection,
-        currentlyOpenedChat
-      } = megaChat;
-      Object.values($chatTreePanePs).forEach(ref => ref.reinitialise == null ? void 0 : ref.reinitialise());
-      if (routingSection !== 'chat') {
-        loadSubPage('fm/chat');
-      }
-      megaChat.currentlyOpenedView = view;
-      if (!currentlyOpenedChat) {
-        megaChat.renderListing(null, false).catch(dump);
-      }
-    });
-  }
-  makeIpcData() {
-    let mixed = false;
-    const names = new Map();
-    const data = Object.values(M.ipc).reduce((acc, curr) => {
-      const name = M.getNameByEmail(curr.m);
-      if (name !== curr.m) {
-        names.set(curr.m, name);
-        mixed = true;
-      }
-      return {
-        ...acc,
-        [curr.p]: {
-          ...curr,
-          name
-        }
-      };
-    }, Object.create(null));
-    return {
-      mixed,
-      data,
-      names
-    };
-  }
-  render() {
-    const {
-      CHATS,
-      MEETINGS
-    } = VIEWS;
-    const {
-      routingSection,
-      chatUIFlags,
-      currentlyOpenedChat,
-      chats
-    } = megaChat;
-    const {
-      view,
-      startGroupChatDialog,
-      startMeetingDialog,
-      scheduleMeetingDialog,
-      scheduleOccurrenceDialog,
-      callExpanded,
-      freeCallEndedDialog,
-      contactSelectorDialog
-    } = this.state;
-    const isEmpty = chats && routingSection === 'chat' && !currentlyOpenedChat && !is_chatlink;
-    const isLoading = !currentlyOpenedChat && megaChat.allChatsHadInitialLoadedHistory() === false && routingSection !== 'contacts';
-    const rightPane = JSX_("div", {
-      className: `
-                    fm-right-files-block
-                    in-chat
-                    ${is_chatlink ? 'chatlink' : ''}
-                `
-    }, JSX_(external_React_.Suspense, {
-      fallback: JSX_(fallback.A, null)
-    }, !isLoading && JSX_(ChatToaster, {
-      isRootToaster: true
-    }), !isLoading && routingSection === 'contacts' && JSX_(ContactsPanel, {
-      megaChat,
-      contacts: M.u,
-      received: this.state.ipcData,
-      sent: M.opc
-    }), !isLoading && JSX_(ConversationPanels, (0,esm_extends.A)({}, this.props, {
-      className: routingSection === 'chat' ? '' : 'hidden',
-      routingSection,
-      currentlyOpenedChat,
-      isEmpty,
-      chatUIFlags,
-      onToggleExpandedFlag: () => this.setState(() => ({
-        callExpanded: (0,utils.Av)()
-      })),
-      onMount: () => {
-        const chatRoom = megaChat.getCurrentRoom();
-        const view = chatRoom && chatRoom.isMeeting ? MEETINGS : CHATS;
-        this.setState({
-          view
-        }, () => {
-          megaChat.currentlyOpenedView = view;
-        });
-      }
-    })), !isLoading && isEmpty && JSX_(EmptyConversationsPanel, {
-      isMeeting: view === MEETINGS,
-      onNewChat: () => this.setState({
-        contactSelectorDialog: true
-      }),
-      onStartMeeting: () => this.startMeeting(),
-      onScheduleMeeting: () => this.setState({
-        scheduleMeetingDialog: true
-      })
-    })), !isLoading && routingSection === 'notFound' && JSX_("span", null, JSX_("center", null, "Section not found")));
-    const noteChat = megaChat.getNoteChat();
-    return JSX_(ErrorBoundary, null, JSX_("div", {
-      ref: this.domRef,
-      className: "conversationsApp"
-    }, JSX_(external_React_.Suspense, {
-      fallback: JSX_(fallback.A, null)
-    }, startMeetingDialog && JSX_(StartMeetingDialog, {
-      onStart: (topic, audio, video) => {
-        megaChat.createAndStartMeeting(topic, audio, video);
-        this.setState({
-          startMeetingDialog: false
-        });
-      },
-      onClose: () => this.setState({
-        startMeetingDialog: false
-      })
-    }), startGroupChatDialog && JSX_(StartGroupChatWizard, {
-      name: "start-group-chat",
-      flowType: 1,
-      onClose: () => this.setState({
-        startGroupChatDialog: false
-      }),
-      onConfirmClicked: () => this.setState({
-        startGroupChatDialog: false
-      })
-    }), scheduleMeetingDialog && JSX_(ScheduleMeetingDialog, {
-      chatRoom: this.chatRoomRef,
-      callExpanded,
-      onClose: () => {
-        this.setState({
-          scheduleMeetingDialog: false
-        }, () => {
-          this.chatRoomRef = null;
-        });
-      }
-    }), scheduleOccurrenceDialog && JSX_(ScheduleOccurrenceDialog, {
-      chatRoom: this.occurrenceRef.scheduledMeeting.chatRoom,
-      scheduledMeeting: this.occurrenceRef.scheduledMeeting,
-      occurrenceId: this.occurrenceRef.uid,
-      callExpanded,
-      onClose: () => {
-        this.setState({
-          scheduleOccurrenceDialog: false
-        }, () => {
-          this.occurrenceRef = null;
-        });
-      }
-    }), contactSelectorDialog && JSX_(ContactSelectorDialog, {
-      className: `main-start-chat-dropdown ${leftPanel_utils.C}-contact-selector`,
-      multiple: false,
-      topButtons: [{
-        key: 'newGroupChat',
-        title: l[19483],
-        className: 'positive',
-        onClick: () => this.setState({
-          startGroupChatDialog: true,
-          contactSelectorDialog: false
-        })
-      }, ...megaChat.WITH_SELF_NOTE ? (0,contactsPanel_utils.SN)() || noteChat && noteChat.hasMessages() ? [] : [{
-        key: 'noteChat',
-        title: l.note_label,
-        icon: 'sprite-fm-mono icon-file-text-thin-outline note-chat-icon',
-        onClick: () => {
-          closeDialog();
-          loadSubPage(`fm/chat/p/${u_handle}`);
-        }
-      }] : []],
-      showAddContact: (0,contactsPanel_utils.SN)(),
-      onClose: () => this.setState({
-        contactSelectorDialog: false
-      }),
-      onSelectDone: selected => {
-        if (selected.length === 1) {
-          return megaChat.createAndShowPrivateRoom(selected[0]).then(room => room.setActive());
-        }
-        megaChat.createAndShowGroupRoomFor(selected);
-      }
-    })), JSX_(external_React_.Suspense, {
-      fallback: JSX_(fallback.A, null)
-    }, routingSection && JSX_(LeftPanel, {
-      view,
-      views: VIEWS,
-      routingSection,
-      conversations: chats,
-      renderView: view => this.renderView(view),
-      startMeeting: () => {
-        this.startMeeting();
-        eventlog(500293);
-      },
-      scheduleMeeting: () => {
-        this.setState({
-          scheduleMeetingDialog: true
-        });
-        delay('chat-event-sm-button-main', () => eventlog(99918));
-      },
-      createNewChat: () => this.setState({
-        contactSelectorDialog: true
-      })
-    })), freeCallEndedDialog && JSX_(FreeCallEnded, {
-      onClose: () => {
-        this.setState({
-          freeCallEndedDialog: false
-        });
-      }
-    }), rightPane));
-  }
-}
- const conversations = ConversationsApp;
-
- },
-
- 5155
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   $: () =>  Button
- });
- const _babel_runtime_helpers_extends0__ = REQ_(8168);
- const react1__ = REQ_(1594);
- const react1___default = REQ_.n(react1__);
- const _chat_mixins_js2__ = REQ_(8264);
-
-
-
-const BLURRABLE_CLASSES = '.conversationsApp, .join-meeting, .main-blur-block';
-class Button extends _chat_mixins_js2__ .w9 {
-  constructor(props) {
-    super(props);
-    this.domRef = react1___default().createRef();
-    this.buttonClass = `.button`;
-    this.state = {
-      focused: false,
-      hovered: false,
-      iconHovered: ''
-    };
-    this.onBlur = e => {
-      let _this$domRef;
-      if (!this.isMounted()) {
-        return;
-      }
-      if (!e || !$(e.target).closest(this.buttonClass).is((_this$domRef = this.domRef) == null ? void 0 : _this$domRef.current)) {
-        this.setState({
-          focused: false
-        }, () => {
-          this.unbindEvents();
-          this.safeForceUpdate();
-        });
-      }
-    };
-    this.onClick = e => {
-      let _this$domRef2;
-      if (this.props.disabled === true) {
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      }
-      if ($(e.target).closest('.popup').closest(this.buttonClass).is((_this$domRef2 = this.domRef) == null ? void 0 : _this$domRef2.current) && this.state.focused === true) {
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      }
-      if ($(e.target).is('input, textarea, select')) {
-        return;
-      }
-      if (this.state.focused === false) {
-        if (this.props.onClick) {
-          this.props.onClick(this, e);
-        } else if (react1___default().Children.count(this.props.children) > 0) {
-          this.setState({
-            focused: true
-          }, () => this.safeForceUpdate());
-        }
-      } else if (this.state.focused === true) {
-        this.setState({
-          focused: false
-        });
-        this.unbindEvents();
-      }
-    };
-    this.state.iconHovered = this.props.iconHovered || '';
-  }
-  UNSAFE_componentWillUpdate(nextProps, nextState) {
-    if (nextProps.disabled === true && nextState.focused === true) {
-      nextState.focused = false;
-    }
-    if (this.state.focused !== nextState.focused && nextState.focused === true) {
-      this.bindEvents();
-      if (this._pageChangeListener) {
-        mBroadcaster.removeListener(this._pageChangeListener);
-      }
-      this._pageChangeListener = mBroadcaster.addListener('pagechange', () => {
-        if (this.state.focused === true) {
-          this.onBlur();
-        }
-      });
-    }
-  }
-  componentWillUnmount() {
-    super.componentWillUnmount();
-    this.unbindEvents();
-  }
-  renderChildren() {
-    return this.props.children && react1___default().Children.map(this.props.children, child => child && (typeof child.type === 'string' || child.type === undefined ? child : react1___default().cloneElement(child, {
-      active: this.state.focused,
-      closeDropdown: () => this.setState({
-        focused: false
-      }, () => this.unbindEvents()),
-      onActiveChange: active => {
-        let _this$domRef3;
-        const $element = $(((_this$domRef3 = this.domRef) == null ? void 0 : _this$domRef3.current) || this.domNode);
-        const $scrollables = $element.parents('.ps');
-        if ($scrollables.length > 0) {
-          $scrollables.map((k, element) => Ps[active ? 'disable' : 'enable'](element));
-        }
-        child.props.onActiveChange == null || child.props.onActiveChange(active);
-        return this[active ? 'bindEvents' : 'unbindEvents']();
-      }
-    })));
-  }
-  bindEvents() {
-    $(BLURRABLE_CLASSES).rebind(`mousedown.button--${this.getUniqueId()}`, this.onBlur);
-    $(document).rebind(`keyup.button--${this.getUniqueId()}`, ev => this.state.focused === true && ev.keyCode === 27 && this.onBlur());
-    $(document).rebind(`closeDropdowns.${this.getUniqueId()}`, this.onBlur);
-  }
-  unbindEvents() {
-    $(BLURRABLE_CLASSES).unbind(`mousedown.button--${this.getUniqueId()}`);
-    $(document).off(`keyup.button--${this.getUniqueId()}`);
-    $(document).off(`closeDropdowns.${this.getUniqueId()}`);
-    mBroadcaster.removeListener(this._pageChangeListener);
-  }
-  render() {
-    const {
-      className,
-      disabled,
-      style,
-      icon,
-      iconHovered,
-      label,
-      attrs,
-      toggle,
-      secondLabel,
-      secondLabelClass
-    } = this.props;
-    const isMegaButton = className && className.indexOf('mega-button') > -1;
-    const TagName = isMegaButton ? 'button' : 'div';
-    return JSX_(TagName, (0,_babel_runtime_helpers_extends0__ .A)({
-      ref: this.domRef,
-      className: `
-                    button
-                    ${className || ''}
-                    ${disabled ? 'disabled' : ''}
-                    ${this.state.focused ? 'active active-dropdown' : ''}
-                `,
-      style,
-      onClick: this.onClick,
-      onMouseEnter: () => iconHovered && this.setState({
-        hovered: true
-      }),
-      onMouseLeave: () => iconHovered && this.setState({
-        hovered: false
-      })
-    }, attrs), icon && !isMegaButton && JSX_("div", null, JSX_("i", {
-      className: this.state.hovered ? this.state.iconHovered : icon
-    })), icon && isMegaButton && JSX_("div", null, JSX_("i", {
-      className: this.state.hovered ? this.state.iconHovered : icon
-    })), label && JSX_("span", null, label), secondLabel && JSX_("span", {
-      className: secondLabelClass ? secondLabelClass : ''
-    }, secondLabel), toggle && JSX_("div", {
-      className: `
-                            mega-switch
-                            ${toggle.className ? toggle.className : ''}
-                            ${toggle.enabled ? 'toggle-on' : ''}
-                        `,
-      role: "switch",
-      "aria-checked": !!toggle.enabled,
-      onClick: ev => {
-        ev.stopPropagation();
-        if (this.props.toggle.onClick) {
-          this.props.toggle.onClick();
-        }
-      }
-    }, JSX_("div", {
-      className: `mega-feature-switch sprite-fm-mono-after
-                                ${toggle.enabled ? 'icon-check-after' : 'icon-minimise-after'}`
-    })), this.renderChildren());
-  }
-}
-
- },
-
- 5206
-(module) {
-
-"use strict";
-module.exports = ReactDOM;
-
- },
-
- 5470
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   A: () =>  ScheduleMetaChange
- });
- const react0__ = REQ_(1594);
- const react0___default = REQ_.n(react0__);
- const _mixin_jsx1__ = REQ_(855);
- const _contacts_jsx2__ = REQ_(8022);
- const _ui_utils_jsx3__ = REQ_(6411);
- const _ui_buttons_jsx4__ = REQ_(5155);
-
-
-
-
-
-class ScheduleMetaChange extends _mixin_jsx1__ .M {
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      link: ''
-    };
-  }
-  componentDidMount() {
-    super.componentDidMount();
-    if (this.props.mode === ScheduleMetaChange.MODE.CREATED) {
-      if (is_chatlink) {
-        this.setState({
-          link: `${getBaseUrl()}/chat/${is_chatlink.ph}#${is_chatlink.key}`
-        });
-      } else {
-        const {
-          chatRoom
-        } = this.props;
-        chatRoom.updatePublicHandle().then(() => {
-          if (this.isMounted() && !this.state.link && chatRoom.publicLink) {
-            this.setState({
-              link: `${getBaseUrl()}/${chatRoom.publicLink}`
-            });
-          }
-        }).catch(dump);
-      }
-    }
-    if (this.props.message.meta.ap) {
-      const {
-        meetingsManager
-      } = megaChat.plugins;
-      this.redrawListener = `${meetingsManager.EVENTS.OCCURRENCES_UPDATE}.redraw${this.getUniqueId()}`;
-      megaChat.rebind(this.redrawListener, () => {
-        onIdle(() => {
-          const {
-            meta
-          } = this.props.message;
-          if (!meta.ap) {
-            return;
-          }
-          this.props.message.meta = meetingsManager.noCsMeta(meta.handle, meta.ap, megaChat.chats[meta.cid]);
-          this.safeForceUpdate();
-        });
-        megaChat.off(this.redrawListener);
-        delete this.redrawListener;
-      });
-    }
-  }
-  componentWillUnmount() {
-    super.componentWillUnmount();
-    if (this.redrawListener) {
-      megaChat.off(this.redrawListener);
-    }
-  }
-  specShouldComponentUpdate(nextProps) {
-    if (this.props.mode === ScheduleMetaChange.MODE.CREATED && this.props.link !== nextProps.link) {
-      return true;
-    }
-    return null;
-  }
-  componentDidUpdate(prevProps) {
-    if (this.props.mode === ScheduleMetaChange.MODE.CREATED && prevProps.link !== this.props.link) {
-      this.setState({
-        link: this.props.link ? `${getBaseUrl()}/${this.props.link}` : ''
-      });
-    }
-  }
-  onAddToCalendar() {
-    const {
-      chatRoom
-    } = this.props;
-    const {
-      id,
-      title
-    } = chatRoom && chatRoom.scheduledMeeting || {};
-    if (id) {
-      delay(`fetchical${id}`, () => {
-        eventlog(500038);
-        asyncApiReq({
-          a: 'mcsmfical',
-          id
-        }).then(([, res]) => {
-          delay(`saveical${id}`, () => {
-            M.saveAs(base64urldecode(res), `${title.replace(/\W/g, '')}.ics`).then(nop).catch(() => {
-              msgDialog('error', '', l.calendar_add_failed, '');
-            });
-          }, 1000);
-        }).catch(() => {
-          msgDialog('error', '', l.calendar_add_failed, '');
-        });
-      }, 250);
-    }
-  }
-  static getTitleText(meta) {
-    const {
-      mode,
-      recurring,
-      occurrence,
-      converted,
-      prevTiming
-    } = meta;
-    const {
-      MODE
-    } = ScheduleMetaChange;
-    switch (mode) {
-      case MODE.CREATED:
-        {
-          return recurring ? l.schedule_mgmt_new_recur : l.schedule_mgmt_new;
-        }
-      case MODE.EDITED:
-        {
-          if (converted) {
-            return recurring ? l.schedule_mgmt_update_convert_recur : l.schedule_mgmt_update_convert;
-          }
-          if (occurrence) {
-            return l.schedule_mgmt_update_occur;
-          }
-          if (prevTiming) {
-            return recurring ? l.schedule_mgmt_update_recur : l.schedule_mgmt_update;
-          }
-          return l.schedule_mgmt_update_desc;
-        }
-      case MODE.CANCELLED:
-        {
-          if (recurring) {
-            return occurrence ? l.schedule_mgmt_cancel_occur : l.schedule_mgmt_cancel_recur;
-          }
-          return l.schedule_mgmt_cancel;
-        }
-    }
-    return '';
-  }
-  renderTimingBlock() {
-    const {
-      message,
-      mode
-    } = this.props;
-    const {
-      meta
-    } = message;
-    const {
-      MODE
-    } = ScheduleMetaChange;
-    if (mode === MODE.CANCELLED && !meta.occurrence) {
-      return null;
-    }
-    const [now, prev] = megaChat.plugins.meetingsManager.getOccurrenceStrings(meta);
-    return JSX_("div", {
-      className: "schedule-timing-block"
-    }, meta.prevTiming && JSX_("s", null, prev || ''), now);
-  }
-  checkAndFakeOccurrenceMeta(meta) {
-    const {
-      MODE
-    } = ScheduleMetaChange;
-    if (meta.occurrence && meta.mode === MODE.CANCELLED && !meta.calendar) {
-      const meeting = megaChat.plugins.meetingsManager.getMeetingOrOccurrenceParent(meta.handle);
-      if (meeting) {
-        const occurrences = meeting.getOccurrencesById(meta.handle);
-        if (occurrences) {
-          meta.calendar = {
-            date: new Date(occurrences[0].start).getDate(),
-            month: time2date(Math.floor(occurrences[0].start / 1000), 12)
-          };
-          meta.timeRules.startTime = Math.floor(occurrences[0].start / 1000);
-          meta.timeRules.endTime = Math.floor(occurrences[0].end / 1000);
-        }
-      }
-    }
-  }
-  render() {
-    const {
-      chatRoom,
-      message,
-      mode,
-      contact
-    } = this.props;
-    const {
-      meta,
-      messageId
-    } = message;
-    const {
-      scheduledMeeting
-    } = chatRoom;
-    const {
-      MODE
-    } = ScheduleMetaChange;
-    const {
-      link
-    } = this.state;
-    if (meta.gone) {
-      return null;
-    }
-    this.checkAndFakeOccurrenceMeta(meta);
-    return JSX_("div", null, JSX_("div", {
-      className: "message body",
-      "data-id": `id${messageId}`,
-      key: messageId
-    }, JSX_(_contacts_jsx2__ .eu, {
-      contact: contact.u,
-      className: "message avatar-wrapper small-rounded-avatar",
-      chatRoom
-    }), JSX_("div", {
-      className: "message schedule-message content-area small-info-txt selectable-txt"
-    }, JSX_(_contacts_jsx2__ .bq, {
-      className: "message",
-      chatRoom,
-      contact,
-      label: JSX_(_ui_utils_jsx3__ .zT, null, M.getNameByHandle(contact.u))
-    }), JSX_("div", {
-      className: "message date-time simpletip",
-      "data-simpletip": time2date(this.getTimestamp())
-    }, this.getTimestampAsString()), JSX_("div", {
-      className: "message text-block"
-    }, ScheduleMetaChange.getTitleText(meta), " ", !!d && meta.handle), JSX_("div", {
-      className: "message body-block"
-    }, (meta.prevTiming || meta.calendar || meta.topic && meta.onlyTitle || meta.recurring) && JSX_("div", {
-      className: "schedule-detail-block"
-    }, meta.calendar && scheduledMeeting && (meta.recurring && !scheduledMeeting.recurring || meta.occurrence && meta.mode === MODE.CANCELLED || !meta.recurring) && JSX_("div", {
-      className: "schedule-calendar-icon"
-    }, JSX_("div", {
-      className: "schedule-date"
-    }, meta.calendar.date), JSX_("div", {
-      className: "schedule-month"
-    }, meta.calendar.month)), JSX_("div", {
-      className: "schedule-detail-main"
-    }, JSX_("div", {
-      className: "schedule-meeting-title"
-    }, mode === MODE.CANCELLED ? JSX_("s", null, meta.topic || chatRoom.topic) : meta.topic || chatRoom.topic), this.renderTimingBlock()), chatRoom.iAmInRoom() && scheduledMeeting && mode !== MODE.CANCELLED && JSX_(_ui_buttons_jsx4__ .$, {
-      className: "mega-button",
-      onClick: () => this.onAddToCalendar()
-    }, JSX_("span", null, mode === MODE.CREATED && !meta.occurrence ? l.schedule_add_calendar : l.schedule_update_calendar))), mode === MODE.CREATED && scheduledMeeting && scheduledMeeting.description && JSX_("div", {
-      className: "schedule-description"
-    }, JSX_(_ui_utils_jsx3__ .P9, null, megaChat.html(scheduledMeeting.description).replace(/\n/g, '<br>'))), link && JSX_("div", null, JSX_("div", {
-      className: "schedule-link-instruction"
-    }, l.schedule_mgmt_link_instruct), JSX_("div", {
-      className: "schedule-meeting-link"
-    }, JSX_("span", null, link), JSX_(_ui_buttons_jsx4__ .$, {
-      className: "mega-button positive",
-      onClick: () => {
-        copyToClipboard(link, l[7654]);
-        delay('chat-event-sm-copy-link', () => eventlog(500039));
-      }
-    }, JSX_("span", null, l[63]))), JSX_("span", null, l.schedule_link_note))))));
-  }
-}
-ScheduleMetaChange.MODE = {
-  CREATED: 1,
-  EDITED: 2,
-  CANCELLED: 3
-};
-window.ScheduleMetaChange = ScheduleMetaChange;
-
- },
-
- 5779
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   O1: () =>  prepareExportIo,
-   VV: () =>  prepareExportStreams,
-   li: () =>  withSuspense
- });
- const react0__ = REQ_(1594);
- const react0___default = REQ_.n(react0__);
- const _ui_fallback_jsx1__ = REQ_(3439);
-
-
-async function prepareExportIo(dl) {
-  const {
-    zname,
-    size
-  } = dl;
-  if (window.isSecureContext && typeof showSaveFilePicker === 'function' && typeof FileSystemFileHandle !== 'undefined' && 'createWritable' in FileSystemFileHandle.prototype && typeof FileSystemWritableFileStream !== 'undefined' && 'seek' in FileSystemWritableFileStream.prototype) {
-    const file = await window.showSaveFilePicker({
-      suggestedName: zname
-    }).catch(ex => {
-      if (String(ex).includes('aborted')) {
-        throw new Error('Aborted');
-      }
-      dump(ex);
-    });
-    if (file) {
-      const stream = await file.createWritable().catch(dump);
-      if (stream) {
-        return {
-          stream,
-          write (data, position, done) {
-            this.stream.write({
-              type: 'write',
-              position,
-              data
-            }).then(done).catch(dump);
-          },
-          download () {
-            this.abort();
-          },
-          abort () {
-            this.stream.close();
-          },
-          setCredentials () {
-            this.begin();
-          }
-        };
-      }
-    }
-  }
-  if (MemoryIO.usable() && Math.min(MemoryIO.fileSizeLimit, 94371840) > size) {
-    return new MemoryIO('chat_0', dl);
-  } else if (window.requestFileSystem) {
-    return new FileSystemAPI('chat_0', dl);
-  }
-  throw new Error('Download methods are unsupported');
-}
-function prepareExportStreams(attachNodes, onEmpty) {
-  return attachNodes.map(node => {
-    return {
-      name: node.name,
-      lastModified: new Date((node.mtime || node.ts) * 1000),
-      input: M.gfsfetch.getReadableStream(node, {
-        error(ex, n) {
-          if (d) {
-            console.error(`${n.h}: ${ex}`);
-          }
-          onEmpty(n.s);
-        }
-      })
-    };
-  });
-}
-const withSuspense = Component => {
-  const Wrapped = props => JSX_(react0__.Suspense, {
-    fallback: JSX_(_ui_fallback_jsx1__ .A, null)
-  }, JSX_(Component, props));
-  Wrapped.displayName = `withSuspense(${Component.displayName || Component.name || 'Component'})`;
-  return Wrapped;
-};
-
- },
-
- 6411
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   Ay: () => __WEBPACK_DEFAULT_EXPORT__,
-   P9: () =>  ParsedHTML,
-   T9: () =>  withOverflowObserver,
-   lI: () =>  reactStringWrap,
-   oM: () =>  OFlowParsedHTML,
-   sp: () =>  OFlowEmoji,
-   zT: () =>  Emoji
- });
- const react0__ = REQ_(1594);
- const react0___default = REQ_.n(react0__);
- const react_dom1__ = REQ_(5206);
- const react_dom1___default = REQ_.n(react_dom1__);
- const _chat_mixins_js2__ = REQ_(8264);
-
-
-
-class RenderTo extends react0___default().Component {
-  constructor(...args) {
-    super(...args);
-    this.$$rootRef = undefined;
-    this.popupElement = undefined;
-  }
-  _setClassNames() {
-    this.popupElement.className = this.props.className || '';
-  }
-  _renderLayer() {
-    this.$$rootRef.render(this.props.children);
-    queueMicrotask(() => {
-      let _this$props$popupDidM, _this$props;
-      return (_this$props$popupDidM = (_this$props = this.props).popupDidMount) == null ? void 0 : _this$props$popupDidM.call(_this$props, this.popupElement);
-    });
-  }
-  componentDidUpdate() {
-    this._setClassNames();
-    this._renderLayer();
-  }
-  componentWillUnmount() {
-    let _this$props$popupWill, _this$props2;
-    onIdle(() => this.$$rootRef.unmount());
-    (_this$props$popupWill = (_this$props2 = this.props).popupWillUnmount) == null || _this$props$popupWill.call(_this$props2, this.popupElement);
-    this.props.element.removeChild(this.popupElement);
-  }
-  componentDidMount() {
-    this.popupElement = document.createElement('div');
-    this.$$rootRef = (0,react_dom1__.createRoot)(this.popupElement);
-    this._setClassNames();
-    if (this.props.style) {
-      $(this.popupElement).css(this.props.style);
-    }
-    this.props.element.appendChild(this.popupElement);
-    this._renderLayer();
-  }
-  render() {
-    return null;
-  }
-}
-const withOverflowObserver = Component => class extends _chat_mixins_js2__ .u9 {
-  constructor(props) {
-    super(props);
-    this.displayName = 'OverflowObserver';
-    this.ref = react0___default().createRef();
-    this.state = {
-      overflowed: false
-    };
-    this.handleMouseEnter = this.handleMouseEnter.bind(this);
-  }
-  handleMouseEnter() {
-    const element = this.ref && this.ref.current;
-    if (element) {
-      this.setState({
-        overflowed: element.scrollWidth > element.offsetWidth
-      });
-    }
-  }
-  shouldComponentUpdate(nextProps, nextState) {
-    return nextState.overflowed !== this.state.overflowed || nextProps.children !== this.props.children || nextProps.content !== this.props.content;
-  }
-  render() {
-    const {
-      simpletip
-    } = this.props;
-    return JSX_("div", {
-      ref: this.ref,
-      className: `
-                        overflow-observer
-                        ${this.state.overflowed ? 'simpletip simpletip-tc' : ''}
-                    `,
-      "data-simpletipposition": (simpletip == null ? void 0 : simpletip.position) || 'top',
-      "data-simpletipoffset": simpletip == null ? void 0 : simpletip.offset,
-      "data-simpletip-class": (simpletip == null ? void 0 : simpletip.className) || 'medium-width center-align',
-      onMouseEnter: this.handleMouseEnter
-    }, JSX_(Component, this.props));
-  }
-};
-const Emoji = ({
-  children
-}) => {
-  return JSX_(ParsedHTML, {
-    content: megaChat.html(children)
-  });
-};
-class ParsedHTML extends react0___default().Component {
-  constructor(...args) {
-    super(...args);
-    this.ref = react0___default().createRef();
-  }
-  updateInternalState() {
-    const {
-      children,
-      content
-    } = this.props;
-    const ref = this.ref && this.ref.current;
-    if (!children && !content) {
-      return d > 1 && console.warn('Emoji: No content passed.');
-    }
-    if (ref) {
-      if (ref.childNodes.length) {
-        while (ref.firstChild) {
-          ref.removeChild(ref.firstChild);
-        }
-      }
-      ref.appendChild(parseHTML(children || content));
-    }
-  }
-  shouldComponentUpdate(nextProps) {
-    return nextProps && (nextProps.children !== this.props.children || nextProps.content !== this.props.content);
-  }
-  componentDidUpdate() {
-    this.updateInternalState();
-  }
-  componentDidMount() {
-    this.updateInternalState();
-  }
-  render() {
-    const {
-      className,
-      onClick,
-      tag
-    } = this.props;
-    return JSX_(tag || 'span', {
-      ref: this.ref,
-      className,
-      onClick
-    });
-  }
-}
-const reactStringWrap = (src, find, WrapClass, wrapProps) => {
-  const endTag = find.replace('[', '[/');
-  return JSX_(react0___default().Fragment, null, src.split(find)[0], JSX_(WrapClass, wrapProps, src.substring(src.indexOf(find) + find.length, src.indexOf(endTag))), src.split(endTag)[1]);
-};
-const OFlowEmoji = withOverflowObserver(Emoji);
-const OFlowParsedHTML = withOverflowObserver(ParsedHTML);
- const __WEBPACK_DEFAULT_EXPORT__ = {
-  RenderTo,
-  SoonFcWrap: _chat_mixins_js2__ .hG,
-  OFlowEmoji,
-  OFlowParsedHTML
-};
-
- },
-
- 6521
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   PS: () =>  addMonths,
-   We: () =>  stringToTime,
-   XH: () =>  stringToDate,
-   a4: () =>  getTimeIntervals,
-   cK: () =>  isToday,
-   dB: () =>  getUserTimezone,
-   ef: () =>  isTomorrow,
-   i_: () =>  getNearestHalfHour,
-   ro: () =>  isSameDay
- });
-
-const stringToDate = string => {
-  return moment(string, ['DD MMM YYYY', 'DD-MM-YYYY', 'DD.MM.YYYY', 'MMM DD YYYY', 'YYYY MMM DD', 'YYYY DD MMM']);
-};
-const stringToTime = string => moment(string, ['HH:mm', 'hh:mm A']);
-const isSameDay = (a, b) => {
-  return new Date(a).toDateString() === new Date(b).toDateString();
-};
-const isToday = timestamp => {
-  return new Date(timestamp).toDateString() === new Date().toDateString();
-};
-const isTomorrow = timestamp => {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  return tomorrow.toDateString() === new Date(timestamp).toDateString();
-};
-const getDaysInMonth = (year, month) => {
-  return new Date(year, month, 0).getDate();
-};
-const addMonths = (timestamp, months) => {
-  const date = new Date(timestamp);
-  return new Date(date.setMonth(date.getMonth() + months)).getTime();
-};
-const getNearestHalfHour = (timestamp = Date.now()) => {
-  const {
-    SCHEDULED_MEETINGS_INTERVAL
-  } = ChatRoom;
-  return new Date(Math.ceil(timestamp / SCHEDULED_MEETINGS_INTERVAL) * SCHEDULED_MEETINGS_INTERVAL).getTime();
-};
-const getUserTimezone = () => {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone;
-};
-const getTimeIntervals = (timestamp, offsetFrom, interval = 30) => {
-  const increments = [];
-  if (timestamp) {
-    const [targetDate, initialDate] = [new Date(timestamp), new Date(timestamp)].map(date => {
-      date.setHours(0);
-      date.setMinutes(0);
-      return date;
-    });
-    while (targetDate.getDate() === initialDate.getDate()) {
-      const timestamp = targetDate.getTime();
-      const diff = offsetFrom && timestamp - offsetFrom;
-      increments.push({
-        value: timestamp,
-        label: toLocaleTime(timestamp),
-        duration: diff && diff > 0 ? diff : undefined
-      });
-      targetDate.setMinutes(targetDate.getMinutes() + interval);
-    }
-  }
-  return increments;
-};
-
- },
-
- 6740
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   A: () => __WEBPACK_DEFAULT_EXPORT__
- });
- const react0__ = REQ_(1594);
- const react0___default = REQ_.n(react0__);
-
-class Group extends react0___default().Component {
-  constructor(props) {
-    super(props);
-    this.containerRef = react0___default().createRef();
-    this.state = {
-      expanded: false
-    };
-    this.doToggle = this.doToggle.bind(this);
-  }
-  toggleEvents() {
-    return this.state.expanded ? $(document).rebind(`mousedown.${Group.NAMESPACE}`, ev => !this.containerRef.current.contains(ev.target) && this.doToggle()).rebind(`keydown.${Group.NAMESPACE}`, ({
-      keyCode
-    }) => keyCode && keyCode === 27 && this.doToggle()) : $(document).unbind(`.${Group.NAMESPACE}`);
-  }
-  doToggle() {
-    this.setState(state => ({
-      expanded: !state.expanded
-    }), () => this.toggleEvents());
-  }
-  render() {
-    const {
-      active,
-      warn,
-      onHold,
-      screenSharing,
-      children
-    } = this.props;
-    if (children && children.length) {
-      return JSX_("div", {
-        ref: this.containerRef,
-        className: Group.BASE_CLASS
-      }, JSX_("div", {
-        className: `
-                            ${Group.BASE_CLASS}-menu
-                            ${this.state.expanded ? 'expanded' : ''}
-                        `,
-        onClick: this.doToggle
-      }, children.map(item => {
-        return item && JSX_("div", {
-          key: item.key,
-          className: `${Group.BASE_CLASS}-item`
-        }, item);
-      })), JSX_("button", {
-        className: "mega-button theme-light-forced round large",
-        onClick: this.doToggle
-      }, active && JSX_("div", {
-        className: "info-indicator active"
-      }), warn && JSX_("div", {
-        className: "info-indicator warn simpletip",
-        "data-simpletip": l.screen_share_crop_tip,
-        "data-simpletipposition": "top",
-        "data-simpletipoffset": "5",
-        "data-simpletip-class": "theme-dark-forced"
-      }, JSX_("i", {
-        className: "sprite-fm-mono icon-exclamation-filled"
-      })), JSX_("i", {
-        className: `
-                                sprite-fm-mono
-                                ${screenSharing ? 'icon-end-screenshare' : ''}
-                                ${!onHold && !screenSharing && 'icon-options'}
-                            `
-      })));
-    }
-    return null;
-  }
-}
-Group.NAMESPACE = 'buttonGroup';
-Group.BASE_CLASS = 'button-group';
-class Button extends react0___default().Component {
-  constructor(...args) {
-    super(...args);
-    this.buttonRef = react0___default().createRef();
-  }
-  componentDidUpdate() {
-    if (this.props.simpletip) {
-      $(this.buttonRef.current).trigger('simpletipUpdated');
-    }
-  }
-  componentDidMount() {
-    if (this.props.didMount) {
-      this.props.didMount(this);
-    }
-  }
-  render() {
-    const {
-      children,
-      className,
-      style,
-      simpletip,
-      icon,
-      onClick
-    } = this.props;
-    return JSX_("button", {
-      ref: this.buttonRef,
-      className: `
-                    ${className ? className : ''}
-                    ${simpletip ? 'simpletip' : ''}
-                `,
-      style,
-      "data-simpletip": simpletip == null ? void 0 : simpletip.label,
-      "data-simpletipposition": simpletip == null ? void 0 : simpletip.position,
-      "data-simpletipoffset": simpletip == null ? void 0 : simpletip.offset,
-      "data-simpletip-class": simpletip == null ? void 0 : simpletip.className,
-      onClick
-    }, icon && JSX_("i", {
-      className: `sprite-fm-mono ${icon}`
-    }), children);
-  }
-}
-Button.Group = Group;
- const __WEBPACK_DEFAULT_EXPORT__ = Button;
+});
+const chatGlobalEventManager = new ChatGlobalEventManager();
 
  },
 
@@ -5435,6 +2045,775 @@ window.ChatRoom = ChatRoom;
 
  },
 
+ 8264
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   LP: () =>  getUniqueId,
+   N9: () =>  timing,
+   Zz: () =>  compose,
+   hG: () =>  SoonFcWrap,
+   u9: () =>  ContactAwareComponent,
+   w9: () =>  MegaRenderMixin
+ });
+
+ const _babel_runtime_helpers_applyDecoratedDescriptor0__ = REQ_(793);
+
+let _dec, _dec2, _dec3, _dec4, _dec5, _class;
+const INTERSECTION_OBSERVER_AVAILABLE = typeof IntersectionObserver !== 'undefined';
+const RESIZE_OBSERVER_AVAILABLE = typeof ResizeObserver !== 'undefined';
+function shallowEqual(objA, objB) {
+  if (objA === objB) {
+    return true;
+  }
+  for (var key in objA) {
+    if (key === "children") {
+      continue;
+    }
+    if (objA.hasOwnProperty(key)) {
+      if (!objB.hasOwnProperty(key)) {
+        return false;
+      } else if (objA[key] !== objB[key]) {
+        if (typeof objA[key] === 'function' && typeof objB[key] === 'function') {
+          if (objA[key].toString() !== objB[key].toString()) {
+            return false;
+          }
+        } else {
+          return false;
+        }
+      }
+    }
+  }
+  for (key in objB) {
+    if (objB.hasOwnProperty(key) && !objA.hasOwnProperty(key)) {
+      return false;
+    }
+  }
+  return true;
+}
+window.shallowEqual = shallowEqual;
+const MAX_ALLOWED_DEBOUNCED_UPDATES = 5;
+const DEBOUNCED_UPDATE_TIMEOUT = 60;
+const REENABLE_UPDATES_AFTER_TIMEOUT = 300;
+const MAX_TRACK_CHANGES_RECURSIVE_DEPTH = 1;
+let _propertyTrackChangesVars = Object.create(null);
+_propertyTrackChangesVars._listenersMap = Object.create(null);
+_propertyTrackChangesVars._dataChangedHistory = Object.create(null);
+if (window._propertyTrackChangesVars) {
+  _propertyTrackChangesVars = window._propertyTrackChangesVars;
+} else {
+  window._propertyTrackChangesVars = _propertyTrackChangesVars;
+}
+window.megaRenderMixinId = window.megaRenderMixinId ? window.megaRenderMixinId : 0;
+const FUNCTIONS = ['render', 'shouldComponentUpdate', 'doProgramaticScroll', 'componentDidMount', 'componentDidUpdate', 'componentWillUnmount', 'refreshUI', 'eventuallyInit', 'handleWindowResize', 'focusTypeArea', 'initScrolling', 'updateScroll', 'isActive', 'onMessagesScrollReinitialise', 'specShouldComponentUpdate', 'attachAnimationEvents', 'eventuallyReinitialise', 'reinitialise', 'reinitialised', 'getContentHeight', 'getScrollWidth', 'isAtBottom', 'onResize', 'isComponentEventuallyVisible', 'getCursorPosition', 'getTextareaMaxHeight'];
+const localStorageProfileRenderFns = localStorage.profileRenderFns;
+if (localStorageProfileRenderFns) {
+  window.REACT_RENDER_CALLS = {};
+}
+let ID_CURRENT = 1;
+const DEBUG_THIS = d > 1 ? d : false;
+const scheduler = (func, name, debug) => {
+  const dbug = debug !== false && DEBUG_THIS;
+  let idnt = null;
+  let task = null;
+  const fire = () => {
+    if (dbug) {
+      console.warn('Dispatching scheduled task for %s.%s...', idnt, name);
+    }
+    if (task) {
+      queueMicrotask(task);
+      task = null;
+    }
+  };
+  const _scheduler = function () {
+    if (dbug) {
+      if (!idnt) {
+        idnt = name[0] === '(' && this.getReactId && this.getReactId() || this;
+      }
+      console.warn('Scheduling task from %s.%s...', idnt, name, [this], !!task);
+    }
+    if (!task) {
+      queueMicrotask(fire);
+    }
+    let idx = arguments.length;
+    const args = new Array(idx);
+    while (idx--) {
+      args[idx] = arguments[idx];
+    }
+    task = () => {
+      func.apply(this, args);
+    };
+  };
+  if (DEBUG_THIS) {
+    Object.defineProperty(_scheduler, smbl(name), {
+      value: func
+    });
+  }
+  return _scheduler;
+};
+const timing = (min, max) => {
+  return function (target, key, de) {
+    if (DEBUG_THIS > 2) {
+      de[key] = de.value;
+      _timing(de, min, max);
+      de.value = de[key];
+    }
+    return de;
+  };
+};
+const logcall = () => {
+  return function (target, key, descriptor) {
+    if (DEBUG_THIS > 3) {
+      const func = descriptor.value;
+      descriptor.value = function () {
+        console.group('[logcall] Entering into %s.%s...', this, key);
+        const r = func.apply(this, arguments);
+        console.info('[logcall] Leaving %s.%s...', this, key);
+        console.groupEnd();
+        return r;
+      };
+    }
+    return descriptor;
+  };
+};
+const schedule = (local, debug) => {
+  return function (target, property, descriptor) {
+    if (local) {
+      const func = descriptor.value;
+      descriptor = {
+        configurable: true,
+        get: function _unusedScheduler() {
+          Object.defineProperty(this, property, {
+            value: scheduler(func, `(${  property  })`, debug)
+          });
+          return this[property];
+        }
+      };
+    } else {
+      descriptor.value = scheduler(descriptor.value, property, debug);
+    }
+    return descriptor;
+  };
+};
+const compose = (...funcs) => funcs.reduce((a, b) => (...args) => a(b(...args)), arg => arg);
+const replaceAt = (i, o, n) => `${o.slice(0, i)}<strong>${n}</strong>${o.slice(i + n.length)}`;
+const SoonFcWrap = (milliseconds, local) => {
+  return function (target, propertyKey, descriptor) {
+    descriptor.value = SoonFc(descriptor.value, !local, milliseconds);
+    return descriptor;
+  };
+};
+const rAFWrap = () => {
+  return function (target, propertyKey, descriptor) {
+    const old = descriptor.value;
+    descriptor.value = function () {
+      return old.apply(this, arguments);
+    };
+    return descriptor;
+  };
+};
+const trycatcher = () => (t, p, d) => (d.value = tryCatch(d.value)) && d;
+const getUniqueId = () => makeUUID().slice(-12);
+const MegaRenderMixin = (_dec = logcall(), _dec2 = SoonFcWrap(50, true), _dec3 = logcall(), _dec4 = SoonFcWrap(80, true), _dec5 = SoonFcWrap(350, true), _class = class MegaRenderMixin extends React.Component {
+  constructor(props) {
+    super(props);
+    lazy(this, '__internalReactID', function () {
+      let key = '';
+      let fib = DEBUG_THIS && this._reactInternalFiber;
+      while (fib) {
+        let tmp = fib.key;
+        if (tmp && tmp[0] !== '.' && key.indexOf(tmp) < 0) {
+          key += `${tmp  }/`;
+        }
+        if (tmp = fib.memoizedProps) {
+          if (tmp.contact) {
+            tmp = tmp.contact.u + (tmp.chatRoom ? `@${  tmp.chatRoom.roomId}` : '');
+          } else if (tmp.chatRoom) {
+            tmp = tmp.chatRoom.roomId;
+          } else {
+            tmp = 0;
+          }
+          if (tmp && key.indexOf(tmp) < 0) {
+            key += `${tmp  }/`;
+          }
+        }
+        fib = fib._debugOwner;
+      }
+      key = key ? `[${  key.substr(0, key.length - 1)  }]` : '';
+      return `::${  this.constructor.name  }[${  `000${  ID_CURRENT++}`.slice(-4)  }]${  key}`;
+    });
+    lazy(this, '__internalUniqueID', function () {
+      return (this.__internalReactID + makeUUID().substr(-12)).replace(/[^a-zA-Z0-9]/g, '');
+    });
+    Object.defineProperty(this, 'isMounted', {
+      value: function MegaRenderMixin_isMounted() {
+        return !!this.__isMounted;
+      }
+    });
+    if (DEBUG_THIS > 2) {
+      Object.defineProperty(this, 'safeForceUpdate', {
+        value: function MegaRenderMixin_safeForceUpdate_debug() {
+          console.group('%s.safeForceUpdate: mounted:%s, visible:%s', this.getReactId(), this.__isMounted, this.isComponentEventuallyVisible());
+          if (this.__isMounted) {
+            this.forceUpdate(() => {
+              console.warn('%s.safeForceUpdate finished.', this.getReactId());
+              console.groupEnd();
+            });
+          }
+        }
+      });
+      Object.keys(this).forEach(k => {
+        if (this[k] && this[k].apply) {
+          const orig = this[k];
+          this[k] = function () {
+            let s = performance.now();
+            const r = orig.apply(this, arguments);
+            s = performance.now() - s;
+            if (s > 30) {
+              console.error(k, this, "took", s, "ms", 'returned', r);
+            }
+            return r;
+          };
+        }
+      });
+    }
+    if (DEBUG_THIS) {
+      if (!megaChat.__components) {
+        megaChat.__components = new WeakMap();
+      }
+      megaChat.__components.set(this, Object.getPrototypeOf(this));
+    }
+  }
+  componentWillUnmount() {
+    if (super.componentWillUnmount) {
+      super.componentWillUnmount();
+    }
+    this.__isMounted = false;
+    chatGlobalEventManager.removeEventListener('resize', `megaRenderMixing${  this.getUniqueId()}`);
+    chatGlobalEventManager.removeEventListener('hashchange', `hc${  this.getUniqueId()}`);
+    const node = this.findDOMNode();
+    if (this.__intersectionObserverInstance) {
+      if (node) {
+        this.__intersectionObserverInstance.unobserve(node);
+      }
+      this.__intersectionObserverInstance.disconnect();
+      this.__intersectionObserverInstance = undefined;
+    }
+    if (this.onResizeObserved) {
+      if (!RESIZE_OBSERVER_AVAILABLE) {
+        $(document.body).unbind(`resize.resObs${  this.getUniqueId()}`);
+      } else {
+        this.__resizeObserverInstance.unobserve(node);
+        this.__resizeObserverInstance.disconnect();
+        this.__resizeObserverInstance = undefined;
+      }
+    }
+    const instanceId = this.getUniqueId();
+    const listeners = _propertyTrackChangesVars._listenersMap[instanceId];
+    if (listeners) {
+      for (const k in listeners) {
+        const v = listeners[k];
+        v[0].removeChangeListener(v[1]);
+      }
+    }
+    _propertyTrackChangesVars._listenersMap[instanceId] = null;
+    _propertyTrackChangesVars._dataChangedHistory[instanceId] = null;
+    if (this._dataStructListeners) {
+      this._internalDetachRenderCallbacks();
+    }
+    if (this.detachRerenderCallbacks) {
+      this.detachRerenderCallbacks();
+    }
+  }
+  getReactId() {
+    return this.__internalReactID;
+  }
+  getUniqueId() {
+    return this.__internalUniqueID;
+  }
+  debouncedForceUpdate() {
+    this.eventuallyUpdate();
+  }
+  componentDidMount() {
+    if (super.componentDidMount) {
+      super.componentDidMount();
+    }
+    this.__isMounted = true;
+    this._wasRendered = true;
+    if (this.props.requiresUpdateOnResize || this.requiresUpdateOnResize || !this.props.skipQueuedUpdatesOnResize) {
+      chatGlobalEventManager.addEventListener('resize', `megaRenderMixing${  this.getUniqueId()}`, () => this.onResizeDoUpdate());
+    }
+    chatGlobalEventManager.addEventListener('hashchange', `hc${  this.getUniqueId()}`, () => this.onResizeDoUpdate());
+    if (this.props) {
+      this._recurseAddListenersIfNeeded("p", this.props);
+    }
+    if (this.state) {
+      this._recurseAddListenersIfNeeded("s", this.state);
+    }
+    const node = this.findDOMNode();
+    if (INTERSECTION_OBSERVER_AVAILABLE && !this.customIsEventuallyVisible && node && node.nodeType) {
+      this.__intersectionVisibility = false;
+      onIdle(() => {
+        this.__intersectionObserverInstance = new IntersectionObserver(entries => {
+          const entry = entries.pop();
+          if (entry.intersectionRatio < 0.2 && !entry.isIntersecting) {
+            this.__intersectionVisibility = false;
+          } else {
+            this.__intersectionVisibility = true;
+            if (this._requiresUpdateOnResize) {
+              this.debouncedForceUpdate();
+            }
+          }
+          if (this.onVisibilityChange) {
+            this.onVisibilityChange(this.__intersectionVisibility);
+          }
+        }, {
+          threshold: 0.1
+        });
+        this.__intersectionObserverInstance.observe(node);
+      });
+    }
+    if (this.onResizeObserved) {
+      if (!RESIZE_OBSERVER_AVAILABLE) {
+        $(document.body).rebind(`resize.resObs${  this.getUniqueId()}`, () => {
+          this.onResizeObserved(node.offsetWidth, node.offsetHeight);
+        });
+      } else {
+        this.__resizeObserverInstance = new ResizeObserver(entries => {
+          this.onResizeObserved(entries[0].contentRect.width, entries[0].contentRect.height);
+        });
+        this.__resizeObserverInstance.observe(node);
+      }
+    }
+    if (this.attachRerenderCallbacks) {
+      this.attachRerenderCallbacks();
+    }
+  }
+  findDOMNode() {
+    if (!this.domNode) {
+      let _this$domRef;
+      this.domNode = (_this$domRef = this.domRef) == null ? void 0 : _this$domRef.current;
+    }
+    return this.domNode;
+  }
+  isComponentVisible() {
+    if (!this.__isMounted) {
+      return false;
+    }
+    if (this.customIsEventuallyVisible) {
+      const ciev = this.customIsEventuallyVisible;
+      const result = typeof ciev === "function" ? ciev.call(this) : ciev;
+      if (result !== -1) {
+        return result;
+      }
+    }
+    if (this.__intersectionVisibility === false) {
+      return false;
+    } else if (this.__intersectionVisibility === true) {
+      return true;
+    }
+    const domNode = this.findDOMNode();
+    if (!this.props.hideable && (!domNode || domNode.offsetParent === null)) {
+      return false;
+    }
+    if (!$(domNode).is(":visible")) {
+      return false;
+    }
+    return verge.inViewport(domNode);
+  }
+  isComponentEventuallyVisible() {
+    if (!this.__isMounted) {
+      return false;
+    }
+    if (this.customIsEventuallyVisible) {
+      const ciev = this.customIsEventuallyVisible;
+      return typeof ciev === "function" ? ciev.call(this) : !!ciev;
+    }
+    if (typeof this.props.isVisible !== 'undefined') {
+      return this.props.isVisible;
+    }
+    return this.__intersectionVisibility !== false;
+  }
+  eventuallyUpdate() {
+    if (!window.megaChat || megaChat.isLoggingOut || this._updatesDisabled || !this._wasRendered || !this.__isMounted) {
+      return;
+    }
+    if (!this.isComponentEventuallyVisible()) {
+      this._requiresUpdateOnResize = true;
+      return;
+    }
+    if (this._requiresUpdateOnResize) {
+      this._requiresUpdateOnResize = false;
+    }
+    this.forceUpdate();
+  }
+  tempDisableUpdates(forHowLong) {
+    const self = this;
+    self._updatesDisabled = true;
+    if (self._updatesReenableTimer) {
+      clearTimeout(self._updatesReenableTimer);
+    }
+    const timeout = forHowLong ? forHowLong : self.REENABLE_UPDATES_AFTER_TIMEOUT ? self.REENABLE_UPDATES_AFTER_TIMEOUT : REENABLE_UPDATES_AFTER_TIMEOUT;
+    self._updatesReenableTimer = setTimeout(() => {
+      self.tempEnableUpdates();
+    }, timeout);
+  }
+  tempEnableUpdates() {
+    clearTimeout(this._updatesReenableTimer);
+    this._updatesDisabled = false;
+    this.eventuallyUpdate();
+  }
+  onResizeDoUpdate() {
+    this.eventuallyUpdate();
+  }
+  _getUniqueIDForMap(map, payload) {
+    return `${map  }.${  payload}`;
+  }
+  _recurseAddListenersIfNeeded(idx, map, depth) {
+    depth |= 0;
+    if (map instanceof MegaDataMap && !(this._contactChangeListeners && this._contactChangeListeners.includes(map))) {
+      const cacheKey = this._getUniqueIDForMap(map, idx);
+      const instanceId = this.getUniqueId();
+      if (!_propertyTrackChangesVars._listenersMap[instanceId]) {
+        _propertyTrackChangesVars._listenersMap[instanceId] = Object.create(null);
+      }
+      if (!_propertyTrackChangesVars._listenersMap[instanceId][cacheKey]) {
+        _propertyTrackChangesVars._listenersMap[instanceId][cacheKey] = [map, map.addChangeListener(() => this.onPropOrStateUpdated())];
+      }
+    }
+    if (depth++ < MAX_TRACK_CHANGES_RECURSIVE_DEPTH && !this.props.manualDataChangeTracking) {
+      const mapKeys = map instanceof MegaDataMap ? map.keys() : Object.keys(map);
+      for (let i = 0; i < mapKeys.length; i++) {
+        const k = mapKeys[i];
+        if (map[k]) {
+          this._recurseAddListenersIfNeeded(`${idx  }_${  k}`, map[k], depth);
+        }
+      }
+    }
+  }
+  _checkDataStructForChanges(idx, v, rv, depth) {
+    if (!v && v === rv) {
+      return false;
+    }
+    if (!rv && v) {
+      return true;
+    }
+    if (v === null) {
+      return rv !== null;
+    }
+    if (v instanceof MegaDataMap) {
+      const cacheKey = this._getUniqueIDForMap(v, idx);
+      const dataChangeHistory = _propertyTrackChangesVars._dataChangedHistory;
+      const instanceId = this.getUniqueId();
+      if (!dataChangeHistory[instanceId]) {
+        dataChangeHistory[instanceId] = Object.create(null);
+      }
+      if (dataChangeHistory[instanceId][cacheKey] !== v._dataChangeIndex) {
+        if (window.RENDER_DEBUG) {
+          console.error("changed: ", this.getElementName(), cacheKey, v._dataChangeTrackedId, v._dataChangeIndex, v);
+        }
+        dataChangeHistory[instanceId][cacheKey] = v._dataChangeIndex;
+        return true;
+      }
+      return false;
+    }
+    return depth < MAX_TRACK_CHANGES_RECURSIVE_DEPTH && v && v.byteLength === undefined && typeof v === "object" && this._recursiveSearchForDataChanges(idx, v, rv, depth + 1) === true;
+  }
+  _recursiveSearchForDataChanges(idx, map, referenceMap, depth) {
+    const self = this;
+    depth = depth || 0;
+    if (!this.isMounted() || this._updatesDisabled === true) {
+      return;
+    }
+    if (!this._wasRendered) {
+      if (window.RENDER_DEBUG) console.error("First time render", self.getElementName(), map, referenceMap);
+      this._wasRendered = true;
+      return true;
+    }
+    if (idx === "p_children") {
+      if (map.map && referenceMap.map) {
+        const oldKeys = map.map((child) => {
+          return child ? child.key : child;
+        });
+        const newKeys = referenceMap.map((child) => {
+          return child ? child.key : child;
+        });
+        if (!shallowEqual(oldKeys, newKeys)) {
+          return true;
+        }
+      } else if (!map && referenceMap || map && !referenceMap) {
+        return true;
+      } else if (map.$$typeof && referenceMap.$$typeof) {
+        if (!shallowEqual(map.props, referenceMap.props) || !shallowEqual(map.state, referenceMap.state)) {
+          return true;
+        }
+      }
+    } else if (map && !referenceMap || !map && referenceMap || map && referenceMap && !shallowEqual(map, referenceMap)) {
+      return true;
+    }
+    const mapKeys = map instanceof MegaDataMap ? map.keys() : Object.keys(map);
+    for (let i = mapKeys.length; i--;) {
+      const k = mapKeys[i];
+      if (this._checkDataStructForChanges(`${idx  }_${  k}`, map[k], referenceMap[k], depth)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  shouldComponentUpdate(nextProps, nextState) {
+    let shouldRerender = false;
+    if (megaChat && megaChat.isLoggingOut) {
+      return false;
+    }
+    if (!this.isMounted() || this._updatesDisabled === true) {
+      if (window.RENDER_DEBUG) {
+        console.error("shouldUpdate? No.", "F1", this.getElementName(), this.props, nextProps, this.state, nextState);
+      }
+      return false;
+    }
+    if (this.customIsEventuallyVisible) {
+      let ciev = this.customIsEventuallyVisible;
+      ciev = typeof ciev === "function" ? ciev.call(this) : !!ciev;
+      if (!this._queueUpdateWhenVisible && !ciev) {
+        this._queueUpdateWhenVisible = true;
+        if (window.RENDER_DEBUG) {
+          console.error("shouldUpdate? No.", "F1.1", this.getElementName(), this.props, nextProps, this.state, nextState);
+        }
+      } else if (this._queueUpdateWhenVisible && ciev) {
+        delete this._queueUpdateWhenVisible;
+        return true;
+      }
+    }
+    if (this.specShouldComponentUpdate) {
+      const r = this.specShouldComponentUpdate(nextProps, nextState);
+      if (r === false) {
+        if (window.RENDER_DEBUG) {
+          console.error("shouldUpdate? No.", "F2", this.getElementName(), this.props, nextProps, this.state, nextState);
+        }
+        this._requiresUpdateOnResize = true;
+        return false;
+      } else if (r === true) {
+        return true;
+      }
+    }
+    if (!this.props.disableCheckingVisibility && !this.isComponentEventuallyVisible()) {
+      if (window.RENDER_DEBUG) {
+        console.error("shouldUpdate? No.", "FVis", this.getElementName(), this.props, nextProps, this.state, nextState);
+      }
+      this._requiresUpdateOnResize = true;
+      return false;
+    }
+    if (this.props !== null) {
+      shouldRerender = this._recursiveSearchForDataChanges("p", nextProps, this.props);
+    }
+    if (shouldRerender === false) {
+      if (window.RENDER_DEBUG) {
+        console.error("shouldUpdate? No.", "F3", this.getElementName(), this.props, nextProps, this.state, nextState);
+      }
+    }
+    if (shouldRerender === false && this.state !== null) {
+      shouldRerender = this._recursiveSearchForDataChanges("s", nextState, this.state);
+    }
+    if (window.RENDER_DEBUG) {
+      if (shouldRerender) {}
+      console.error("shouldRerender?", shouldRerender, "rendered: ", this.getElementName(), "props:", this.props, "nextProps:", this.props, "state:", this.state);
+    }
+    if (shouldRerender === true) {
+      if (this.props) {
+        this._recurseAddListenersIfNeeded("p", this.props);
+      }
+      if (this.state) {
+        this._recurseAddListenersIfNeeded("s", this.state);
+      }
+    } else {
+      if (window.RENDER_DEBUG) {
+        console.error("shouldUpdate? No.", "F4", this.getElementName(), this.props, nextProps, this.state, nextState);
+      }
+    }
+    return shouldRerender;
+  }
+  onPropOrStateUpdated() {
+    this.eventuallyUpdate();
+  }
+  getElementName() {
+    return this._reactInternalFiber.elementType.name;
+  }
+  safeForceUpdate() {
+    if (this.__isMounted) {
+      this.forceUpdate();
+    }
+  }
+  componentDidUpdate() {
+    if (window.RENDER_DEBUG) {
+      const self = this;
+      const getElementName = function () {
+        if (!self.constructor) {
+          return "unknown";
+        }
+        return self.constructor.name;
+      };
+      console.error("renderedX: ", getElementName(), "props:", this.props, "state:", this.state);
+    }
+    if (this.domNode && !this.domNode.isConnected) {
+      delete this.domNode;
+    }
+  }
+  UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
+    if (localStorageProfileRenderFns) {
+      const self = this;
+      const componentName = self.constructor ? self.constructor.name : "unknown";
+      if (!this._wrappedRender) {
+        FUNCTIONS.forEach((fnName) => {
+          const _origFn = self[fnName];
+          if (_origFn) {
+            self[fnName] = function () {
+              const start = performance.now();
+              const res = _origFn.apply(this, arguments);
+              REACT_RENDER_CALLS[`${componentName  }.${  fnName}`] = REACT_RENDER_CALLS[`${componentName  }.${  fnName}`] || 0;
+              REACT_RENDER_CALLS[`${componentName  }.${  fnName}`] += performance.now() - start;
+              return res;
+            };
+          }
+        });
+        self._wrappedRender = true;
+      }
+      REACT_RENDER_CALLS.sorted = function () {
+        const sorted = [];
+        Object.keys(REACT_RENDER_CALLS).sort((a, b) => {
+          if (REACT_RENDER_CALLS[a] < REACT_RENDER_CALLS[b]) {
+            return 1;
+          } else if (REACT_RENDER_CALLS[a] > REACT_RENDER_CALLS[b]) {
+            return -1;
+          } else {
+            return 0;
+          }
+        }).forEach((k) => {
+          if (typeof REACT_RENDER_CALLS[k] !== 'function') {
+            sorted.push([k, REACT_RENDER_CALLS[k]]);
+          }
+        });
+        return sorted;
+      };
+      REACT_RENDER_CALLS.clear = function () {
+        Object.keys(REACT_RENDER_CALLS).forEach((k) => {
+          if (typeof REACT_RENDER_CALLS[k] !== 'function') {
+            delete REACT_RENDER_CALLS[k];
+          }
+        });
+      };
+    }
+  }
+  _internalDetachRenderCallbacks() {
+    const items = this._dataStructListeners || false;
+    for (let i = items.length; i--;) {
+      const item = items[i];
+      if (item[0] === 'dsprops') {
+        console.assert(item[2].removeChangeListener(item[1]), 'listener not found..');
+      }
+    }
+  }
+  addDataStructListenerForProperties(obj, properties) {
+    if (!(obj instanceof MegaDataMap)) {
+      return;
+    }
+    if (!this._dataStructListeners) {
+      this._dataStructListeners = [];
+    }
+    properties = array.to.object(properties);
+    const id = obj.addChangeListener((obj, data, k) => properties[k] && this.onPropOrStateUpdated());
+    this._dataStructListeners.push(['dsprops', id, obj]);
+  }
+}, (0,_babel_runtime_helpers_applyDecoratedDescriptor0__ .A)(_class.prototype, "componentWillUnmount", [_dec], Object.getOwnPropertyDescriptor(_class.prototype, "componentWillUnmount"), _class.prototype), (0,_babel_runtime_helpers_applyDecoratedDescriptor0__ .A)(_class.prototype, "debouncedForceUpdate", [_dec2], Object.getOwnPropertyDescriptor(_class.prototype, "debouncedForceUpdate"), _class.prototype), (0,_babel_runtime_helpers_applyDecoratedDescriptor0__ .A)(_class.prototype, "componentDidMount", [_dec3], Object.getOwnPropertyDescriptor(_class.prototype, "componentDidMount"), _class.prototype), (0,_babel_runtime_helpers_applyDecoratedDescriptor0__ .A)(_class.prototype, "eventuallyUpdate", [_dec4], Object.getOwnPropertyDescriptor(_class.prototype, "eventuallyUpdate"), _class.prototype), (0,_babel_runtime_helpers_applyDecoratedDescriptor0__ .A)(_class.prototype, "onResizeDoUpdate", [_dec5], Object.getOwnPropertyDescriptor(_class.prototype, "onResizeDoUpdate"), _class.prototype), _class);
+class ContactAwareComponent extends MegaRenderMixin {
+  constructor(props) {
+    super(props);
+    this.loadContactInfo();
+  }
+  _validContact() {
+    const {
+      contact
+    } = this.props;
+    if (!contact) {
+      return false;
+    }
+    return (contact.h || contact.u) in M.u;
+  }
+  _attachRerenderCbContacts(others) {
+    if (!this._validContact()) {
+      return;
+    }
+    this.addDataStructListenerForProperties(this.props.contact, ['name', 'firstName', 'lastName', 'nickname', 'm', 'avatar'].concat(Array.isArray(others) ? others : []));
+  }
+  attachRerenderCallbacks() {
+    this._attachRerenderCbContacts();
+  }
+  loadContactInfo() {
+    let _contact$avatar;
+    if (!this._validContact()) {
+      return;
+    }
+    const {
+      contact,
+      chatRoom
+    } = this.props;
+    const contactHandle = contact.h || contact.u;
+    const syncName = !ContactAwareComponent.unavailableNames[contactHandle] && !contact.firstName && !contact.lastName;
+    const syncMail = megaChat.FORCE_EMAIL_LOADING || (contact.c === 1 || contact.c === 2) && !contact.m && !is_chatlink;
+    const syncAvtr = (is_chatlink && (!contact.avatar || ((_contact$avatar = contact.avatar) == null ? void 0 : _contact$avatar.type) === "text") || !contact.avatar) && !avatars[contactHandle] && !ContactAwareComponent.unavailableAvatars[contactHandle];
+    const loader = () => {
+      if (!this.isComponentEventuallyVisible()) {
+        this.__isLoadingContactInfo = null;
+        this._requiresUpdateOnResize = true;
+        return;
+      }
+      const promises = [];
+      const chatHandle = is_chatlink.ph || chatRoom && chatRoom.publicChatHandle;
+      if (syncName) {
+        promises.push(megaChat.plugins.userHelper.getUserName(contactHandle, chatHandle));
+      }
+      if (syncMail) {
+        promises.push(M.syncContactEmail(contactHandle));
+      }
+      if (syncAvtr) {
+        promises.push(useravatar.loadAvatar(contactHandle, chatHandle).catch(() => {
+          ContactAwareComponent.unavailableAvatars[contactHandle] = true;
+        }));
+      }
+      return Promise.allSettled(promises).always(() => {
+        this.eventuallyUpdate();
+        this.__isLoadingContactInfo = false;
+        if (!contact.firstName && !contact.lastName) {
+          ContactAwareComponent.unavailableNames[contactHandle] = true;
+        }
+      });
+    };
+    if (syncName || syncMail || syncAvtr) {
+      (this.__isLoadingContactInfo = tSleep(0.3)).then(loader).catch(dump);
+    }
+  }
+  componentDidUpdate() {
+    super.componentDidUpdate();
+    if (this.__isLoadingContactInfo === null) {
+      this.loadContactInfo();
+    }
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    if (this.__isLoadingContactInfo) {
+      this.__isLoadingContactInfo.abort();
+      this.__isLoadingContactInfo = false;
+    }
+  }
+  isLoadingContactInfo() {
+    return !!this.__isLoadingContactInfo;
+  }
+}
+ContactAwareComponent.unavailableAvatars = Object.create(null);
+ContactAwareComponent.unavailableNames = Object.create(null);
+
+ },
+
  8022
 (_, EXP_, REQ_) {
 
@@ -6875,6 +4254,2916 @@ class ContactPickerDialog extends _mixins2__ .w9 {
 
  },
 
+ 836
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   SN: () =>  hasContacts,
+   U_: () =>  resetCredentials,
+   X7: () =>  hasRelationship,
+   d_: () =>  LABEL,
+   gR: () =>  VIEW,
+   p4: () =>  isVerified,
+   qH: () =>  verifyCredentials,
+   qY: () =>  EVENTS,
+   ym: () =>  getUserFingerprint
+ });
+ const react0__ = REQ_(1594);
+ const react0___default = REQ_.n(react0__);
+
+const EVENTS = {
+  KEYDOWN: 'keydown'
+};
+const VIEW = {
+  CONTACTS: 0x00,
+  RECEIVED_REQUESTS: 0x01,
+  SENT_REQUESTS: 0x02,
+  PROFILE: 0x03
+};
+const LABEL = {
+  CONTACTS: l[165],
+  RECEIVED_REQUESTS: l[5863],
+  SENT_REQUESTS: l[5862]
+};
+const hasContacts = () => M.u.some(contact => contact.c === 1);
+const hasRelationship = contact => contact && contact.c === 1;
+const isVerified = contact => {
+  if (contact && contact.u) {
+    const {
+      u: handle
+    } = contact;
+    const verificationState = u_authring.Ed25519[handle] || {};
+    return verificationState.method >= authring.AUTHENTICATION_METHOD.FINGERPRINT_COMPARISON;
+  }
+  return null;
+};
+const verifyCredentials = contact => {
+  if (contact.c === 1 && u_authring && u_authring.Ed25519) {
+    const verifyState = u_authring.Ed25519[contact.u] || {};
+    if (typeof verifyState.method === "undefined" || verifyState.method < authring.AUTHENTICATION_METHOD.FINGERPRINT_COMPARISON) {
+      fingerprintDialog(contact.u);
+    }
+  }
+};
+const resetCredentials = contact => {
+  if (M.isInvalidUserStatus()) {
+    return;
+  }
+  authring.resetFingerprintsForUser(contact.u).then(() => contact.trackDataChange()).catch(dump);
+};
+const getUserFingerprint = handle => {
+  const $$FINGERPRINT = [];
+  userFingerprint(handle, fingerprints => {
+    for (let i = 0; i < fingerprints.length; i++) {
+      $$FINGERPRINT.push(JSX_("span", {
+        key: i
+      }, fingerprints[i]));
+    }
+  });
+  return $$FINGERPRINT;
+};
+
+ },
+
+ 4904
+(_, EXP_, REQ_) {
+
+"use strict";
+
+// EXPORTS
+REQ_.d(EXP_, {
+  qY: () =>  EVENTS,
+  Vw: () =>  VIEWS,
+  Ay: () =>  conversations
+});
+
+// EXTERNAL MODULE: ./node_modules/@babel/runtime/helpers/esm/extends.js
+const esm_extends = REQ_(8168);
+// EXTERNAL MODULE: external "React"
+const external_React_ = REQ_(1594);
+const REaCt = REQ_.n(external_React_);
+// EXTERNAL MODULE: ./js/chat/mixins.js
+const mixins = REQ_(8264);
+// EXTERNAL MODULE: ./js/chat/ui/meetings/utils.jsx
+const utils = REQ_(3901);
+// EXTERNAL MODULE: ./js/ui/modalDialogs.jsx + 1 modules
+const modalDialogs = REQ_(8120);
+;// ./js/chat/ui/meetings/workflow/freeCallEnded.jsx
+
+
+const NAMESPACE = 'free-call-ended-dlg';
+class FreeCallEnded extends REaCt().Component {
+  constructor(...args) {
+    super(...args);
+    this.domRef = REaCt().createRef();
+  }
+  componentWillUnmount() {
+    if ($.dialog === NAMESPACE) {
+      closeDialog();
+    }
+  }
+  componentDidMount() {
+    M.safeShowDialog(NAMESPACE, () => {
+      if (!this.domRef.current) {
+        throw new Error(`${NAMESPACE} dialog: component ${NAMESPACE} not mounted.`);
+      }
+      eventlog(500295);
+      return $(`#${NAMESPACE}`);
+    });
+  }
+  render() {
+    const {
+      onClose
+    } = this.props;
+    return JSX_(modalDialogs.A.ModalDialog, {
+      id: NAMESPACE,
+      ref: this.domRef,
+      className: "mega-dialog",
+      dialogType: "action",
+      dialogName: NAMESPACE,
+      onClose
+    }, JSX_("header", null, JSX_("div", {
+      className: "free-call-ended graphic"
+    }, JSX_("img", {
+      src: `${staticpath}images/mega/chat-upgrade-rocket.png`
+    }))), JSX_("section", {
+      className: "content"
+    }, JSX_("div", {
+      className: "content-block"
+    }, JSX_("div", {
+      className: "dialog-body-text"
+    }, JSX_("h3", null, l.free_call_ended_dlg_text), JSX_("span", null, l.free_call_ended_dlg_subtext)))), JSX_("footer", null, JSX_("div", {
+      className: "footer-container"
+    }, JSX_("button", {
+      className: "mega-button positive large",
+      onClick: () => {
+        loadSubPage('pro');
+        eventlog(500261);
+        onClose();
+      }
+    }, JSX_("span", null, l.upgrade_now)))));
+  }
+}
+// EXTERNAL MODULE: ./js/chat/ui/contactsPanel/utils.jsx
+const contactsPanel_utils = REQ_(836);
+// EXTERNAL MODULE: ./js/chat/ui/leftPanel/utils.jsx
+const leftPanel_utils = REQ_(4664);
+// EXTERNAL MODULE: ./js/chat/ui/link.jsx
+const ui_link = REQ_(4649);
+;// ./js/chat/ui/errorBoundary.jsx
+
+
+class ErrorBoundary extends REaCt().Component {
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      hasError: false,
+      error: null
+    };
+    this.handleRetry = () => this.setState({
+      hasError: false,
+      error: null
+    });
+  }
+  static getDerivedStateFromError(error) {
+    return {
+      hasError: true,
+      error
+    };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error(error, errorInfo);
+  }
+  render() {
+    const {
+      hasError,
+      error
+    } = this.state;
+    if (hasError) {
+      return JSX_("div", {
+        className: "meetings-error"
+      }, JSX_("div", {
+        className: "meetings-error--content"
+      }, JSX_("i", {
+        className: `
+                                sprite-fm-illustration-wide
+                                ${mega.ui.isDarkTheme() ? 'mega-logo-dark' : 'img-mega-logo-light'}
+                            `
+      }), JSX_("h1", null, l[200]), JSX_("span", null, "Please ", JSX_(ui_link.A, {
+        onClick: this.handleRetry
+      }, "try again"), " or\xA0", JSX_(ui_link.A, {
+        onClick: () => location.reload()
+      }, "reload the page"), "."), d && JSX_("div", {
+        className: "meetings-error--details"
+      }, error.toString())));
+    }
+    return this.props.children;
+  }
+}
+// EXTERNAL MODULE: ./js/chat/ui/fallback.jsx
+const fallback = REQ_(3439);
+;// ./js/chat/ui/conversations.jsx
+
+
+
+
+
+
+
+
+
+const LeftPanel = (0,external_React_.lazy)(() => REQ_.e( 493).then(REQ_.bind(REQ_, 4907)));
+const EmptyConversationsPanel = (0,external_React_.lazy)(() => REQ_.e( 493).then(REQ_.bind(REQ_, 8596)));
+const ChatToaster = (0,external_React_.lazy)(() => REQ_.e( 493).then(REQ_.bind(REQ_, 8491)));
+const ConversationPanels = (0,external_React_.lazy)(() => REQ_.e( 493).then(REQ_.bind(REQ_, 5677)).then(m => ({
+  default: m.ConversationPanels
+})));
+const ContactsPanel = (0,external_React_.lazy)(() => REQ_.e( 253).then(REQ_.bind(REQ_, 5392)));
+const ScheduleMeetingDialog = (0,external_React_.lazy)(() => REQ_.e( 716).then(REQ_.bind(REQ_, 8389)));
+const ScheduleOccurrenceDialog = (0,external_React_.lazy)(() => REQ_.e( 716).then(REQ_.bind(REQ_, 4156)));
+const ContactSelectorDialog = (0,external_React_.lazy)(() => REQ_.e( 543).then(REQ_.bind(REQ_, 2678)));
+const StartGroupChatWizard = (0,external_React_.lazy)(() => REQ_.e( 543).then(REQ_.bind(REQ_, 5199)));
+const StartMeetingDialog = (0,external_React_.lazy)(() => REQ_.e( 543).then(REQ_.bind(REQ_, 7190)));
+const VIEWS = {
+  CHATS: 0x00,
+  MEETINGS: 0x01,
+  LOADING: 0x02
+};
+const EVENTS = {
+  NAV_RENDER_VIEW: 'navRenderView'
+};
+window.convAppConstants = {
+  VIEWS,
+  EVENTS
+};
+class ConversationsApp extends mixins.w9 {
+  constructor(props) {
+    super(props);
+    this.domRef = REaCt().createRef();
+    this.chatRoomRef = null;
+    this.occurrenceRef = null;
+    this.state = {
+      startGroupChatDialog: false,
+      startMeetingDialog: false,
+      scheduleMeetingDialog: false,
+      scheduleOccurrenceDialog: false,
+      freeCallEndedDialog: false,
+      contactSelectorDialog: false,
+      view: VIEWS.LOADING,
+      callExpanded: false,
+      ipcData: null
+    };
+    this._cacheRouting();
+    megaChat.rebind('onStartNewMeeting.convApp', () => this.startMeeting());
+  }
+  startMeeting() {
+    if (megaChat.hasSupportForCalls) {
+      return (0,utils.dQ)().then(() => this.setState({
+        startMeetingDialog: true
+      })).catch(() => d && console.warn('Already in a call.'));
+    }
+    return showToast('warning', l[7211]);
+  }
+  _cacheRouting() {
+    this.routingSection = this.props.megaChat.routingSection;
+    this.routingSubSection = this.props.megaChat.routingSubSection;
+    this.routingParams = this.props.megaChat.routingParams;
+  }
+  hasOpenDialog() {
+    return [...document.querySelectorAll('.mega-dialog')].some(dialog => !!(dialog.offsetParent || dialog.offsetWidth || dialog.offsetHeight));
+  }
+  specShouldComponentUpdate() {
+    if (this.routingSection !== this.props.megaChat.routingSection || this.routingSubSection !== this.props.megaChat.routingSubSection || this.routingParams !== this.props.megaChat.routingParams) {
+      this._cacheRouting();
+      return true;
+    }
+  }
+  componentDidMount() {
+    super.componentDidMount();
+    $(document).rebind('keydown.megaChatTextAreaFocus', e => {
+      if (!M.chat || e.megaChatHandled) {
+        return;
+      }
+      const {
+        currentlyOpenedChat
+      } = megaChat;
+      const currentRoom = megaChat.getCurrentRoom();
+      if (currentlyOpenedChat) {
+        if (currentRoom && currentRoom.isReadOnly() || $(e.target).is(".messages-textarea, input, textarea") || (e.ctrlKey || e.metaKey || e.which === 19) && e.keyCode === 67 || e.keyCode === 91 || e.keyCode === 17 || e.keyCode === 27 || e.altKey || e.metaKey || e.ctrlKey || e.shiftKey || this.hasOpenDialog() || document.querySelector('textarea:focus,select:focus,input:focus')) {
+          return;
+        }
+        const $typeArea = $('.messages-textarea:visible:first');
+        moveCursortoToEnd($typeArea);
+        e.megaChatHandled = true;
+        $typeArea.triggerHandler(e);
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    });
+    $(document).rebind('mouseup.megaChatTextAreaFocus', e => {
+      if (!M.chat || e.megaChatHandled || slideshowid) {
+        return;
+      }
+      const $target = $(e.target);
+      if (megaChat.currentlyOpenedChat) {
+        if ($target.is(".messages-textarea,a,input,textarea,select,button") || $target.is('i') && $target.parent().is('a,input,select,button') || $target.closest('.messages.scroll-area').length > 0 || $target.closest('.mega-dialog').length > 0 || this.hasOpenDialog() || document.querySelector('textarea:focus,select:focus,input:focus') || window.getSelection().toString()) {
+          return;
+        }
+        const $typeArea = $('.messages-textarea:visible:first');
+        if ($typeArea.length === 1 && !$typeArea.is(":focus")) {
+          $typeArea.trigger("focus");
+          e.megaChatHandled = true;
+        }
+      }
+    });
+    megaChat.rebind(megaChat.plugins.meetingsManager.EVENTS.EDIT, (ev, chatOrOccurrence) => {
+      if (chatOrOccurrence instanceof ChatRoom || !chatOrOccurrence) {
+        this.chatRoomRef = chatOrOccurrence;
+        this.setState({
+          scheduleMeetingDialog: true
+        });
+      } else {
+        this.occurrenceRef = chatOrOccurrence;
+        this.setState({
+          scheduleOccurrenceDialog: true
+        });
+      }
+    });
+    megaChat.rebind(EVENTS.NAV_RENDER_VIEW, ({
+      data
+    }) => {
+      if (Object.values(VIEWS).includes(data)) {
+        this.renderView(data);
+      }
+    });
+    megaChat.rebind('onCallTimeLimitExceeded', () => {
+      this.setState({
+        freeCallEndedDialog: true
+      });
+    });
+    if (megaChat.WITH_SELF_NOTE && !megaChat.getNoteChat() && !is_chatlink) {
+      api.req({
+        a: 'mcc',
+        u: [],
+        m: 0,
+        g: 0,
+        v: Chatd.VERSION
+      }).catch(dump);
+    }
+    this.requestReceivedListener = mBroadcaster.addListener('fmViewUpdate:ipc', () => {
+      this.setState({
+        ipcData: this.makeIpcData()
+      });
+    });
+    this.setState({
+      ipcData: this.makeIpcData()
+    });
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    $(document).off('keydown.megaChatTextAreaFocus');
+    mBroadcaster.removeListener('fmViewUpdate:ipc', this.requestReceivedListener);
+  }
+  componentDidUpdate(prevProps, prevState) {
+    this.handleOnboardingStep();
+    const {
+      names: prevNames
+    } = prevState.ipcData;
+    const newIpcData = this.makeIpcData();
+    const {
+      names: newNames
+    } = newIpcData;
+    if (newNames.size !== prevNames.size) {
+      this.setState({
+        ipcData: newIpcData
+      });
+      return;
+    }
+    let different = false;
+    for (const [email, name] of newNames) {
+      if (!prevNames.has(email) || prevNames.get(email) !== name) {
+        different = true;
+        break;
+      }
+    }
+    if (different) {
+      this.setState({
+        ipcData: newIpcData
+      });
+    }
+  }
+  handleOnboardingStep() {
+    if (this.state.view === VIEWS.LOADING) {
+      return;
+    }
+    megaChat.plugins.chatOnboarding.checkAndShowStep();
+  }
+  renderView(view) {
+    this.setState({
+      view
+    }, () => {
+      const {
+        $chatTreePanePs,
+        routingSection,
+        currentlyOpenedChat
+      } = megaChat;
+      Object.values($chatTreePanePs).forEach(ref => ref.reinitialise == null ? void 0 : ref.reinitialise());
+      if (routingSection !== 'chat') {
+        loadSubPage('fm/chat');
+      }
+      megaChat.currentlyOpenedView = view;
+      if (!currentlyOpenedChat) {
+        megaChat.renderListing(null, false).catch(dump);
+      }
+    });
+  }
+  makeIpcData() {
+    let mixed = false;
+    const names = new Map();
+    const data = Object.values(M.ipc).reduce((acc, curr) => {
+      const name = M.getNameByEmail(curr.m);
+      if (name !== curr.m) {
+        names.set(curr.m, name);
+        mixed = true;
+      }
+      return {
+        ...acc,
+        [curr.p]: {
+          ...curr,
+          name
+        }
+      };
+    }, Object.create(null));
+    return {
+      mixed,
+      data,
+      names
+    };
+  }
+  render() {
+    const {
+      CHATS,
+      MEETINGS
+    } = VIEWS;
+    const {
+      routingSection,
+      chatUIFlags,
+      currentlyOpenedChat,
+      chats
+    } = megaChat;
+    const {
+      view,
+      startGroupChatDialog,
+      startMeetingDialog,
+      scheduleMeetingDialog,
+      scheduleOccurrenceDialog,
+      callExpanded,
+      freeCallEndedDialog,
+      contactSelectorDialog
+    } = this.state;
+    const isEmpty = chats && routingSection === 'chat' && !currentlyOpenedChat && !is_chatlink;
+    const isLoading = !currentlyOpenedChat && megaChat.allChatsHadInitialLoadedHistory() === false && routingSection !== 'contacts';
+    const rightPane = JSX_("div", {
+      className: `
+                    fm-right-files-block
+                    in-chat
+                    ${is_chatlink ? 'chatlink' : ''}
+                `
+    }, JSX_(external_React_.Suspense, {
+      fallback: JSX_(fallback.A, null)
+    }, !isLoading && JSX_(ChatToaster, {
+      isRootToaster: true
+    }), !isLoading && routingSection === 'contacts' && JSX_(ContactsPanel, {
+      megaChat,
+      contacts: M.u,
+      received: this.state.ipcData,
+      sent: M.opc
+    }), !isLoading && JSX_(ConversationPanels, (0,esm_extends.A)({}, this.props, {
+      className: routingSection === 'chat' ? '' : 'hidden',
+      routingSection,
+      currentlyOpenedChat,
+      isEmpty,
+      chatUIFlags,
+      onToggleExpandedFlag: () => this.setState(() => ({
+        callExpanded: (0,utils.Av)()
+      })),
+      onMount: () => {
+        const chatRoom = megaChat.getCurrentRoom();
+        const view = chatRoom && chatRoom.isMeeting ? MEETINGS : CHATS;
+        this.setState({
+          view
+        }, () => {
+          megaChat.currentlyOpenedView = view;
+        });
+      }
+    })), !isLoading && isEmpty && JSX_(EmptyConversationsPanel, {
+      isMeeting: view === MEETINGS,
+      onNewChat: () => this.setState({
+        contactSelectorDialog: true
+      }),
+      onStartMeeting: () => this.startMeeting(),
+      onScheduleMeeting: () => this.setState({
+        scheduleMeetingDialog: true
+      })
+    })), !isLoading && routingSection === 'notFound' && JSX_("span", null, JSX_("center", null, "Section not found")));
+    const noteChat = megaChat.getNoteChat();
+    return JSX_(ErrorBoundary, null, JSX_("div", {
+      ref: this.domRef,
+      className: "conversationsApp"
+    }, JSX_(external_React_.Suspense, {
+      fallback: JSX_(fallback.A, null)
+    }, startMeetingDialog && JSX_(StartMeetingDialog, {
+      onStart: (topic, audio, video) => {
+        megaChat.createAndStartMeeting(topic, audio, video);
+        this.setState({
+          startMeetingDialog: false
+        });
+      },
+      onClose: () => this.setState({
+        startMeetingDialog: false
+      })
+    }), startGroupChatDialog && JSX_(StartGroupChatWizard, {
+      name: "start-group-chat",
+      flowType: 1,
+      onClose: () => this.setState({
+        startGroupChatDialog: false
+      }),
+      onConfirmClicked: () => this.setState({
+        startGroupChatDialog: false
+      })
+    }), scheduleMeetingDialog && JSX_(ScheduleMeetingDialog, {
+      chatRoom: this.chatRoomRef,
+      callExpanded,
+      onClose: () => {
+        this.setState({
+          scheduleMeetingDialog: false
+        }, () => {
+          this.chatRoomRef = null;
+        });
+      }
+    }), scheduleOccurrenceDialog && JSX_(ScheduleOccurrenceDialog, {
+      chatRoom: this.occurrenceRef.scheduledMeeting.chatRoom,
+      scheduledMeeting: this.occurrenceRef.scheduledMeeting,
+      occurrenceId: this.occurrenceRef.uid,
+      callExpanded,
+      onClose: () => {
+        this.setState({
+          scheduleOccurrenceDialog: false
+        }, () => {
+          this.occurrenceRef = null;
+        });
+      }
+    }), contactSelectorDialog && JSX_(ContactSelectorDialog, {
+      className: `main-start-chat-dropdown ${leftPanel_utils.C}-contact-selector`,
+      multiple: false,
+      topButtons: [{
+        key: 'newGroupChat',
+        title: l[19483],
+        className: 'positive',
+        onClick: () => this.setState({
+          startGroupChatDialog: true,
+          contactSelectorDialog: false
+        })
+      }, ...megaChat.WITH_SELF_NOTE ? (0,contactsPanel_utils.SN)() || noteChat && noteChat.hasMessages() ? [] : [{
+        key: 'noteChat',
+        title: l.note_label,
+        icon: 'sprite-fm-mono icon-file-text-thin-outline note-chat-icon',
+        onClick: () => {
+          closeDialog();
+          loadSubPage(`fm/chat/p/${u_handle}`);
+        }
+      }] : []],
+      showAddContact: (0,contactsPanel_utils.SN)(),
+      onClose: () => this.setState({
+        contactSelectorDialog: false
+      }),
+      onSelectDone: selected => {
+        if (selected.length === 1) {
+          return megaChat.createAndShowPrivateRoom(selected[0]).then(room => room.setActive());
+        }
+        megaChat.createAndShowGroupRoomFor(selected);
+      }
+    })), JSX_(external_React_.Suspense, {
+      fallback: JSX_(fallback.A, null)
+    }, routingSection && JSX_(LeftPanel, {
+      view,
+      views: VIEWS,
+      routingSection,
+      conversations: chats,
+      renderView: view => this.renderView(view),
+      startMeeting: () => {
+        this.startMeeting();
+        eventlog(500293);
+      },
+      scheduleMeeting: () => {
+        this.setState({
+          scheduleMeetingDialog: true
+        });
+        delay('chat-event-sm-button-main', () => eventlog(99918));
+      },
+      createNewChat: () => this.setState({
+        contactSelectorDialog: true
+      })
+    })), freeCallEndedDialog && JSX_(FreeCallEnded, {
+      onClose: () => {
+        this.setState({
+          freeCallEndedDialog: false
+        });
+      }
+    }), rightPane));
+  }
+}
+ const conversations = ConversationsApp;
+
+ },
+
+ 3439
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   A: () =>  Fallback
+ });
+ const react0__ = REQ_(1594);
+ const react0___default = REQ_.n(react0__);
+
+class Fallback extends react0___default().Component {
+  render() {
+    return JSX_("div", {
+      className: "loading-spinner light"
+    }, JSX_("div", {
+      className: "main-loader"
+    }));
+  }
+}
+
+ },
+
+ 4664
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   C: () =>  NAMESPACE,
+   x: () =>  FILTER
+ });
+const NAMESPACE = 'lhp';
+const FILTER = {
+  MUTED: 'muted',
+  UNREAD: 'unread'
+};
+
+ },
+
+ 4649
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   A: () =>  Link
+ });
+ const react0__ = REQ_(1594);
+ const react0___default = REQ_.n(react0__);
+
+class Link extends react0___default().Component {
+  constructor(props) {
+    super(props);
+    this.IS_CLICK_URL = undefined;
+    this.IS_CLICK_URL = this.props.to && (this.props.to.startsWith('/') || this.props.to.includes('mega.io'));
+  }
+  componentDidMount() {
+    if (this.IS_CLICK_URL) {
+      clickURLs();
+    }
+  }
+  render() {
+    const {
+      className,
+      to,
+      target,
+      children,
+      onClick
+    } = this.props;
+    if (this.IS_CLICK_URL) {
+      return JSX_("a", {
+        className: `
+                        clickurl
+                        ${className || ''}
+                    `,
+        href: to,
+        target
+      }, children);
+    }
+    return JSX_("a", {
+      className,
+      href: "#",
+      onClick: ev => {
+        if (onClick) {
+          ev.preventDefault();
+          return onClick(ev);
+        }
+        return null;
+      }
+    }, children);
+  }
+}
+
+ },
+
+ 6740
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   A: () => __WEBPACK_DEFAULT_EXPORT__
+ });
+ const react0__ = REQ_(1594);
+ const react0___default = REQ_.n(react0__);
+
+class Group extends react0___default().Component {
+  constructor(props) {
+    super(props);
+    this.containerRef = react0___default().createRef();
+    this.state = {
+      expanded: false
+    };
+    this.doToggle = this.doToggle.bind(this);
+  }
+  toggleEvents() {
+    return this.state.expanded ? $(document).rebind(`mousedown.${Group.NAMESPACE}`, ev => !this.containerRef.current.contains(ev.target) && this.doToggle()).rebind(`keydown.${Group.NAMESPACE}`, ({
+      keyCode
+    }) => keyCode && keyCode === 27 && this.doToggle()) : $(document).unbind(`.${Group.NAMESPACE}`);
+  }
+  doToggle() {
+    this.setState(state => ({
+      expanded: !state.expanded
+    }), () => this.toggleEvents());
+  }
+  render() {
+    const {
+      active,
+      warn,
+      onHold,
+      screenSharing,
+      children
+    } = this.props;
+    if (children && children.length) {
+      return JSX_("div", {
+        ref: this.containerRef,
+        className: Group.BASE_CLASS
+      }, JSX_("div", {
+        className: `
+                            ${Group.BASE_CLASS}-menu
+                            ${this.state.expanded ? 'expanded' : ''}
+                        `,
+        onClick: this.doToggle
+      }, children.map(item => {
+        return item && JSX_("div", {
+          key: item.key,
+          className: `${Group.BASE_CLASS}-item`
+        }, item);
+      })), JSX_("button", {
+        className: "mega-button theme-light-forced round large",
+        onClick: this.doToggle
+      }, active && JSX_("div", {
+        className: "info-indicator active"
+      }), warn && JSX_("div", {
+        className: "info-indicator warn simpletip",
+        "data-simpletip": l.screen_share_crop_tip,
+        "data-simpletipposition": "top",
+        "data-simpletipoffset": "5",
+        "data-simpletip-class": "theme-dark-forced"
+      }, JSX_("i", {
+        className: "sprite-fm-mono icon-exclamation-filled"
+      })), JSX_("i", {
+        className: `
+                                sprite-fm-mono
+                                ${screenSharing ? 'icon-end-screenshare' : ''}
+                                ${!onHold && !screenSharing && 'icon-options'}
+                            `
+      })));
+    }
+    return null;
+  }
+}
+Group.NAMESPACE = 'buttonGroup';
+Group.BASE_CLASS = 'button-group';
+class Button extends react0___default().Component {
+  constructor(...args) {
+    super(...args);
+    this.buttonRef = react0___default().createRef();
+  }
+  componentDidUpdate() {
+    if (this.props.simpletip) {
+      $(this.buttonRef.current).trigger('simpletipUpdated');
+    }
+  }
+  componentDidMount() {
+    if (this.props.didMount) {
+      this.props.didMount(this);
+    }
+  }
+  render() {
+    const {
+      children,
+      className,
+      style,
+      simpletip,
+      icon,
+      onClick
+    } = this.props;
+    return JSX_("button", {
+      ref: this.buttonRef,
+      className: `
+                    ${className ? className : ''}
+                    ${simpletip ? 'simpletip' : ''}
+                `,
+      style,
+      "data-simpletip": simpletip == null ? void 0 : simpletip.label,
+      "data-simpletipposition": simpletip == null ? void 0 : simpletip.position,
+      "data-simpletipoffset": simpletip == null ? void 0 : simpletip.offset,
+      "data-simpletip-class": simpletip == null ? void 0 : simpletip.className,
+      onClick
+    }, icon && JSX_("i", {
+      className: `sprite-fm-mono ${icon}`
+    }), children);
+  }
+}
+Button.Group = Group;
+ const __WEBPACK_DEFAULT_EXPORT__ = Button;
+
+ },
+
+ 6521
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   PS: () =>  addMonths,
+   We: () =>  stringToTime,
+   XH: () =>  stringToDate,
+   a4: () =>  getTimeIntervals,
+   cK: () =>  isToday,
+   dB: () =>  getUserTimezone,
+   ef: () =>  isTomorrow,
+   i_: () =>  getNearestHalfHour,
+   ro: () =>  isSameDay
+ });
+
+const stringToDate = string => {
+  return moment(string, ['DD MMM YYYY', 'DD-MM-YYYY', 'DD.MM.YYYY', 'MMM DD YYYY', 'YYYY MMM DD', 'YYYY DD MMM']);
+};
+const stringToTime = string => moment(string, ['HH:mm', 'hh:mm A']);
+const isSameDay = (a, b) => {
+  return new Date(a).toDateString() === new Date(b).toDateString();
+};
+const isToday = timestamp => {
+  return new Date(timestamp).toDateString() === new Date().toDateString();
+};
+const isTomorrow = timestamp => {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow.toDateString() === new Date(timestamp).toDateString();
+};
+const getDaysInMonth = (year, month) => {
+  return new Date(year, month, 0).getDate();
+};
+const addMonths = (timestamp, months) => {
+  const date = new Date(timestamp);
+  return new Date(date.setMonth(date.getMonth() + months)).getTime();
+};
+const getNearestHalfHour = (timestamp = Date.now()) => {
+  const {
+    SCHEDULED_MEETINGS_INTERVAL
+  } = ChatRoom;
+  return new Date(Math.ceil(timestamp / SCHEDULED_MEETINGS_INTERVAL) * SCHEDULED_MEETINGS_INTERVAL).getTime();
+};
+const getUserTimezone = () => {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+};
+const getTimeIntervals = (timestamp, offsetFrom, interval = 30) => {
+  const increments = [];
+  if (timestamp) {
+    const [targetDate, initialDate] = [new Date(timestamp), new Date(timestamp)].map(date => {
+      date.setHours(0);
+      date.setMinutes(0);
+      return date;
+    });
+    while (targetDate.getDate() === initialDate.getDate()) {
+      const timestamp = targetDate.getTime();
+      const diff = offsetFrom && timestamp - offsetFrom;
+      increments.push({
+        value: timestamp,
+        label: toLocaleTime(timestamp),
+        duration: diff && diff > 0 ? diff : undefined
+      });
+      targetDate.setMinutes(targetDate.getMinutes() + interval);
+    }
+  }
+  return increments;
+};
+
+ },
+
+ 3901
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   $A: () =>  MAX_STREAMS,
+   Av: () =>  isExpanded,
+   Bq: () =>  PAGINATION,
+   Cy: () =>  isModerator,
+   Fj: () =>  EXPANDED_FLAG,
+   HV: () =>  getUnsupportedBrowserMessage,
+   P: () =>  isGuest,
+   ZE: () =>  TYPE,
+   _F: () =>  renderEndConfirm,
+   dQ: () =>  inProgressAlert,
+   g: () =>  MODE,
+   gR: () =>  VIEW,
+   gh: () =>  STREAMS_PER_PAGE,
+   hK: () =>  STREAM_ACTIONS,
+   sX: () =>  renderLeaveConfirm
+ });
+const EXPANDED_FLAG = 'in-call';
+const MODE = {
+  THUMBNAIL: 1,
+  MAIN: 2,
+  MINI: 3
+};
+const VIEW = {
+  DEFAULT: 0,
+  CHAT: 1,
+  PARTICIPANTS: 2
+};
+const TYPE = {
+  AUDIO: 1,
+  VIDEO: 2
+};
+const STREAM_ACTIONS = {
+  ADD: 1,
+  REMOVE: 2
+};
+const PAGINATION = {
+  PREV: -1,
+  NEXT: 1
+};
+const MAX_STREAMS = 99;
+const STREAMS_PER_PAGE = {
+  MIN: 9,
+  MED: 21,
+  MAX: 49
+};
+const isGuest = () => !u_type;
+const inProgressAlert = (isJoin, chatRoom) => {
+  return new Promise((resolve, reject) => {
+    if (megaChat.haveAnyActiveCall()) {
+      if (window.sfuClient) {
+        const {
+          chatRoom: activeCallRoom
+        } = megaChat.activeCall;
+        const peers = activeCallRoom ? activeCallRoom.getParticipantsExceptMe(activeCallRoom.getCallParticipants()).map(h => M.getNameByHandle(h)) : [];
+        let body = isJoin ? l.cancel_to_join : l.cancel_to_start;
+        if (peers.length) {
+          body = mega.utils.trans.listToString(peers, isJoin ? l.cancel_with_to_join : l.cancel_with_to_start);
+        }
+        msgDialog('warningb', null, l.call_in_progress, body, null, 1);
+        return reject();
+      }
+      if (chatRoom.getCallParticipants().includes(u_handle)) {
+        return resolve();
+      }
+      return msgDialog(`warningb:!^${l[2005]}!${isJoin ? l.join_call_anyway : l.start_call_anyway}`, null, isJoin ? l.join_multiple_calls_title : l.start_multiple_calls_title, isJoin ? l.join_multiple_calls_text : l.start_multiple_calls_text, join => {
+        if (join) {
+          return resolve();
+        }
+        return reject();
+      }, 1);
+    }
+    resolve();
+  });
+};
+window.inProgressAlert = inProgressAlert;
+const isModerator = (chatRoom, handle) => {
+  if (chatRoom && handle) {
+    return chatRoom.members[handle] === ChatRoom.MembersSet.PRIVILEGE_STATE.OPERATOR;
+  }
+  return false;
+};
+const isExpanded = () => document.body.classList.contains(EXPANDED_FLAG);
+const getUnsupportedBrowserMessage = () => navigator.userAgent.match(/Chrom(e|ium)\/(\d+)\./) ? l.alert_unsupported_browser_version : l.alert_unsupported_browser;
+const renderLeaveConfirm = (onConfirm, onRecordingToggle) => msgDialog(`confirmation:!^${l.leave_call_recording_dialog_cta}!${l.leave_call_recording_dialog_nop_cta}`, undefined, l.leave_call_recording_dialog_heading, l.leave_call_recording_dialog_body, cb => {
+  if (cb) {
+    onRecordingToggle();
+    onConfirm();
+  }
+}, 1);
+const renderEndConfirm = (onConfirm, onRecordingToggle) => msgDialog(`confirmation:!^${l.end_call_recording_dialog_cta}!${l.end_call_recording_dialog_nop_cta}`, undefined, l.end_call_recording_dialog_heading, l.end_call_recording_dialog_body, cb => {
+  if (cb) {
+    onRecordingToggle();
+    onConfirm();
+  }
+}, 1);
+
+ },
+
+ 855
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   M: () =>  ConversationMessageMixin
+ });
+ const react0__ = REQ_(1594);
+ const react0___default = REQ_.n(react0__);
+ const _mixins_js1__ = REQ_(8264);
+ const _ui_buttons_jsx2__ = REQ_(5155);
+ const _ui_emojiDropdown_jsx3__ = REQ_(1165);
+
+
+
+
+class ConversationMessageMixin extends _mixins_js1__ .u9 {
+  constructor(props) {
+    super(props);
+    this.attachRerenderCallbacks = false;
+    this._reactionContactHandles = [];
+    this.__cmmUpdateTickCount = 0;
+    this._contactChangeListeners = false;
+    this.onAfterRenderWasTriggered = false;
+    lazy(this, '__cmmId', () => {
+      return `${this.getUniqueId()  }--${  String(Math.random()).slice(-7)}`;
+    });
+    this._emojiOnActiveStateChange = this._emojiOnActiveStateChange.bind(this);
+    this.emojiSelected = this.emojiSelected.bind(this);
+    const {
+      message: msg
+    } = this.props;
+    if (msg instanceof Message && msg._reactions && msg.messageId.length === 11 && msg.isSentOrReceived() && !Object.hasOwnProperty.call(msg, 'reacts')) {
+      msg.reacts.forceLoad().then(() => {
+        this.addContactListenerIfMissing(this._reactionContacts());
+      }).catch(dump.bind(null, `reactions.load.${msg.messageId}`));
+    }
+  }
+  UNSAFE_componentWillMount() {
+    if (super.UNSAFE_componentWillMount) {
+      super.UNSAFE_componentWillMount();
+    }
+    const {chatRoom} = this.props;
+    if (chatRoom) {
+      chatRoom.rebind(`onChatShown.${  this.__cmmId}`, () => {
+        if (!this._contactChangeListeners) {
+          this.addContactListeners();
+        }
+      }).rebind(`onChatHidden.${  this.__cmmId}`, () => {
+        if (this._contactChangeListeners) {
+          this.removeContactListeners();
+        }
+      });
+    }
+    this.addContactListeners();
+  }
+  haveMeetingsCall() {
+    return document.querySelector('.meetings-call') && document.querySelector('.chat-opened');
+  }
+  removeContactListeners() {
+    const users = this._contactChangeListeners;
+    if (d > 3) {
+      console.warn('%s.removeContactListeners', this.getReactId(), [this], users);
+    }
+    for (let i = users.length; i--;) {
+      users[i].removeEventHandler(this);
+    }
+    this._contactChangeListeners = false;
+  }
+  _reactionContacts() {
+    const {
+      message
+    } = this.props;
+    const {
+      reacts
+    } = message;
+    const handles = [];
+    const reactions = Object.values(reacts.reactions);
+    for (let i = 0; i < reactions.length; i++) {
+      handles.push(...Object.keys(reactions[i]));
+    }
+    this._reactionContactHandles = array.unique(handles);
+    return this._reactionContactHandles;
+  }
+  addContactListeners() {
+    const users = this._contactChangeListeners || [];
+    const addUser = user => {
+      if (user instanceof MegaDataMap && users.indexOf(user) < 0) {
+        users.push(user);
+      }
+    };
+    addUser(this.getContact());
+    if (this.haveMoreContactListeners) {
+      const moreIds = this.haveMoreContactListeners();
+      if (moreIds) {
+        for (let i = moreIds.length; i--;) {
+          const handle = moreIds[i];
+          addUser(handle in M.u && M.u[handle]);
+        }
+      }
+    }
+    for (let i = this._reactionContactHandles.length; i--;) {
+      addUser(this._reactionContactHandles[i] in M.u && M.u[this._reactionContactHandles[i]]);
+    }
+    if (d > 3) {
+      console.warn('%s.addContactListeners', this.getReactId(), [this], users);
+    }
+    for (let i = users.length; i--;) {
+      users[i].addChangeListener(this);
+    }
+    this._contactChangeListeners = users;
+  }
+  addContactListenerIfMissing(contacts) {
+    if (!this._contactChangeListeners) {
+      return false;
+    }
+    if (!Array.isArray(contacts)) {
+      contacts = [contacts];
+    }
+    const added = [];
+    for (let i = 0; i < contacts.length; i++) {
+      const user = M.u[contacts[i]];
+      if (user && !this._contactChangeListeners.includes(user)) {
+        this._contactChangeListeners.push(user);
+        user.addChangeListener(this);
+        added.push(user.h);
+      }
+    }
+    if (d > 1) {
+      console.warn('%s.addContactListenerIfMissing', this.getReactId(), [this], added);
+    }
+  }
+  eventuallyUpdate() {
+    super.eventuallyUpdate();
+    this.__cmmUpdateTickCount = -2;
+  }
+  handleChangeEvent(x, z, k) {
+    if (k === 'ts' || k === 'ats') {
+      return;
+    }
+    if (this.isComponentEventuallyVisible()) {
+      if (++this.__cmmUpdateTickCount > 5) {
+        this.eventuallyUpdate();
+        delay.cancel(this.__cmmId);
+      } else {
+        delay(this.__cmmId, () => this.eventuallyUpdate(), 90);
+      }
+    } else {
+      this._requiresUpdateOnResize = true;
+    }
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    const {chatRoom} = this.props;
+    if (chatRoom) {
+      chatRoom.off(`onChatShown.${  this.__cmmId}`).off(`onChatHidden.${  this.__cmmId}`);
+    }
+    if (this._contactChangeListeners) {
+      this.removeContactListeners();
+    }
+  }
+  getContact() {
+    if (this.props.contact) {
+      return this.props.contact;
+    }
+    const {message} = this.props;
+    return Message.getContactForMessage(message);
+  }
+  getTimestampAsString() {
+    return toLocaleTime(this.getTimestamp());
+  }
+  getTimestamp(forUpdated) {
+    const {
+      message
+    } = this.props;
+    const timestamp = (message.getDelay == null ? void 0 : message.getDelay()) || message.delay || unixtime();
+    return forUpdated && message.updated > 0 ? timestamp + message.updated : timestamp;
+  }
+  componentDidUpdate() {
+    const self = this;
+    const {chatRoom} = self.props.message;
+    if (!self.onAfterRenderWasTriggered) {
+      const msg = self.props.message;
+      let shouldRender = true;
+      if (msg.isManagement && msg.isManagement() === true && msg.isRenderableManagement() === false) {
+        shouldRender = false;
+      }
+      if (shouldRender) {
+        chatRoom.trigger("onAfterRenderMessage", self.props.message);
+        self.onAfterRenderWasTriggered = true;
+      }
+    }
+  }
+  getCurrentUserReactions() {
+    const {
+      reactions
+    } = this.props.message.reacts;
+    return Object.keys(reactions).filter(utf => {
+      let _reactions$utf;
+      return (_reactions$utf = reactions[utf]) == null ? void 0 : _reactions$utf[u_handle];
+    });
+  }
+  emojiSelected(e, slug, meta) {
+    const {
+      chatRoom,
+      message,
+      onEmojiBarChange
+    } = this.props;
+    if (chatRoom.isReadOnly()) {
+      return false;
+    }
+    const {
+      reactions
+    } = this.props.message.reacts;
+    const CURRENT_USER_REACTIONS = this.getCurrentUserReactions().length;
+    const REACTIONS_LIMIT = {
+      TOTAL: 50,
+      PER_PERSON: 24
+    };
+    const addReaction = () => chatRoom.messagesBuff.userAddReaction(message.messageId, slug, meta);
+    const emoji = megaChat._emojiData.emojisSlug[slug] || meta;
+    if (emoji && message.reacts.getReaction(u_handle, emoji.u)) {
+      if (onEmojiBarChange && Object.keys(reactions).length === 1 && Object.keys(reactions[emoji.u]).length === 1) {
+        onEmojiBarChange(false);
+      }
+      return chatRoom.messagesBuff.userDelReaction(message.messageId, slug, meta);
+    }
+    if (emoji && reactions[emoji.u] && CURRENT_USER_REACTIONS < REACTIONS_LIMIT.PER_PERSON) {
+      return addReaction();
+    }
+    if (CURRENT_USER_REACTIONS >= REACTIONS_LIMIT.PER_PERSON) {
+      return msgDialog('info', '', l[24205].replace('%1', REACTIONS_LIMIT.PER_PERSON));
+    }
+    if (Object.keys(reactions).length >= REACTIONS_LIMIT.TOTAL) {
+      return msgDialog('info', '', l[24206].replace('%1', REACTIONS_LIMIT.TOTAL));
+    } else if (onEmojiBarChange && Object.keys(reactions).length === 0) {
+      onEmojiBarChange(true);
+    }
+    return addReaction();
+  }
+  _emojiOnActiveStateChange(newVal) {
+    this.setState(() => {
+      return {
+        reactionsDropdownActive: newVal
+      };
+    });
+  }
+  getEmojisImages() {
+    const {
+      chatRoom,
+      message
+    } = this.props;
+    const isReadOnlyClass = chatRoom.isReadOnly() ? " disabled" : "";
+    let emojisImages = message._reactions && message.reacts.reactions && Object.keys(message.reacts.reactions).map(utf => {
+      const reaction = message.reacts.reactions[utf];
+      const count = Object.keys(reaction).length;
+      if (!count) {
+        return null;
+      }
+      const filename = twemoji.convert.toCodePoint(utf);
+      const currentUserReacted = !!reaction[u_handle];
+      const names = [];
+      if (reaction) {
+        ChatdIntegration._ensureContactExists(Object.keys(reaction));
+        const rKeys = Object.keys(reaction);
+        for (let i = 0; i < rKeys.length; i++) {
+          const uid = rKeys[i];
+          if (reaction[uid]) {
+            if (uid === u_handle) {
+              names.push(l[24071] || 'You');
+            } else if (uid in M.u) {
+              names.push(M.getNameByHandle(uid) || megaChat.plugins.userHelper.SIMPLETIP_USER_LOADER);
+            }
+          }
+        }
+      }
+      let emojiData = megaChat._emojiData.emojisUtf[utf];
+      if (!emojiData) {
+        emojiData = Object.create(null);
+        emojiData.u = utf;
+      }
+      let slug = emojiData && emojiData.n || "";
+      let tipText;
+      slug = slug ? `:${slug}:` : utf;
+      if (Object.keys(reaction).length === 1 && reaction[u_handle]) {
+        tipText = (l[24068] || "You (click to remove) [G]reacted with %s[/G]").replace("%s", slug);
+      } else {
+        tipText = mega.utils.trans.listToString(names, (l[24069] || "%s [G]reacted with %s2[/G]").replace("%s2", slug));
+      }
+      const notFoundEmoji = slug && slug[0] !== ":";
+      return JSX_("div", {
+        key: slug,
+        onClick: ((e, slug, meta) => () => this.emojiSelected(e, slug, meta))(null, slug, emojiData),
+        className: `
+                            reactions-bar__reaction
+                            simpletip
+                            ${currentUserReacted ? 'user-reacted' : ''}
+                            ${notFoundEmoji ? 'emoji-loading-error' : ''}
+                            ${isReadOnlyClass}
+                        `,
+        "data-simpletip": tipText,
+        "data-simpletipoffset": "3",
+        "data-simpletipposition": "top"
+      }, JSX_("img", {
+        width: "10",
+        height: "10",
+        className: "emoji emoji-loading",
+        draggable: "false",
+        onError: e => {
+          const textNode = document.createElement("em");
+          textNode.classList.remove('emoji-loading');
+          textNode.append(document.createTextNode(utf));
+          e.target.replaceWith(textNode);
+          textNode.parentNode.classList.add('emoji-loading-error');
+        },
+        onLoad: e => {
+          e.target.classList.remove('emoji-loading');
+        },
+        src: `${staticpath  }images/mega/twemojis/2_v2/72x72/${  filename  }.png`
+      }), JSX_("span", {
+        className: "message text-block"
+      }, count));
+    });
+    emojisImages = emojisImages && emojisImages.filter((v) => {
+      return !!v;
+    });
+    if (emojisImages && emojisImages.length > 0) {
+      const reactionBtn = !chatRoom.isReadOnly() ? JSX_(_ui_buttons_jsx2__ .$, {
+        className: "popup-button reactions-button hover-colorized simpletip",
+        icon: "sprite-fm-theme icon-emoji-reactions reactions-icon",
+        disabled: false,
+        key: "add-reaction-button",
+        attrs: {
+          'data-simpletip': l[24070] || "Add reaction...",
+          'data-simpletipoffset': "3",
+          'data-simpletipposition': "top"
+        }
+      }, JSX_(_ui_emojiDropdown_jsx3__ .A, {
+        horizOffset: this.haveMeetingsCall() ? -150 : 0,
+        onActiveChange: this._emojiOnActiveStateChange,
+        className: "popup emoji reactions-dropdown",
+        onClick: this.emojiSelected
+      })) : null;
+      emojisImages.push(reactionBtn);
+    }
+    return emojisImages ? JSX_("div", {
+      className: "reactions-bar",
+      id: "reactions-bar",
+      onMouseEnter: () => {
+        if (this._loadedReacts) {
+          return false;
+        }
+        this._loadedReacts = megaChat.plugins.userHelper.fetchAllNames(this._reactionContacts(), chatRoom).catch(dump).finally(() => {
+          this._loadedReacts = true;
+          this.safeForceUpdate();
+        });
+      }
+    }, emojisImages) : null;
+  }
+  getMessageActionButtons() {
+    const {
+      chatRoom,
+      message
+    } = this.props;
+    return message instanceof Message && message.isSentOrReceived() && !chatRoom.isReadOnly() ? JSX_(_ui_buttons_jsx2__ .$, {
+      className: "popup-button reactions-button tiny-button simpletip",
+      icon: `${"sprite-fm-theme reactions-icon"} icon-emoji-reactions`,
+      iconHovered: `${"sprite-fm-theme reactions-icon"} icon-emoji-reactions-active`,
+      disabled: false,
+      key: "add-reaction-button",
+      attrs: {
+        'data-simpletip': l[24070] || "Add reaction...",
+        'data-simpletipoffset': "3",
+        'data-simpletipposition': "top"
+      }
+    }, JSX_(_ui_emojiDropdown_jsx3__ .A, {
+      horizOffset: this.haveMeetingsCall() ? -110 : 0,
+      noArrow: true,
+      onActiveChange: this._emojiOnActiveStateChange,
+      className: "popup emoji reactions-dropdown",
+      onClick: this.emojiSelected
+    })) : null;
+  }
+}
+
+
+ },
+
+ 5470
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   A: () =>  ScheduleMetaChange
+ });
+ const react0__ = REQ_(1594);
+ const react0___default = REQ_.n(react0__);
+ const _mixin_jsx1__ = REQ_(855);
+ const _contacts_jsx2__ = REQ_(8022);
+ const _ui_utils_jsx3__ = REQ_(6411);
+ const _ui_buttons_jsx4__ = REQ_(5155);
+
+
+
+
+
+class ScheduleMetaChange extends _mixin_jsx1__ .M {
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      link: ''
+    };
+  }
+  componentDidMount() {
+    super.componentDidMount();
+    if (this.props.mode === ScheduleMetaChange.MODE.CREATED) {
+      if (is_chatlink) {
+        this.setState({
+          link: `${getBaseUrl()}/chat/${is_chatlink.ph}#${is_chatlink.key}`
+        });
+      } else {
+        const {
+          chatRoom
+        } = this.props;
+        chatRoom.updatePublicHandle().then(() => {
+          if (this.isMounted() && !this.state.link && chatRoom.publicLink) {
+            this.setState({
+              link: `${getBaseUrl()}/${chatRoom.publicLink}`
+            });
+          }
+        }).catch(dump);
+      }
+    }
+    if (this.props.message.meta.ap) {
+      const {
+        meetingsManager
+      } = megaChat.plugins;
+      this.redrawListener = `${meetingsManager.EVENTS.OCCURRENCES_UPDATE}.redraw${this.getUniqueId()}`;
+      megaChat.rebind(this.redrawListener, () => {
+        onIdle(() => {
+          const {
+            meta
+          } = this.props.message;
+          if (!meta.ap) {
+            return;
+          }
+          this.props.message.meta = meetingsManager.noCsMeta(meta.handle, meta.ap, megaChat.chats[meta.cid]);
+          this.safeForceUpdate();
+        });
+        megaChat.off(this.redrawListener);
+        delete this.redrawListener;
+      });
+    }
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    if (this.redrawListener) {
+      megaChat.off(this.redrawListener);
+    }
+  }
+  specShouldComponentUpdate(nextProps) {
+    if (this.props.mode === ScheduleMetaChange.MODE.CREATED && this.props.link !== nextProps.link) {
+      return true;
+    }
+    return null;
+  }
+  componentDidUpdate(prevProps) {
+    if (this.props.mode === ScheduleMetaChange.MODE.CREATED && prevProps.link !== this.props.link) {
+      this.setState({
+        link: this.props.link ? `${getBaseUrl()}/${this.props.link}` : ''
+      });
+    }
+  }
+  onAddToCalendar() {
+    const {
+      chatRoom
+    } = this.props;
+    const {
+      id,
+      title
+    } = chatRoom && chatRoom.scheduledMeeting || {};
+    if (id) {
+      delay(`fetchical${id}`, () => {
+        eventlog(500038);
+        asyncApiReq({
+          a: 'mcsmfical',
+          id
+        }).then(([, res]) => {
+          delay(`saveical${id}`, () => {
+            M.saveAs(base64urldecode(res), `${title.replace(/\W/g, '')}.ics`).then(nop).catch(() => {
+              msgDialog('error', '', l.calendar_add_failed, '');
+            });
+          }, 1000);
+        }).catch(() => {
+          msgDialog('error', '', l.calendar_add_failed, '');
+        });
+      }, 250);
+    }
+  }
+  static getTitleText(meta) {
+    const {
+      mode,
+      recurring,
+      occurrence,
+      converted,
+      prevTiming
+    } = meta;
+    const {
+      MODE
+    } = ScheduleMetaChange;
+    switch (mode) {
+      case MODE.CREATED:
+        {
+          return recurring ? l.schedule_mgmt_new_recur : l.schedule_mgmt_new;
+        }
+      case MODE.EDITED:
+        {
+          if (converted) {
+            return recurring ? l.schedule_mgmt_update_convert_recur : l.schedule_mgmt_update_convert;
+          }
+          if (occurrence) {
+            return l.schedule_mgmt_update_occur;
+          }
+          if (prevTiming) {
+            return recurring ? l.schedule_mgmt_update_recur : l.schedule_mgmt_update;
+          }
+          return l.schedule_mgmt_update_desc;
+        }
+      case MODE.CANCELLED:
+        {
+          if (recurring) {
+            return occurrence ? l.schedule_mgmt_cancel_occur : l.schedule_mgmt_cancel_recur;
+          }
+          return l.schedule_mgmt_cancel;
+        }
+    }
+    return '';
+  }
+  renderTimingBlock() {
+    const {
+      message,
+      mode
+    } = this.props;
+    const {
+      meta
+    } = message;
+    const {
+      MODE
+    } = ScheduleMetaChange;
+    if (mode === MODE.CANCELLED && !meta.occurrence) {
+      return null;
+    }
+    const [now, prev] = megaChat.plugins.meetingsManager.getOccurrenceStrings(meta);
+    return JSX_("div", {
+      className: "schedule-timing-block"
+    }, meta.prevTiming && JSX_("s", null, prev || ''), now);
+  }
+  checkAndFakeOccurrenceMeta(meta) {
+    const {
+      MODE
+    } = ScheduleMetaChange;
+    if (meta.occurrence && meta.mode === MODE.CANCELLED && !meta.calendar) {
+      const meeting = megaChat.plugins.meetingsManager.getMeetingOrOccurrenceParent(meta.handle);
+      if (meeting) {
+        const occurrences = meeting.getOccurrencesById(meta.handle);
+        if (occurrences) {
+          meta.calendar = {
+            date: new Date(occurrences[0].start).getDate(),
+            month: time2date(Math.floor(occurrences[0].start / 1000), 12)
+          };
+          meta.timeRules.startTime = Math.floor(occurrences[0].start / 1000);
+          meta.timeRules.endTime = Math.floor(occurrences[0].end / 1000);
+        }
+      }
+    }
+  }
+  render() {
+    const {
+      chatRoom,
+      message,
+      mode,
+      contact
+    } = this.props;
+    const {
+      meta,
+      messageId
+    } = message;
+    const {
+      scheduledMeeting
+    } = chatRoom;
+    const {
+      MODE
+    } = ScheduleMetaChange;
+    const {
+      link
+    } = this.state;
+    if (meta.gone) {
+      return null;
+    }
+    this.checkAndFakeOccurrenceMeta(meta);
+    return JSX_("div", null, JSX_("div", {
+      className: "message body",
+      "data-id": `id${messageId}`,
+      key: messageId
+    }, JSX_(_contacts_jsx2__ .eu, {
+      contact: contact.u,
+      className: "message avatar-wrapper small-rounded-avatar",
+      chatRoom
+    }), JSX_("div", {
+      className: "message schedule-message content-area small-info-txt selectable-txt"
+    }, JSX_(_contacts_jsx2__ .bq, {
+      className: "message",
+      chatRoom,
+      contact,
+      label: JSX_(_ui_utils_jsx3__ .zT, null, M.getNameByHandle(contact.u))
+    }), JSX_("div", {
+      className: "message date-time simpletip",
+      "data-simpletip": time2date(this.getTimestamp())
+    }, this.getTimestampAsString()), JSX_("div", {
+      className: "message text-block"
+    }, ScheduleMetaChange.getTitleText(meta), " ", !!d && meta.handle), JSX_("div", {
+      className: "message body-block"
+    }, (meta.prevTiming || meta.calendar || meta.topic && meta.onlyTitle || meta.recurring) && JSX_("div", {
+      className: "schedule-detail-block"
+    }, meta.calendar && scheduledMeeting && (meta.recurring && !scheduledMeeting.recurring || meta.occurrence && meta.mode === MODE.CANCELLED || !meta.recurring) && JSX_("div", {
+      className: "schedule-calendar-icon"
+    }, JSX_("div", {
+      className: "schedule-date"
+    }, meta.calendar.date), JSX_("div", {
+      className: "schedule-month"
+    }, meta.calendar.month)), JSX_("div", {
+      className: "schedule-detail-main"
+    }, JSX_("div", {
+      className: "schedule-meeting-title"
+    }, mode === MODE.CANCELLED ? JSX_("s", null, meta.topic || chatRoom.topic) : meta.topic || chatRoom.topic), this.renderTimingBlock()), chatRoom.iAmInRoom() && scheduledMeeting && mode !== MODE.CANCELLED && JSX_(_ui_buttons_jsx4__ .$, {
+      className: "mega-button",
+      onClick: () => this.onAddToCalendar()
+    }, JSX_("span", null, mode === MODE.CREATED && !meta.occurrence ? l.schedule_add_calendar : l.schedule_update_calendar))), mode === MODE.CREATED && scheduledMeeting && scheduledMeeting.description && JSX_("div", {
+      className: "schedule-description"
+    }, JSX_(_ui_utils_jsx3__ .P9, null, megaChat.html(scheduledMeeting.description).replace(/\n/g, '<br>'))), link && JSX_("div", null, JSX_("div", {
+      className: "schedule-link-instruction"
+    }, l.schedule_mgmt_link_instruct), JSX_("div", {
+      className: "schedule-meeting-link"
+    }, JSX_("span", null, link), JSX_(_ui_buttons_jsx4__ .$, {
+      className: "mega-button positive",
+      onClick: () => {
+        copyToClipboard(link, l[7654]);
+        delay('chat-event-sm-copy-link', () => eventlog(500039));
+      }
+    }, JSX_("span", null, l[63]))), JSX_("span", null, l.schedule_link_note))))));
+  }
+}
+ScheduleMetaChange.MODE = {
+  CREATED: 1,
+  EDITED: 2,
+  CANCELLED: 3
+};
+window.ScheduleMetaChange = ScheduleMetaChange;
+
+ },
+
+ 187
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   d: () =>  getMessageString
+ });
+let getMessageString;
+(function () {
+  let MESSAGE_STRINGS;
+  let MESSAGE_STRINGS_GROUP;
+  let MESSAGE_STRINGS_MEETING;
+  const _sanitizeStrings = function (arg) {
+    if (typeof arg === "undefined") {
+      return arg;
+    } else if (typeof arg === "string") {
+      return escapeHTML(arg);
+    } else if (arg.forEach) {
+      arg.forEach((v, k) => {
+        arg[k] = _sanitizeStrings(v);
+      });
+    } else if (typeof arg === "object") {
+      Object.keys(arg).forEach((k) => {
+        arg[k] = _sanitizeStrings(arg[k]);
+      });
+    }
+    return arg;
+  };
+  getMessageString = function (type, isGroupCall, isMeeting) {
+    if (!MESSAGE_STRINGS) {
+      MESSAGE_STRINGS = {
+        'outgoing-call': l[5891].replace("[X]", "[[[X]]]"),
+        'incoming-call': l[19964] || "[[%s]] is calling...",
+        'call-timeout': [l[18698].replace("[X]", "[[[X]]]")],
+        'call-starting': l[7206].replace("[X]", "[[[X]]]"),
+        'call-feedback': l[7998].replace("[X]", "[[[X]]]"),
+        'call-initialising': l[7207].replace("[X]", "[[[X]]]"),
+        'call-ended': [l[19965] || "Call ended.", l[7208]],
+        'remoteCallEnded': [l[19965] || "Call ended.", l[7208]],
+        'call-failed-media': l[7204],
+        'call-failed': [l[19966] || "Call failed.", l[7208]],
+        'call-handled-elsewhere': l[5895].replace("[X]", "[[[X]]]"),
+        'call-missed': l[17870],
+        'call-rejected': l[19040],
+        'call-canceled': l[19041],
+        'remoteCallStarted': l[5888],
+        'call-started': l[5888].replace("[X]", "[[[X]]]"),
+        'alterParticipants': undefined,
+        'privilegeChange': undefined,
+        'truncated': l[8905]
+      };
+      _sanitizeStrings(MESSAGE_STRINGS);
+    }
+    if (isGroupCall && !MESSAGE_STRINGS_GROUP) {
+      MESSAGE_STRINGS_GROUP = {
+        'call-ended': [l[19967], l[7208]],
+        'remoteCallEnded': [l[19967], l[7208]],
+        'call-handled-elsewhere': l[19968],
+        'call-canceled': l[19969],
+        'call-started': l[19970]
+      };
+      _sanitizeStrings(MESSAGE_STRINGS_GROUP);
+    }
+    if (isMeeting && !MESSAGE_STRINGS_MEETING) {
+      MESSAGE_STRINGS_MEETING = {
+        'call-ended': [l.meeting_mgmt_call_ended, l[7208]],
+        'remoteCallEnded': [l.meeting_mgmt_call_ended, l[7208]],
+        'call-started': l.meeting_mgmt_call_started
+      };
+    }
+    if (isMeeting && MESSAGE_STRINGS_MEETING[type]) {
+      return MESSAGE_STRINGS_MEETING[type];
+    }
+    if (isGroupCall && MESSAGE_STRINGS_GROUP[type]) {
+      return MESSAGE_STRINGS_GROUP[type];
+    }
+    return MESSAGE_STRINGS[type];
+  };
+})();
+
+
+ },
+
+ 4372
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   Y: () =>  withUpdateObserver
+ });
+ const _babel_runtime_helpers_extends0__ = REQ_(8168);
+ const react1__ = REQ_(1594);
+ const react1___default = REQ_.n(react1__);
+ const _mixins_js2__ = REQ_(8264);
+
+
+
+const withUpdateObserver = Component => class extends _mixins_js2__ .w9 {
+  constructor(...args) {
+    super(...args);
+    this.updateInterval = 600000;
+    this.instanceRef = react1___default().createRef();
+    this.intervalRef = undefined;
+    this.state = {
+      updated: 0
+    };
+    this.updateListener = () => {
+      return this.isComponentVisible() && document.visibilityState === 'visible' && this.setState(state => ({
+        updated: ++state.updated
+      }), () => this.safeForceUpdate());
+    };
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    document.removeEventListener('visibilitychange', this.updateListener);
+    clearInterval(this.intervalRef);
+  }
+  componentDidMount() {
+    super.componentDidMount();
+    document.addEventListener('visibilitychange', this.updateListener);
+    this.intervalRef = setInterval(this.instanceRef.current[Component.updateListener] || this.updateListener, Component.updateInterval || this.updateInterval);
+  }
+  render() {
+    return JSX_(Component, (0,_babel_runtime_helpers_extends0__ .A)({
+      ref: this.instanceRef
+    }, this.state, this.props));
+  }
+};
+
+ },
+
+ 5779
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   O1: () =>  prepareExportIo,
+   VV: () =>  prepareExportStreams,
+   li: () =>  withSuspense
+ });
+ const react0__ = REQ_(1594);
+ const react0___default = REQ_.n(react0__);
+ const _ui_fallback_jsx1__ = REQ_(3439);
+
+
+async function prepareExportIo(dl) {
+  const {
+    zname,
+    size
+  } = dl;
+  if (window.isSecureContext && typeof showSaveFilePicker === 'function' && typeof FileSystemFileHandle !== 'undefined' && 'createWritable' in FileSystemFileHandle.prototype && typeof FileSystemWritableFileStream !== 'undefined' && 'seek' in FileSystemWritableFileStream.prototype) {
+    const file = await window.showSaveFilePicker({
+      suggestedName: zname
+    }).catch(ex => {
+      if (String(ex).includes('aborted')) {
+        throw new Error('Aborted');
+      }
+      dump(ex);
+    });
+    if (file) {
+      const stream = await file.createWritable().catch(dump);
+      if (stream) {
+        return {
+          stream,
+          write (data, position, done) {
+            this.stream.write({
+              type: 'write',
+              position,
+              data
+            }).then(done).catch(dump);
+          },
+          download () {
+            this.abort();
+          },
+          abort () {
+            this.stream.close();
+          },
+          setCredentials () {
+            this.begin();
+          }
+        };
+      }
+    }
+  }
+  if (MemoryIO.usable() && Math.min(MemoryIO.fileSizeLimit, 94371840) > size) {
+    return new MemoryIO('chat_0', dl);
+  } else if (window.requestFileSystem) {
+    return new FileSystemAPI('chat_0', dl);
+  }
+  throw new Error('Download methods are unsupported');
+}
+function prepareExportStreams(attachNodes, onEmpty) {
+  return attachNodes.map(node => {
+    return {
+      name: node.name,
+      lastModified: new Date((node.mtime || node.ts) * 1000),
+      input: M.gfsfetch.getReadableStream(node, {
+        error(ex, n) {
+          if (d) {
+            console.error(`${n.h}: ${ex}`);
+          }
+          onEmpty(n.s);
+        }
+      })
+    };
+  });
+}
+const withSuspense = Component => {
+  const Wrapped = props => JSX_(react0__.Suspense, {
+    fallback: JSX_(_ui_fallback_jsx1__ .A, null)
+  }, JSX_(Component, props));
+  Wrapped.displayName = `withSuspense(${Component.displayName || Component.name || 'Component'})`;
+  return Wrapped;
+};
+
+ },
+
+ 5155
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   $: () =>  Button
+ });
+ const _babel_runtime_helpers_extends0__ = REQ_(8168);
+ const react1__ = REQ_(1594);
+ const react1___default = REQ_.n(react1__);
+ const _chat_mixins_js2__ = REQ_(8264);
+
+
+
+const BLURRABLE_CLASSES = '.conversationsApp, .join-meeting, .main-blur-block';
+class Button extends _chat_mixins_js2__ .w9 {
+  constructor(props) {
+    super(props);
+    this.domRef = react1___default().createRef();
+    this.buttonClass = `.button`;
+    this.state = {
+      focused: false,
+      hovered: false,
+      iconHovered: ''
+    };
+    this.onBlur = e => {
+      let _this$domRef;
+      if (!this.isMounted()) {
+        return;
+      }
+      if (!e || !$(e.target).closest(this.buttonClass).is((_this$domRef = this.domRef) == null ? void 0 : _this$domRef.current)) {
+        this.setState({
+          focused: false
+        }, () => {
+          this.unbindEvents();
+          this.safeForceUpdate();
+        });
+      }
+    };
+    this.onClick = e => {
+      let _this$domRef2;
+      if (this.props.disabled === true) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      if ($(e.target).closest('.popup').closest(this.buttonClass).is((_this$domRef2 = this.domRef) == null ? void 0 : _this$domRef2.current) && this.state.focused === true) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      if ($(e.target).is('input, textarea, select')) {
+        return;
+      }
+      if (this.state.focused === false) {
+        if (this.props.onClick) {
+          this.props.onClick(this, e);
+        } else if (react1___default().Children.count(this.props.children) > 0) {
+          this.setState({
+            focused: true
+          }, () => this.safeForceUpdate());
+        }
+      } else if (this.state.focused === true) {
+        this.setState({
+          focused: false
+        });
+        this.unbindEvents();
+      }
+    };
+    this.state.iconHovered = this.props.iconHovered || '';
+  }
+  UNSAFE_componentWillUpdate(nextProps, nextState) {
+    if (nextProps.disabled === true && nextState.focused === true) {
+      nextState.focused = false;
+    }
+    if (this.state.focused !== nextState.focused && nextState.focused === true) {
+      this.bindEvents();
+      if (this._pageChangeListener) {
+        mBroadcaster.removeListener(this._pageChangeListener);
+      }
+      this._pageChangeListener = mBroadcaster.addListener('pagechange', () => {
+        if (this.state.focused === true) {
+          this.onBlur();
+        }
+      });
+    }
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    this.unbindEvents();
+  }
+  renderChildren() {
+    return this.props.children && react1___default().Children.map(this.props.children, child => child && (typeof child.type === 'string' || child.type === undefined ? child : react1___default().cloneElement(child, {
+      active: this.state.focused,
+      closeDropdown: () => this.setState({
+        focused: false
+      }, () => this.unbindEvents()),
+      onActiveChange: active => {
+        let _this$domRef3;
+        const $element = $(((_this$domRef3 = this.domRef) == null ? void 0 : _this$domRef3.current) || this.domNode);
+        const $scrollables = $element.parents('.ps');
+        if ($scrollables.length > 0) {
+          $scrollables.map((k, element) => Ps[active ? 'disable' : 'enable'](element));
+        }
+        child.props.onActiveChange == null || child.props.onActiveChange(active);
+        return this[active ? 'bindEvents' : 'unbindEvents']();
+      }
+    })));
+  }
+  bindEvents() {
+    $(BLURRABLE_CLASSES).rebind(`mousedown.button--${this.getUniqueId()}`, this.onBlur);
+    $(document).rebind(`keyup.button--${this.getUniqueId()}`, ev => this.state.focused === true && ev.keyCode === 27 && this.onBlur());
+    $(document).rebind(`closeDropdowns.${this.getUniqueId()}`, this.onBlur);
+  }
+  unbindEvents() {
+    $(BLURRABLE_CLASSES).unbind(`mousedown.button--${this.getUniqueId()}`);
+    $(document).off(`keyup.button--${this.getUniqueId()}`);
+    $(document).off(`closeDropdowns.${this.getUniqueId()}`);
+    mBroadcaster.removeListener(this._pageChangeListener);
+  }
+  render() {
+    const {
+      className,
+      disabled,
+      style,
+      icon,
+      iconHovered,
+      label,
+      attrs,
+      toggle,
+      secondLabel,
+      secondLabelClass
+    } = this.props;
+    const isMegaButton = className && className.indexOf('mega-button') > -1;
+    const TagName = isMegaButton ? 'button' : 'div';
+    return JSX_(TagName, (0,_babel_runtime_helpers_extends0__ .A)({
+      ref: this.domRef,
+      className: `
+                    button
+                    ${className || ''}
+                    ${disabled ? 'disabled' : ''}
+                    ${this.state.focused ? 'active active-dropdown' : ''}
+                `,
+      style,
+      onClick: this.onClick,
+      onMouseEnter: () => iconHovered && this.setState({
+        hovered: true
+      }),
+      onMouseLeave: () => iconHovered && this.setState({
+        hovered: false
+      })
+    }, attrs), icon && !isMegaButton && JSX_("div", null, JSX_("i", {
+      className: this.state.hovered ? this.state.iconHovered : icon
+    })), icon && isMegaButton && JSX_("div", null, JSX_("i", {
+      className: this.state.hovered ? this.state.iconHovered : icon
+    })), label && JSX_("span", null, label), secondLabel && JSX_("span", {
+      className: secondLabelClass ? secondLabelClass : ''
+    }, secondLabel), toggle && JSX_("div", {
+      className: `
+                            mega-switch
+                            ${toggle.className ? toggle.className : ''}
+                            ${toggle.enabled ? 'toggle-on' : ''}
+                        `,
+      role: "switch",
+      "aria-checked": !!toggle.enabled,
+      onClick: ev => {
+        ev.stopPropagation();
+        if (this.props.toggle.onClick) {
+          this.props.toggle.onClick();
+        }
+      }
+    }, JSX_("div", {
+      className: `mega-feature-switch sprite-fm-mono-after
+                                ${toggle.enabled ? 'icon-check-after' : 'icon-minimise-after'}`
+    })), this.renderChildren());
+  }
+}
+
+ },
+
+ 1510
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   ms: () =>  Dropdown,
+   tJ: () =>  DropdownItem
+ });
+
+ const react0__ = REQ_(1594);
+ const react0___default = REQ_.n(react0__);
+ const _utils_jsx1__ = REQ_(6411);
+ const _chat_mixins2__ = REQ_(8264);
+ const _chat_ui_contacts_jsx3__ = REQ_(8022);
+
+
+
+
+class Dropdown extends _chat_mixins2__ .w9 {
+  constructor(props) {
+    super(props);
+    this.domRef = react0___default().createRef();
+    this.onActiveChange = this.onActiveChange.bind(this);
+    this.onResized = this.onResized.bind(this);
+  }
+  UNSAFE_componentWillUpdate(nextProps) {
+    if (this.props.active != nextProps.active) {
+      this.onActiveChange(nextProps.active);
+    }
+  }
+  specShouldComponentUpdate(nextProps, nextState) {
+    if (this.props.active != nextProps.active) {
+      if (this.props.onBeforeActiveChange) {
+        this.props.onBeforeActiveChange(nextProps.active);
+      }
+      return true;
+    } else if (this.props.focused != nextProps.focused) {
+      return true;
+    } else if (this.state && this.state.active != nextState.active) {
+      return true;
+    }
+    return undefined;
+  }
+  onActiveChange(newVal) {
+    if (this.props.onActiveChange) {
+      this.props.onActiveChange(newVal);
+    }
+  }
+  reposElementUsing(element, obj, info) {
+    let $element;
+    if (this.popupElement) {
+      $element = $(this.popupElement);
+    } else {
+      return;
+    }
+    const self = this;
+    let vertOffset = 0;
+    let horizOffset = 0;
+    if (!self.props.noArrow) {
+      const $arrow = $('.dropdown-white-arrow', $element);
+      let arrowHeight;
+      if (self.props.arrowHeight) {
+        arrowHeight = self.props.arrowHeight;
+        if (info.vertical === "top") {
+          arrowHeight = 0;
+        } else {
+          arrowHeight *= -1;
+        }
+      } else {
+        arrowHeight = $arrow.outerHeight();
+      }
+      if (info.vertical === "top") {
+        $(element).removeClass("down-arrow").addClass("up-arrow");
+      } else {
+        $(element).removeClass("up-arrow").addClass("down-arrow");
+      }
+      vertOffset += info.vertical === "top" ? arrowHeight : 0;
+    }
+    if (self.props.vertOffset) {
+      vertOffset += self.props.vertOffset * (info.vertical === "top" ? 1 : -1);
+    }
+    if (self.props.horizOffset) {
+      horizOffset += self.props.horizOffset;
+    }
+    $(element).css({
+      left: `${obj.left + 0 + horizOffset  }px`,
+      top: `${obj.top + vertOffset  }px`
+    });
+    if (this.props.positionLeft) {
+      $(element).css({
+        left: this.props.positionLeft
+      });
+    }
+  }
+  onResized() {
+    const self = this;
+    if (this.props.active === true && this.popupElement) {
+      const $element = $(this.popupElement);
+      const $positionToElement = $('.button.active-dropdown:visible');
+      if ($positionToElement.length === 0) {
+        return;
+      }
+      let $container = $positionToElement.closest('.messages.scroll-area');
+      if ($container.length === 0) {
+        $container = $(document.body);
+      }
+      $element.css('margin-left', '');
+      $element.position({
+        of: $positionToElement,
+        my: self.props.positionMy ? self.props.positionMy : "center top",
+        at: self.props.positionAt ? self.props.positionAt : "center bottom",
+        collision: this.props.collision || 'flipfit',
+        within: self.props.wrapper || $container,
+        using (obj, info) {
+          self.reposElementUsing(this, obj, info);
+        }
+      });
+    }
+  }
+  componentDidMount() {
+    super.componentDidMount();
+    chatGlobalEventManager.addEventListener('resize', `drpdwn${  this.getUniqueId()}`, this.onResized.bind(this));
+    this.onResized();
+    const self = this;
+    $(document.body).rebind(`closeAllDropdownsExcept.drpdwn${  this.getUniqueId()}`, (e, target) => {
+      if (self.props.active && target !== self) {
+        if (self.props && self.props.closeDropdown) {
+          self.props.closeDropdown();
+        }
+      }
+    });
+  }
+  componentDidUpdate() {
+    this.onResized();
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    $(document.body).unbind(`closeAllDropdownsExcept.drpdwn${  this.getUniqueId()}`);
+    if (this.props.active) {
+      this.onActiveChange(false);
+    }
+    chatGlobalEventManager.removeEventListener('resize', `drpdwn${  this.getUniqueId()}`);
+  }
+  doRerender() {
+    const self = this;
+    setTimeout(() => {
+      self.safeForceUpdate();
+    }, 100);
+    setTimeout(() => {
+      self.onResized();
+    }, 200);
+  }
+  renderChildren() {
+    const self = this;
+    return react0___default().Children.map(this.props.children, (child) => {
+      if (child) {
+        let activeVal = self.props.active || self.state.active;
+        activeVal = String(activeVal);
+        return react0___default().cloneElement(child, {
+          active: activeVal
+        });
+      }
+      return null;
+    });
+  }
+  render() {
+    if (this.props.active !== true) {
+      return null;
+    }
+    const self = this;
+    let child = null;
+    if (this.props.children) {
+      child = JSX_("div", {
+        ref: this.domRef
+      }, self.renderChildren());
+    } else if (this.props.dropdownItemGenerator) {
+      child = this.props.dropdownItemGenerator(this);
+    }
+    if (!child && !this.props.forceShowWhenEmpty) {
+      if (this.props.active !== false) {
+        queueMicrotask(() => {
+          self.onActiveChange(false);
+        });
+      }
+      return null;
+    }
+    return JSX_(_utils_jsx1__ .Ay.RenderTo, {
+      element: document.body,
+      className: `
+                    dropdown
+                    body
+                    ${this.props.noArrow ? '' : 'dropdown-arrow up-arrow'}
+                    ${this.props.className || ''}
+                `,
+      style: this.popupElement && {
+        zIndex: 123,
+        position: 'absolute',
+        width: this.props.styles ? this.props.styles.width : undefined
+      },
+      popupDidMount: popupElement => {
+        this.popupElement = popupElement;
+        this.onResized();
+      },
+      popupWillUnmount: () => {
+        delete this.popupElement;
+      }
+    }, JSX_("div", {
+      ref: this.domRef,
+      onClick: () => {
+        $(document.body).trigger('closeAllDropdownsExcept', this);
+      }
+    }, this.props.noArrow ? null : JSX_("i", {
+      className: "dropdown-white-arrow"
+    }), child));
+  }
+}
+Dropdown.defaultProps = {
+  'requiresUpdateOnResize': true
+};
+class DropdownContactsSelector extends _chat_mixins2__ .w9 {
+  constructor(props) {
+    super(props);
+    this.state = {
+      'selected': this.props.selected ? this.props.selected : []
+    };
+    this.onSelectClicked = this.onSelectClicked.bind(this);
+    this.onSelected = this.onSelected.bind(this);
+  }
+  specShouldComponentUpdate(nextProps, nextState) {
+    if (this.props.active != nextProps.active) {
+      return true;
+    } else if (this.props.focused != nextProps.focused) {
+      return true;
+    } else if (this.state && this.state.active != nextState.active) {
+      return true;
+    } else if (this.state && JSON.stringify(this.state.selected) != JSON.stringify(nextState.selected)) {
+      return true;
+    } else {
+      return undefined;
+    }
+  }
+  onSelected(nodes) {
+    this.setState({
+      'selected': nodes
+    });
+    if (this.props.onSelected) {
+      this.props.onSelected(nodes);
+    }
+    this.forceUpdate();
+  }
+  onSelectClicked() {
+    this.props.onSelectClicked();
+  }
+  render() {
+    return JSX_(Dropdown, {
+      className: `
+                    popup contacts-search
+                    ${this.props.className}
+                    tooltip-blur
+                `,
+      active: this.props.active,
+      closeDropdown: this.props.closeDropdown,
+      ref: ref => {
+        this.dropdownRef = ref;
+      },
+      positionMy: this.props.positionMy,
+      positionAt: this.props.positionAt,
+      arrowHeight: this.props.arrowHeight,
+      horizOffset: this.props.horizOffset,
+      vertOffset: this.props.vertOffset,
+      noArrow: true
+    }, JSX_(_chat_ui_contacts_jsx3__ .hU, {
+      onClose: this.props.closeDropdown,
+      onEventuallyUpdated: () => {
+        let _this$dropdownRef;
+        return (_this$dropdownRef = this.dropdownRef) == null ? void 0 : _this$dropdownRef.doRerender();
+      },
+      active: this.props.active,
+      className: "popup contacts-search tooltip-blur small-footer",
+      contacts: M.u,
+      selectFooter: this.props.selectFooter,
+      megaChat: this.props.megaChat,
+      exclude: this.props.exclude,
+      allowEmpty: this.props.allowEmpty,
+      multiple: this.props.multiple,
+      topButtons: this.props.topButtons,
+      showAddContact: this.props.showAddContact,
+      onAddContact: () => eventlog(500237),
+      onSelected: () => eventlog(500238),
+      onSelectDone: this.props.onSelectDone,
+      multipleSelectedButtonLabel: this.props.multipleSelectedButtonLabel,
+      singleSelectedButtonLabel: this.props.singleSelectedButtonLabel,
+      nothingSelectedButtonLabel: this.props.nothingSelectedButtonLabel
+    }));
+  }
+}
+DropdownContactsSelector.defaultProps = {
+  requiresUpdateOnResize: true
+};
+class DropdownItem extends _chat_mixins2__ .w9 {
+  constructor(props) {
+    super(props);
+    this.domRef = react0___default().createRef();
+    this.state = {
+      'isClicked': false
+    };
+    this.onClick = this.onClick.bind(this);
+    this.onMouseOver = this.onMouseOver.bind(this);
+  }
+  renderChildren() {
+    const self = this;
+    return react0___default().Children.map(this.props.children, (child) => {
+      const props = {
+        active: self.state.isClicked,
+        closeDropdown () {
+          self.setState({
+            'isClicked': false
+          });
+        }
+      };
+      return react0___default().cloneElement(child, props);
+    });
+  }
+  onClick(ev) {
+    const {
+      children,
+      persistent,
+      onClick
+    } = this.props;
+    if (children) {
+      ev.stopPropagation();
+      ev.preventDefault();
+      this.setState({
+        isClicked: !this.state.isClicked
+      });
+    }
+    if (!persistent) {
+      $(document).trigger('closeDropdowns');
+    }
+    return onClick && onClick(ev);
+  }
+  onMouseOver(e) {
+    if (this.props.submenu) {
+      const $contextItem = $(e.target).closest(".contains-submenu");
+      const $subMenu = $contextItem.next('.submenu');
+      const contextTopPos = $contextItem.position().top;
+      let contextleftPos = 0;
+      $contextItem.addClass("opened");
+      $subMenu.addClass("active");
+      contextleftPos = $contextItem.offset().left + $contextItem.outerWidth() + $subMenu.outerWidth() + 10;
+      if (contextleftPos > $(document.body).width()) {
+        $subMenu.addClass("left-position");
+      }
+      $subMenu.css({
+        "top": contextTopPos
+      });
+    } else if (!$(e.target).parent('.submenu').length) {
+      const $dropdown = $(e.target).closest(".dropdown.body");
+      $dropdown.find(".contains-submenu").removeClass("opened");
+      $dropdown.find(".submenu").removeClass("active");
+    }
+  }
+  render() {
+    const {
+      className,
+      disabled,
+      label,
+      icon,
+      submenu
+    } = this.props;
+    return JSX_("div", {
+      ref: this.domRef,
+      className: `
+                    dropdown-item
+                    ${className ? className : ''}
+                    ${submenu ? 'contains-submenu' : ''}
+                    ${disabled ? 'disabled' : ''}
+                `,
+      onClick: disabled ? undefined : ev => this.onClick(ev),
+      onMouseOver: this.onMouseOver
+    }, icon && JSX_("i", {
+      className: icon
+    }), label && JSX_("span", null, label), submenu ? JSX_("i", {
+      className: "sprite-fm-mono icon-arrow-right submenu-icon"
+    }) : '', JSX_("div", null, this.renderChildren()));
+  }
+}
+DropdownItem.defaultProps = {
+  requiresUpdateOnResize: true
+};
+
+ },
+
+ 1165
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   A: () =>  DropdownEmojiSelector
+ });
+ const _babel_runtime_helpers_extends0__ = REQ_(8168);
+ const react1__ = REQ_(1594);
+ const react1___default = REQ_.n(react1__);
+ const _chat_mixins_js2__ = REQ_(8264);
+ const _dropdowns_jsx3__ = REQ_(1510);
+ const _perfectScrollbar_jsx4__ = REQ_(1301);
+
+
+
+
+
+class DropdownEmojiSelector extends _chat_mixins_js2__ .w9 {
+  constructor(props) {
+    super(props);
+    this.domRef = react1___default().createRef();
+    this.emojiSearchRef = react1___default().createRef();
+    this.data_categories = null;
+    this.data_emojis = null;
+    this.data_emojiByCategory = null;
+    this.customCategoriesOrder = ["frequently_used", "people", "nature", "food", "activity", "travel", "objects", "symbols", "flags"];
+    this.frequentlyUsedEmojis = ['slight_smile', 'grinning', 'smile', 'rofl', 'wink', 'yum', 'rolling_eyes', 'stuck_out_tongue', 'smiling_face_with_3_hearts', 'heart_eyes', 'kissing_heart', 'sob', 'pleading_face', 'thumbsup', 'pray', 'wave', 'fire', 'sparkles'];
+    this.heightDefs = {
+      'categoryTitleHeight': 55,
+      'emojiRowHeight': 35,
+      'containerHeight': 302,
+      'totalScrollHeight': 302,
+      'numberOfEmojisPerRow': 9
+    };
+    this.categoryLabels = {
+      'frequently_used': l[17737],
+      'people': l[8016],
+      'objects': l[17735],
+      'activity': l[8020],
+      'nature': l[8017],
+      'travel': l[8021],
+      'symbols': l[17736],
+      'food': l[8018],
+      'flags': l[17703]
+    };
+    this.state = this.getInitialState();
+    this.onSearchChange = this.onSearchChange.bind(this);
+    this.onUserScroll = this.onUserScroll.bind(this);
+    this._onScrollChanged = this._onScrollChanged.bind(this);
+  }
+  getInitialState() {
+    return clone({
+      'previewEmoji': null,
+      'searchValue': '',
+      'browsingCategory': false,
+      'isActive': false,
+      'isLoading': true,
+      'loadFailed': false,
+      'visibleCategories': "0"
+    });
+  }
+  _generateEmoji(meta) {
+    const filename = twemoji.convert.toCodePoint(meta.u);
+    return JSX_("img", {
+      width: "20",
+      height: "20",
+      className: "emoji emoji-loading",
+      draggable: "false",
+      alt: meta.u,
+      title: `:${  meta.n  }:`,
+      onLoad: e => {
+        e.target.classList.remove('emoji-loading');
+      },
+      onError: e => {
+        e.target.classList.remove('emoji-loading');
+        e.target.classList.add('emoji-loading-error');
+      },
+      src: `${staticpath  }images/mega/twemojis/2_v2/72x72/${  filename  }.png`
+    });
+  }
+  _generateEmojiElement(emoji, cat) {
+    const self = this;
+    const categoryName = self.data_categories[cat];
+    return JSX_("div", {
+      "data-emoji": emoji.n,
+      className: "button square-button emoji",
+      key: `${categoryName  }_${  emoji.n}`,
+      onMouseEnter: e => {
+        if (self.mouseEnterTimer) {
+          clearTimeout(self.mouseEnterTimer);
+        }
+        e.stopPropagation();
+        e.preventDefault();
+        self.mouseEnterTimer = setTimeout(() => {
+          self.setState({
+            'previewEmoji': emoji
+          });
+        }, 250);
+      },
+      onMouseLeave: e => {
+        if (self.mouseEnterTimer) {
+          clearTimeout(self.mouseEnterTimer);
+        }
+        e.stopPropagation();
+        e.preventDefault();
+        self.setState({
+          'previewEmoji': null
+        });
+      },
+      onClick: e => {
+        if (self.props.onClick) {
+          self.props.onClick(e, emoji.n, emoji);
+          $(document).trigger('closeDropdowns');
+        }
+      }
+    }, self._generateEmoji(emoji));
+  }
+  UNSAFE_componentWillUpdate(nextProps, nextState) {
+    if (nextState.searchValue !== this.state.searchValue || nextState.browsingCategories !== this.state.browsingCategories) {
+      this._cachedNodes = {};
+      if (this.scrollableArea) {
+        this.scrollableArea.scrollToY(0);
+      }
+      this._onScrollChanged(0, nextState);
+    }
+    if (nextState.isActive === true) {
+      const self = this;
+      if (nextState.isLoading === true || !self.loadingPromise && (!self.data_categories || !self.data_emojis)) {
+        const p = [megaChat.getEmojiDataSet('categories'), megaChat.getEmojiDataSet('emojis')];
+        this.loadingPromise = Promise.all(p).then(([categories, emojis]) => {
+          this.data_emojis = emojis;
+          this.data_categories = categories;
+          self.data_categories.push('frequently_used');
+          self.data_categoriesWithCustomOrder = [];
+          self.customCategoriesOrder.forEach((catName) => {
+            self.data_categoriesWithCustomOrder.push(self.data_categories.indexOf(catName));
+          });
+          self.data_emojiByCategory = {};
+          const frequentlyUsedEmojisMeta = {};
+          self.data_emojis.forEach((emoji) => {
+            const cat = emoji.c;
+            if (!self.data_emojiByCategory[cat]) {
+              self.data_emojiByCategory[cat] = [];
+            }
+            if (self.frequentlyUsedEmojis.indexOf(emoji.n) > -1) {
+              frequentlyUsedEmojisMeta[emoji.n] = emoji.u;
+            }
+            emoji.element = self._generateEmojiElement(emoji, cat);
+            self.data_emojiByCategory[cat].push(emoji);
+          });
+          self.data_emojiByCategory[8] = [];
+          self.frequentlyUsedEmojis.forEach((slug) => {
+            const emoji = {
+              'n': slug,
+              'u': frequentlyUsedEmojisMeta[slug]
+            };
+            emoji.element = self._generateEmojiElement(emoji, 99);
+            self.data_emojiByCategory[8].push(emoji);
+          });
+          self._onScrollChanged(0);
+          self.setState({
+            'isLoading': false
+          });
+        }).catch(ex => {
+          if (d) {
+            console.error("Emoji loading failed.", ex);
+          }
+          this.setState({
+            'loadFailed': true,
+            'isLoading': false
+          });
+        });
+      }
+    } else if (nextState.isActive === false) {
+      if (this.data_emojis) {
+        for (let i = this.data_emojis.length; i--;) {
+          delete this.data_emojis[i].element;
+        }
+      }
+      this.data_emojis = null;
+      this.data_categories = null;
+      this.data_emojiByCategory = null;
+      this.loadingPromise = null;
+    }
+  }
+  onSearchChange(e) {
+    const self = this;
+    self.setState({
+      searchValue: e.target.value,
+      browsingCategory: false
+    });
+  }
+  onUserScroll($ps) {
+    if (this.state.browsingCategory) {
+      const $cat = $(`.emoji-category-container[data-category-name="${  this.state.browsingCategory  }"]`);
+      if (!elementInViewport($cat)) {
+        this.setState({
+          'browsingCategory': false
+        });
+      }
+    }
+    this._onScrollChanged($ps.getScrollPositionY());
+  }
+  generateEmojiElementsByCategory(categoryId, posTop, stateObj) {
+    const self = this;
+    if (!self._cachedNodes) {
+      self._cachedNodes = {};
+    }
+    if (!stateObj) {
+      stateObj = self.state;
+    }
+    if (typeof self._cachedNodes[categoryId] !== 'undefined') {
+      return self._cachedNodes[categoryId];
+    }
+    const categoryName = self.data_categories[categoryId];
+    const emojis = [];
+    const {searchValue} = stateObj;
+    let totalEmojis = 0;
+    self.data_emojiByCategory[categoryId].forEach((meta) => {
+      const slug = meta.n;
+      if (searchValue.length > 0) {
+        if (`:${  slug  }:`.toLowerCase().indexOf(searchValue.toLowerCase()) < 0) {
+          return;
+        }
+      }
+      totalEmojis++;
+      emojis.push(meta.element);
+    });
+    if (emojis.length > 0) {
+      const totalHeight = self.heightDefs.categoryTitleHeight + Math.ceil(totalEmojis / self.heightDefs.numberOfEmojisPerRow) * self.heightDefs.emojiRowHeight;
+      return self._cachedNodes[categoryId] = [totalHeight, JSX_("div", {
+        key: categoryName,
+        "data-category-name": categoryName,
+        className: "emoji-category-container",
+        style: {
+          'position': 'absolute',
+          'top': posTop
+        }
+      }, emojis.length > 0 ? JSX_("div", {
+        className: "clear"
+      }) : null, JSX_("div", {
+        className: "emoji-type-txt"
+      }, self.categoryLabels[categoryName] ? self.categoryLabels[categoryName] : categoryName), JSX_("div", {
+        className: "clear"
+      }), emojis, JSX_("div", {
+        className: "clear"
+      }))];
+    } else {
+      return self._cachedNodes[categoryId] = undefined;
+    }
+  }
+  _isVisible(scrollTop, scrollBottom, elTop, elBottom) {
+    const visibleTop = elTop < scrollTop ? scrollTop : elTop;
+    const visibleBottom = elBottom > scrollBottom ? scrollBottom : elBottom;
+    return visibleBottom - visibleTop > 0;
+  }
+  _onScrollChanged(scrollPositionY, stateObj) {
+    const self = this;
+    if (!self.data_categoriesWithCustomOrder) {
+      return;
+    }
+    if (scrollPositionY === false) {
+      scrollPositionY = self.scrollableArea.getScrollPositionY();
+    }
+    if (!stateObj) {
+      stateObj = self.state;
+    }
+    const visibleStart = scrollPositionY;
+    const visibleEnd = visibleStart + self.heightDefs.containerHeight;
+    let currentPos = 0;
+    let visibleCategories = [];
+    self._emojiReactElements = [];
+    self.data_categoryPositions = {};
+    self.data_categoriesWithCustomOrder.forEach((k) => {
+      const categoryDivMeta = self.generateEmojiElementsByCategory(k, currentPos, stateObj);
+      if (categoryDivMeta) {
+        const startPos = currentPos;
+        currentPos += categoryDivMeta[0];
+        const endPos = currentPos;
+        self.data_categoryPositions[k] = startPos;
+        if (self._isVisible(visibleStart, visibleEnd, startPos, endPos)) {
+          visibleCategories.push(k);
+          self._emojiReactElements.push(categoryDivMeta[1]);
+        }
+      }
+    });
+    if (self._emojiReactElements.length === 0) {
+      const emojisNotFound = JSX_("span", {
+        className: "emojis-not-found",
+        key: 'emojis-not-found'
+      }, l[20920]);
+      self._emojiReactElements.push(emojisNotFound);
+    }
+    visibleCategories = visibleCategories.join(',');
+    self.setState({
+      'totalScrollHeight': currentPos,
+      visibleCategories
+    });
+  }
+  _renderEmojiPickerPopup() {
+    const self = this;
+    let preview;
+    if (self.state.previewEmoji) {
+      const meta = self.state.previewEmoji;
+      preview = JSX_("div", {
+        className: "emoji-preview"
+      }, self._generateEmoji(meta), JSX_("div", {
+        className: "emoji title"
+      }, `:${  meta.n  }:`));
+    }
+    const categoryIcons = {
+      "frequently_used": "icon-emoji-type-frequent",
+      "people": "icon-emoji-type-people",
+      "nature": "icon-emoji-type-nature",
+      "food": "icon-emoji-type-food",
+      "activity": "icon-emoji-type-activity",
+      "travel": "icon-emoji-type-travel",
+      "objects": "icon-emoji-type-objects",
+      "symbols": "icon-emoji-type-symbol",
+      "flags": "icon-emoji-type-flag"
+    };
+    const categoryButtons = [];
+    let activeCategoryName = false;
+    if (!self.state.searchValue) {
+      const firstActive = self.state.visibleCategories.split(",")[0];
+      if (firstActive) {
+        activeCategoryName = self.data_categories[firstActive];
+      }
+    }
+    self.customCategoriesOrder.forEach(categoryName => {
+      categoryButtons.push(JSX_("div", {
+        visiblecategories: this.state.visibleCategories,
+        className: `
+                        button square-button emoji
+                        ${activeCategoryName === categoryName ? 'active' : ''}
+                    `,
+        key: categoryIcons[categoryName],
+        onClick: e => {
+          e.stopPropagation();
+          e.preventDefault();
+          this.setState({
+            browsingCategory: categoryName,
+            searchValue: ''
+          });
+          this._cachedNodes = {};
+          const categoryPosition = this.data_categoryPositions[this.data_categories.indexOf(categoryName)] + 10;
+          this.scrollableArea.scrollToY(categoryPosition);
+          this._onScrollChanged(categoryPosition);
+          const {
+            current
+          } = this.emojiSearchRef || !1;
+          current == null || current.focus();
+        }
+      }, JSX_("i", {
+        className: `sprite-fm-mono ${categoryIcons[categoryName]}`
+      })));
+    });
+    return JSX_(react1___default().Fragment, null, JSX_("div", {
+      className: "popup-header emoji"
+    }, preview || JSX_("div", {
+      className: "search-block emoji"
+    }, JSX_("i", {
+      className: "sprite-fm-mono icon-preview-reveal"
+    }), JSX_("input", {
+      ref: this.emojiSearchRef,
+      type: "search",
+      placeholder: l[102],
+      onChange: this.onSearchChange,
+      autoFocus: true,
+      value: this.state.searchValue
+    }))), JSX_(_perfectScrollbar_jsx4__ .O, {
+      className: "popup-scroll-area emoji perfectScrollbarContainer",
+      searchValue: this.state.searchValue,
+      onUserScroll: this.onUserScroll,
+      visibleCategories: this.state.visibleCategories,
+      ref: ref => {
+        this.scrollableArea = ref;
+      }
+    }, JSX_("div", {
+      className: "popup-scroll-content emoji"
+    }, JSX_("div", {
+      style: {
+        height: this.state.totalScrollHeight
+      }
+    }, this._emojiReactElements))), JSX_("div", {
+      className: "popup-footer emoji"
+    }, categoryButtons));
+  }
+  render() {
+    const self = this;
+    let popupContents = null;
+    if (self.state.isActive === true) {
+      if (self.state.loadFailed === true) {
+        popupContents = JSX_("div", {
+          className: "loading"
+        }, l[1514]);
+      } else if (this.state.isLoading || !this.data_emojiByCategory || !this.data_categories) {
+        popupContents = JSX_("div", {
+          className: "loading"
+        }, l[5533]);
+      } else {
+        popupContents = self._renderEmojiPickerPopup();
+      }
+    } else {
+      popupContents = null;
+    }
+    return JSX_(_dropdowns_jsx3__ .ms, (0,_babel_runtime_helpers_extends0__ .A)({
+      className: "popup emoji"
+    }, self.props, {
+      isLoading: self.state.isLoading,
+      loadFailed: self.state.loadFailed,
+      visibleCategories: this.state.visibleCategories,
+      forceShowWhenEmpty: true,
+      onActiveChange: newValue => {
+        if (newValue === false) {
+          self.setState(self.getInitialState());
+          self._cachedNodes = {};
+          self._onScrollChanged(0);
+        } else {
+          self.setState({
+            'isActive': true
+          });
+        }
+        if (self.props.onActiveChange) {
+          self.props.onActiveChange(newValue);
+        }
+      },
+      searchValue: self.state.searchValue,
+      browsingCategory: self.state.browsingCategory,
+      previewEmoji: self.state.previewEmoji
+    }), JSX_("div", {
+      ref: this.domRef
+    }, popupContents));
+  }
+}
+DropdownEmojiSelector.defaultProps = {
+  'requiresUpdateOnResize': true,
+  'hideable': true
+};
+
+ },
+
  8120
 (_, EXP_, REQ_) {
 
@@ -7435,6 +7724,520 @@ lazy(ConfirmDialog, 'defaultProps', () => {
 
  },
 
+ 1301
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   O: () =>  PerfectScrollbar
+ });
+ const _babel_runtime_helpers_applyDecoratedDescriptor0__ = REQ_(793);
+ const react1__ = REQ_(1594);
+ const react1___default = REQ_.n(react1__);
+ const _chat_mixins2__ = REQ_(8264);
+
+let _dec, _dec2, _class, _PerfectScrollbar;
+
+
+const PerfectScrollbar = (_dec = (0,_chat_mixins2__ .hG)(30, true), _dec2 = (0,_chat_mixins2__ .hG)(30, true), _class = (_PerfectScrollbar = class PerfectScrollbar extends _chat_mixins2__ .w9 {
+  constructor(props) {
+    super(props);
+    this.domRef = react1___default().createRef();
+    this.isUserScroll = true;
+    this.scrollEventIncId = 0;
+  }
+  get$Node() {
+    if (!this.$Node) {
+      let _this$domRef;
+      this.$Node = $((_this$domRef = this.domRef) == null ? void 0 : _this$domRef.current);
+    }
+    return this.$Node;
+  }
+  doProgramaticScroll(newPos, forced, isX, skipReinitialised) {
+    if (!this.isMounted()) {
+      return;
+    }
+    const self = this;
+    const $elem = self.get$Node();
+    let animFrameInner = false;
+    const prop = !isX ? 'scrollTop' : 'scrollLeft';
+    const event = `scroll.progscroll${  self.scrollEventIncId++}`;
+    $elem.rebind(event, () => {
+      if (animFrameInner) {
+        cancelAnimationFrame(animFrameInner);
+        animFrameInner = false;
+      }
+      $elem.off(event);
+      if (!skipReinitialised) {
+        self.reinitialised(true);
+      } else if (typeof skipReinitialised === 'function') {
+        onIdle(skipReinitialised);
+      }
+      self.isUserScroll = true;
+    });
+    self.isUserScroll = false;
+    $elem[0][prop] = Math.round(newPos);
+    Ps.update($elem[0]);
+    animFrameInner = requestAnimationFrame(() => {
+      animFrameInner = false;
+      self.isUserScroll = true;
+      $elem.off(event);
+    });
+    return true;
+  }
+  componentDidMount() {
+    let _this$props$didMount, _this$props;
+    super.componentDidMount();
+    const self = this;
+    const $elem = self.get$Node();
+    $elem.height('100%');
+    const options = Object.assign({}, {
+      'handlers': ['click-rail', 'drag-thumb', 'keyboard', 'wheel', 'touch'],
+      'minScrollbarLength': 20
+    }, self.props.options);
+    Ps.initialize($elem[0], options);
+    if (self.props.onFirstInit) {
+      self.props.onFirstInit(self, $elem);
+    }
+    $elem.rebind(`ps-scroll-y.ps${  self.getUniqueId()}`, (e) => {
+      if ($elem.attr('data-scroll-disabled') === "true") {
+        e.stopPropagation();
+        e.preventDefault();
+        e.originalEvent.stopPropagation();
+        e.originalEvent.preventDefault();
+        return false;
+      }
+      if (self.props.onUserScroll && self.isUserScroll === true && $elem.is(e.target)) {
+        self.props.onUserScroll(self, $elem, e);
+      }
+    });
+    $elem.rebind(`disable-scroll.ps${  self.getUniqueId()}`, () => {
+      Ps.destroy($elem[0]);
+    });
+    $elem.rebind(`enable-scroll.ps${  self.getUniqueId()}`, () => {
+      Ps.initialize($elem[0], options);
+    });
+    $elem.rebind(`forceResize.ps${  self.getUniqueId()}`, (e, forced, scrollPositionYPerc, scrollToElement) => {
+      self.onResize(forced, scrollPositionYPerc, scrollToElement);
+    });
+    self.onResize();
+    this.attachAnimationEvents();
+    (_this$props$didMount = (_this$props = this.props).didMount) == null || _this$props$didMount.call(_this$props, this.getUniqueId(), this);
+  }
+  componentWillUnmount() {
+    let _this$props$willUnmou, _this$props2;
+    super.componentWillUnmount();
+    const $elem = this.get$Node();
+    $elem.off(`ps-scroll-y.ps${  this.getUniqueId()}`);
+    const ns = `.ps${  this.getUniqueId()}`;
+    $elem.parents('.have-animation').unbind(`animationend${  ns  } webkitAnimationEnd${  ns  } oAnimationEnd${  ns}`);
+    (_this$props$willUnmou = (_this$props2 = this.props).willUnmount) == null || _this$props$willUnmou.call(_this$props2, this.getUniqueId(), this);
+  }
+  attachAnimationEvents() {}
+  eventuallyReinitialise(forced, scrollPositionYPerc, scrollToElement) {
+    const self = this;
+    if (!self.isComponentEventuallyVisible()) {
+      return;
+    }
+    const $elem = self.get$Node();
+    const h = self.getContentHeight();
+    if (forced || self._currHeight !== h) {
+      self._currHeight = h;
+      self._doReinit(scrollPositionYPerc, scrollToElement, forced, $elem);
+    }
+  }
+  _doReinit(scrollPositionYPerc, scrollToElement, forced, $elem) {
+    let fired = false;
+    if (this.props.onReinitialise) {
+      fired = this.props.onReinitialise(this, $elem, forced, scrollPositionYPerc, scrollToElement);
+    }
+    if (fired === false) {
+      if (scrollPositionYPerc) {
+        if (scrollPositionYPerc === -1) {
+          this.scrollToBottom(true);
+        } else {
+          this.scrollToPercentY(scrollPositionYPerc, true);
+        }
+      } else if (scrollToElement) {
+        this.scrollToElement(scrollToElement, true);
+      }
+    }
+  }
+  scrollToBottom(skipReinitialised) {
+    this.reinitialise(skipReinitialised, true);
+  }
+  reinitialise(skipReinitialised, bottom) {
+    let _this$domRef2;
+    const $elem = (_this$domRef2 = this.domRef) == null ? void 0 : _this$domRef2.current;
+    if (!$elem) {
+      return;
+    }
+    this.isUserScroll = false;
+    if (bottom) {
+      $elem.scrollTop = this.getScrollHeight();
+    }
+    Ps.update($elem);
+    this.isUserScroll = true;
+    if (!skipReinitialised) {
+      this.reinitialised(true);
+    }
+  }
+  getDOMRect(node) {
+    let _this$domRef3;
+    node = node || ((_this$domRef3 = this.domRef) == null ? void 0 : _this$domRef3.current);
+    return node && node.getBoundingClientRect();
+  }
+  getScrollOffset(value) {
+    let _this$domRef4;
+    const $elem = (_this$domRef4 = this.domRef) == null ? void 0 : _this$domRef4.current;
+    if ($elem) {
+      return this.getDOMRect($elem.children[0])[value] - this.getDOMRect($elem)[value];
+    }
+    return 0;
+  }
+  getScrollHeight() {
+    const res = this.getScrollOffset('height');
+    if (res < 1) {
+      return this._lastKnownScrollHeight || 0;
+    }
+    this._lastKnownScrollHeight = res;
+    return res;
+  }
+  getScrollWidth() {
+    const res = this.getScrollOffset('width');
+    if (res < 1) {
+      return this._lastKnownScrollWidth || 0;
+    }
+    this._lastKnownScrollWidth = res;
+    return res;
+  }
+  getContentHeight() {
+    const $elem = this.get$Node();
+    return $elem[0].scrollHeight;
+  }
+  getContentWidth() {
+    const $elem = this.get$Node();
+    return $elem[0].scrollWidth;
+  }
+  setCssContentHeight(h) {
+    const $elem = this.get$Node();
+    return $elem.css('height', h);
+  }
+  isAtTop() {
+    let _this$domRef5;
+    return ((_this$domRef5 = this.domRef) == null ? void 0 : _this$domRef5.current.scrollTop) === 0;
+  }
+  isAtBottom() {
+    return Math.round(this.getScrollPositionY()) === Math.round(this.getScrollHeight());
+  }
+  isCloseToBottom(minPixelsOff) {
+    return this.getScrollHeight() - this.getScrollPositionY() <= minPixelsOff;
+  }
+  getScrolledPercentY() {
+    return 100 / this.getScrollHeight() * this.getScrollPositionY();
+  }
+  getScrollPositionY() {
+    let _this$domRef6;
+    return (_this$domRef6 = this.domRef) == null ? void 0 : _this$domRef6.current.scrollTop;
+  }
+  getScrollPositionX() {
+    let _this$domRef7;
+    return (_this$domRef7 = this.domRef) == null ? void 0 : _this$domRef7.current.scrollLeft;
+  }
+  getClientWidth() {
+    let _this$domRef8;
+    return (_this$domRef8 = this.domRef) == null ? void 0 : _this$domRef8.current.clientWidth;
+  }
+  getClientHeight() {
+    let _this$domRef9;
+    return (_this$domRef9 = this.domRef) == null ? void 0 : _this$domRef9.current.clientHeight;
+  }
+  scrollToPercentY(posPerc, skipReinitialised) {
+    const $elem = this.get$Node();
+    const targetPx = this.getScrollHeight() / 100 * posPerc;
+    if ($elem[0].scrollTop !== targetPx) {
+      this.doProgramaticScroll(targetPx, 0, 0, skipReinitialised);
+    }
+  }
+  scrollToPercentX(posPerc, skipReinitialised) {
+    const $elem = this.get$Node();
+    const targetPx = this.getScrollWidth() / 100 * posPerc;
+    if ($elem[0].scrollLeft !== targetPx) {
+      this.doProgramaticScroll(targetPx, false, true, skipReinitialised);
+    }
+  }
+  scrollToY(posY, skipReinitialised) {
+    const $elem = this.get$Node();
+    if ($elem[0].scrollTop !== posY) {
+      this.doProgramaticScroll(posY, 0, 0, skipReinitialised);
+    }
+  }
+  scrollToElement(element, skipReinitialised) {
+    if (element && element.offsetParent) {
+      this.doProgramaticScroll(element.offsetTop, 0, 0, skipReinitialised);
+    }
+  }
+  disable() {
+    if (this.isMounted()) {
+      const $elem = this.get$Node();
+      $elem.attr('data-scroll-disabled', true);
+      $elem.addClass('ps-disabled');
+      Ps.disable($elem[0]);
+    }
+  }
+  enable() {
+    if (this.isMounted()) {
+      const $elem = this.get$Node();
+      $elem.removeAttr('data-scroll-disabled');
+      $elem.removeClass('ps-disabled');
+      Ps.enable($elem[0]);
+    }
+  }
+  reinitialised(forced) {
+    if (this.props.onReinitialise) {
+      this.props.onReinitialise(this, this.get$Node(), forced ? forced : false);
+    }
+  }
+  onResize(forced, scrollPositionYPerc, scrollToElement) {
+    if (forced && forced.originalEvent) {
+      forced = true;
+      scrollPositionYPerc = undefined;
+    }
+    this.eventuallyReinitialise(forced, scrollPositionYPerc, scrollToElement);
+  }
+  inViewport(domNode) {
+    return verge.inViewport(domNode);
+  }
+  componentDidUpdate() {
+    if (this.props.requiresUpdateOnResize || this.requiresUpdateOnResize) {
+      this.onResize(true);
+    }
+    this.attachAnimationEvents();
+  }
+  customIsEventuallyVisible() {
+    const {chatRoom} = this.props;
+    return !chatRoom || chatRoom.isCurrentlyActive;
+  }
+  render() {
+    const {
+      style,
+      className,
+      children
+    } = this.props;
+    return JSX_("div", {
+      ref: this.domRef,
+      style,
+      className
+    }, children);
+  }
+}, _PerfectScrollbar.defaultProps = {
+  className: "perfectScrollbarContainer",
+  requiresUpdateOnResize: true
+}, _PerfectScrollbar), (0,_babel_runtime_helpers_applyDecoratedDescriptor0__ .A)(_class.prototype, "eventuallyReinitialise", [_dec], Object.getOwnPropertyDescriptor(_class.prototype, "eventuallyReinitialise"), _class.prototype), (0,_babel_runtime_helpers_applyDecoratedDescriptor0__ .A)(_class.prototype, "onResize", [_dec2], Object.getOwnPropertyDescriptor(_class.prototype, "onResize"), _class.prototype), _class);
+
+ },
+
+ 6411
+(_, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   Ay: () => __WEBPACK_DEFAULT_EXPORT__,
+   P9: () =>  ParsedHTML,
+   T9: () =>  withOverflowObserver,
+   lI: () =>  reactStringWrap,
+   oM: () =>  OFlowParsedHTML,
+   sp: () =>  OFlowEmoji,
+   zT: () =>  Emoji
+ });
+ const react0__ = REQ_(1594);
+ const react0___default = REQ_.n(react0__);
+ const react_dom1__ = REQ_(5206);
+ const react_dom1___default = REQ_.n(react_dom1__);
+ const _chat_mixins_js2__ = REQ_(8264);
+
+
+
+class RenderTo extends react0___default().Component {
+  constructor(...args) {
+    super(...args);
+    this.$$rootRef = undefined;
+    this.popupElement = undefined;
+  }
+  _setClassNames() {
+    this.popupElement.className = this.props.className || '';
+  }
+  _renderLayer() {
+    this.$$rootRef.render(this.props.children);
+    queueMicrotask(() => {
+      let _this$props$popupDidM, _this$props;
+      return (_this$props$popupDidM = (_this$props = this.props).popupDidMount) == null ? void 0 : _this$props$popupDidM.call(_this$props, this.popupElement);
+    });
+  }
+  componentDidUpdate() {
+    this._setClassNames();
+    this._renderLayer();
+  }
+  componentWillUnmount() {
+    let _this$props$popupWill, _this$props2;
+    onIdle(() => this.$$rootRef.unmount());
+    (_this$props$popupWill = (_this$props2 = this.props).popupWillUnmount) == null || _this$props$popupWill.call(_this$props2, this.popupElement);
+    this.props.element.removeChild(this.popupElement);
+  }
+  componentDidMount() {
+    this.popupElement = document.createElement('div');
+    this.$$rootRef = (0,react_dom1__.createRoot)(this.popupElement);
+    this._setClassNames();
+    if (this.props.style) {
+      $(this.popupElement).css(this.props.style);
+    }
+    this.props.element.appendChild(this.popupElement);
+    this._renderLayer();
+  }
+  render() {
+    return null;
+  }
+}
+const withOverflowObserver = Component => class extends _chat_mixins_js2__ .u9 {
+  constructor(props) {
+    super(props);
+    this.displayName = 'OverflowObserver';
+    this.ref = react0___default().createRef();
+    this.state = {
+      overflowed: false
+    };
+    this.handleMouseEnter = this.handleMouseEnter.bind(this);
+  }
+  handleMouseEnter() {
+    const element = this.ref && this.ref.current;
+    if (element) {
+      this.setState({
+        overflowed: element.scrollWidth > element.offsetWidth
+      });
+    }
+  }
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextState.overflowed !== this.state.overflowed || nextProps.children !== this.props.children || nextProps.content !== this.props.content;
+  }
+  render() {
+    const {
+      simpletip
+    } = this.props;
+    return JSX_("div", {
+      ref: this.ref,
+      className: `
+                        overflow-observer
+                        ${this.state.overflowed ? 'simpletip simpletip-tc' : ''}
+                    `,
+      "data-simpletipposition": (simpletip == null ? void 0 : simpletip.position) || 'top',
+      "data-simpletipoffset": simpletip == null ? void 0 : simpletip.offset,
+      "data-simpletip-class": (simpletip == null ? void 0 : simpletip.className) || 'medium-width center-align',
+      onMouseEnter: this.handleMouseEnter
+    }, JSX_(Component, this.props));
+  }
+};
+const Emoji = ({
+  children
+}) => {
+  return JSX_(ParsedHTML, {
+    content: megaChat.html(children)
+  });
+};
+class ParsedHTML extends react0___default().Component {
+  constructor(...args) {
+    super(...args);
+    this.ref = react0___default().createRef();
+  }
+  updateInternalState() {
+    const {
+      children,
+      content
+    } = this.props;
+    const ref = this.ref && this.ref.current;
+    if (!children && !content) {
+      return d > 1 && console.warn('Emoji: No content passed.');
+    }
+    if (ref) {
+      if (ref.childNodes.length) {
+        while (ref.firstChild) {
+          ref.removeChild(ref.firstChild);
+        }
+      }
+      ref.appendChild(parseHTML(children || content));
+    }
+  }
+  shouldComponentUpdate(nextProps) {
+    return nextProps && (nextProps.children !== this.props.children || nextProps.content !== this.props.content);
+  }
+  componentDidUpdate() {
+    this.updateInternalState();
+  }
+  componentDidMount() {
+    this.updateInternalState();
+  }
+  render() {
+    const {
+      className,
+      onClick,
+      tag
+    } = this.props;
+    return JSX_(tag || 'span', {
+      ref: this.ref,
+      className,
+      onClick
+    });
+  }
+}
+const reactStringWrap = (src, find, WrapClass, wrapProps) => {
+  const endTag = find.replace('[', '[/');
+  return JSX_(react0___default().Fragment, null, src.split(find)[0], JSX_(WrapClass, wrapProps, src.substring(src.indexOf(find) + find.length, src.indexOf(endTag))), src.split(endTag)[1]);
+};
+const OFlowEmoji = withOverflowObserver(Emoji);
+const OFlowParsedHTML = withOverflowObserver(ParsedHTML);
+ const __WEBPACK_DEFAULT_EXPORT__ = {
+  RenderTo,
+  SoonFcWrap: _chat_mixins_js2__ .hG,
+  OFlowEmoji,
+  OFlowParsedHTML
+};
+
+ },
+
+ 1594
+(module) {
+
+"use strict";
+module.exports = React;
+
+ },
+
+ 5206
+(module) {
+
+"use strict";
+module.exports = ReactDOM;
+
+ },
+
+ 793
+(__webpack_module__, EXP_, REQ_) {
+
+"use strict";
+ REQ_.d(EXP_, {
+   A: () =>  _applyDecoratedDescriptor
+ });
+function _applyDecoratedDescriptor(i, e, r, n, l) {
+  let a = {};
+  return Object.keys(n).forEach((i) => {
+    a[i] = n[i];
+  }), a.enumerable = !!a.enumerable, a.configurable = !!a.configurable, ("value" in a || a.initializer) && (a.writable = !0), a = r.slice().reverse().reduce((r, n) => {
+    return n(i, e, r) || r;
+  }, a), l && void 0 !== a.initializer && (a.value = a.initializer ? a.initializer.call(l) : void 0, a.initializer = void 0), void 0 === a.initializer ? (Object.defineProperty(i, e, a), null) : a;
+}
+
+
+ },
+
  8168
 (__webpack_module__, EXP_, REQ_) {
 
@@ -7452,809 +8255,6 @@ function _extends() {
   }, _extends.apply(null, arguments);
 }
 
-
- },
-
- 8264
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   LP: () =>  getUniqueId,
-   N9: () =>  timing,
-   Zz: () =>  compose,
-   hG: () =>  SoonFcWrap,
-   u9: () =>  ContactAwareComponent,
-   w9: () =>  MegaRenderMixin
- });
-
- const _babel_runtime_helpers_applyDecoratedDescriptor0__ = REQ_(793);
-
-let _dec, _dec2, _dec3, _dec4, _dec5, _class;
-const INTERSECTION_OBSERVER_AVAILABLE = typeof IntersectionObserver !== 'undefined';
-const RESIZE_OBSERVER_AVAILABLE = typeof ResizeObserver !== 'undefined';
-function shallowEqual(objA, objB) {
-  if (objA === objB) {
-    return true;
-  }
-  for (var key in objA) {
-    if (key === "children") {
-      continue;
-    }
-    if (objA.hasOwnProperty(key)) {
-      if (!objB.hasOwnProperty(key)) {
-        return false;
-      } else if (objA[key] !== objB[key]) {
-        if (typeof objA[key] === 'function' && typeof objB[key] === 'function') {
-          if (objA[key].toString() !== objB[key].toString()) {
-            return false;
-          }
-        } else {
-          return false;
-        }
-      }
-    }
-  }
-  for (key in objB) {
-    if (objB.hasOwnProperty(key) && !objA.hasOwnProperty(key)) {
-      return false;
-    }
-  }
-  return true;
-}
-window.shallowEqual = shallowEqual;
-const MAX_ALLOWED_DEBOUNCED_UPDATES = 5;
-const DEBOUNCED_UPDATE_TIMEOUT = 60;
-const REENABLE_UPDATES_AFTER_TIMEOUT = 300;
-const MAX_TRACK_CHANGES_RECURSIVE_DEPTH = 1;
-let _propertyTrackChangesVars = Object.create(null);
-_propertyTrackChangesVars._listenersMap = Object.create(null);
-_propertyTrackChangesVars._dataChangedHistory = Object.create(null);
-if (window._propertyTrackChangesVars) {
-  _propertyTrackChangesVars = window._propertyTrackChangesVars;
-} else {
-  window._propertyTrackChangesVars = _propertyTrackChangesVars;
-}
-window.megaRenderMixinId = window.megaRenderMixinId ? window.megaRenderMixinId : 0;
-const FUNCTIONS = ['render', 'shouldComponentUpdate', 'doProgramaticScroll', 'componentDidMount', 'componentDidUpdate', 'componentWillUnmount', 'refreshUI', 'eventuallyInit', 'handleWindowResize', 'focusTypeArea', 'initScrolling', 'updateScroll', 'isActive', 'onMessagesScrollReinitialise', 'specShouldComponentUpdate', 'attachAnimationEvents', 'eventuallyReinitialise', 'reinitialise', 'reinitialised', 'getContentHeight', 'getScrollWidth', 'isAtBottom', 'onResize', 'isComponentEventuallyVisible', 'getCursorPosition', 'getTextareaMaxHeight'];
-const localStorageProfileRenderFns = localStorage.profileRenderFns;
-if (localStorageProfileRenderFns) {
-  window.REACT_RENDER_CALLS = {};
-}
-let ID_CURRENT = 1;
-const DEBUG_THIS = d > 1 ? d : false;
-const scheduler = (func, name, debug) => {
-  const dbug = debug !== false && DEBUG_THIS;
-  let idnt = null;
-  let task = null;
-  const fire = () => {
-    if (dbug) {
-      console.warn('Dispatching scheduled task for %s.%s...', idnt, name);
-    }
-    if (task) {
-      queueMicrotask(task);
-      task = null;
-    }
-  };
-  const _scheduler = function () {
-    if (dbug) {
-      if (!idnt) {
-        idnt = name[0] === '(' && this.getReactId && this.getReactId() || this;
-      }
-      console.warn('Scheduling task from %s.%s...', idnt, name, [this], !!task);
-    }
-    if (!task) {
-      queueMicrotask(fire);
-    }
-    let idx = arguments.length;
-    const args = new Array(idx);
-    while (idx--) {
-      args[idx] = arguments[idx];
-    }
-    task = () => {
-      func.apply(this, args);
-    };
-  };
-  if (DEBUG_THIS) {
-    Object.defineProperty(_scheduler, smbl(name), {
-      value: func
-    });
-  }
-  return _scheduler;
-};
-const timing = (min, max) => {
-  return function (target, key, de) {
-    if (DEBUG_THIS > 2) {
-      de[key] = de.value;
-      _timing(de, min, max);
-      de.value = de[key];
-    }
-    return de;
-  };
-};
-const logcall = () => {
-  return function (target, key, descriptor) {
-    if (DEBUG_THIS > 3) {
-      const func = descriptor.value;
-      descriptor.value = function () {
-        console.group('[logcall] Entering into %s.%s...', this, key);
-        const r = func.apply(this, arguments);
-        console.info('[logcall] Leaving %s.%s...', this, key);
-        console.groupEnd();
-        return r;
-      };
-    }
-    return descriptor;
-  };
-};
-const schedule = (local, debug) => {
-  return function (target, property, descriptor) {
-    if (local) {
-      const func = descriptor.value;
-      descriptor = {
-        configurable: true,
-        get: function _unusedScheduler() {
-          Object.defineProperty(this, property, {
-            value: scheduler(func, `(${  property  })`, debug)
-          });
-          return this[property];
-        }
-      };
-    } else {
-      descriptor.value = scheduler(descriptor.value, property, debug);
-    }
-    return descriptor;
-  };
-};
-const compose = (...funcs) => funcs.reduce((a, b) => (...args) => a(b(...args)), arg => arg);
-const replaceAt = (i, o, n) => `${o.slice(0, i)}<strong>${n}</strong>${o.slice(i + n.length)}`;
-const SoonFcWrap = (milliseconds, local) => {
-  return function (target, propertyKey, descriptor) {
-    descriptor.value = SoonFc(descriptor.value, !local, milliseconds);
-    return descriptor;
-  };
-};
-const rAFWrap = () => {
-  return function (target, propertyKey, descriptor) {
-    const old = descriptor.value;
-    descriptor.value = function () {
-      return old.apply(this, arguments);
-    };
-    return descriptor;
-  };
-};
-const trycatcher = () => (t, p, d) => (d.value = tryCatch(d.value)) && d;
-const getUniqueId = () => makeUUID().slice(-12);
-const MegaRenderMixin = (_dec = logcall(), _dec2 = SoonFcWrap(50, true), _dec3 = logcall(), _dec4 = SoonFcWrap(80, true), _dec5 = SoonFcWrap(350, true), _class = class MegaRenderMixin extends React.Component {
-  constructor(props) {
-    super(props);
-    lazy(this, '__internalReactID', function () {
-      let key = '';
-      let fib = DEBUG_THIS && this._reactInternalFiber;
-      while (fib) {
-        let tmp = fib.key;
-        if (tmp && tmp[0] !== '.' && key.indexOf(tmp) < 0) {
-          key += `${tmp  }/`;
-        }
-        if (tmp = fib.memoizedProps) {
-          if (tmp.contact) {
-            tmp = tmp.contact.u + (tmp.chatRoom ? `@${  tmp.chatRoom.roomId}` : '');
-          } else if (tmp.chatRoom) {
-            tmp = tmp.chatRoom.roomId;
-          } else {
-            tmp = 0;
-          }
-          if (tmp && key.indexOf(tmp) < 0) {
-            key += `${tmp  }/`;
-          }
-        }
-        fib = fib._debugOwner;
-      }
-      key = key ? `[${  key.substr(0, key.length - 1)  }]` : '';
-      return `::${  this.constructor.name  }[${  `000${  ID_CURRENT++}`.slice(-4)  }]${  key}`;
-    });
-    lazy(this, '__internalUniqueID', function () {
-      return (this.__internalReactID + makeUUID().substr(-12)).replace(/[^a-zA-Z0-9]/g, '');
-    });
-    Object.defineProperty(this, 'isMounted', {
-      value: function MegaRenderMixin_isMounted() {
-        return !!this.__isMounted;
-      }
-    });
-    if (DEBUG_THIS > 2) {
-      Object.defineProperty(this, 'safeForceUpdate', {
-        value: function MegaRenderMixin_safeForceUpdate_debug() {
-          console.group('%s.safeForceUpdate: mounted:%s, visible:%s', this.getReactId(), this.__isMounted, this.isComponentEventuallyVisible());
-          if (this.__isMounted) {
-            this.forceUpdate(() => {
-              console.warn('%s.safeForceUpdate finished.', this.getReactId());
-              console.groupEnd();
-            });
-          }
-        }
-      });
-      Object.keys(this).forEach(k => {
-        if (this[k] && this[k].apply) {
-          const orig = this[k];
-          this[k] = function () {
-            let s = performance.now();
-            const r = orig.apply(this, arguments);
-            s = performance.now() - s;
-            if (s > 30) {
-              console.error(k, this, "took", s, "ms", 'returned', r);
-            }
-            return r;
-          };
-        }
-      });
-    }
-    if (DEBUG_THIS) {
-      if (!megaChat.__components) {
-        megaChat.__components = new WeakMap();
-      }
-      megaChat.__components.set(this, Object.getPrototypeOf(this));
-    }
-  }
-  componentWillUnmount() {
-    if (super.componentWillUnmount) {
-      super.componentWillUnmount();
-    }
-    this.__isMounted = false;
-    chatGlobalEventManager.removeEventListener('resize', `megaRenderMixing${  this.getUniqueId()}`);
-    chatGlobalEventManager.removeEventListener('hashchange', `hc${  this.getUniqueId()}`);
-    const node = this.findDOMNode();
-    if (this.__intersectionObserverInstance) {
-      if (node) {
-        this.__intersectionObserverInstance.unobserve(node);
-      }
-      this.__intersectionObserverInstance.disconnect();
-      this.__intersectionObserverInstance = undefined;
-    }
-    if (this.onResizeObserved) {
-      if (!RESIZE_OBSERVER_AVAILABLE) {
-        $(document.body).unbind(`resize.resObs${  this.getUniqueId()}`);
-      } else {
-        this.__resizeObserverInstance.unobserve(node);
-        this.__resizeObserverInstance.disconnect();
-        this.__resizeObserverInstance = undefined;
-      }
-    }
-    const instanceId = this.getUniqueId();
-    const listeners = _propertyTrackChangesVars._listenersMap[instanceId];
-    if (listeners) {
-      for (const k in listeners) {
-        const v = listeners[k];
-        v[0].removeChangeListener(v[1]);
-      }
-    }
-    _propertyTrackChangesVars._listenersMap[instanceId] = null;
-    _propertyTrackChangesVars._dataChangedHistory[instanceId] = null;
-    if (this._dataStructListeners) {
-      this._internalDetachRenderCallbacks();
-    }
-    if (this.detachRerenderCallbacks) {
-      this.detachRerenderCallbacks();
-    }
-  }
-  getReactId() {
-    return this.__internalReactID;
-  }
-  getUniqueId() {
-    return this.__internalUniqueID;
-  }
-  debouncedForceUpdate() {
-    this.eventuallyUpdate();
-  }
-  componentDidMount() {
-    if (super.componentDidMount) {
-      super.componentDidMount();
-    }
-    this.__isMounted = true;
-    this._wasRendered = true;
-    if (this.props.requiresUpdateOnResize || this.requiresUpdateOnResize || !this.props.skipQueuedUpdatesOnResize) {
-      chatGlobalEventManager.addEventListener('resize', `megaRenderMixing${  this.getUniqueId()}`, () => this.onResizeDoUpdate());
-    }
-    chatGlobalEventManager.addEventListener('hashchange', `hc${  this.getUniqueId()}`, () => this.onResizeDoUpdate());
-    if (this.props) {
-      this._recurseAddListenersIfNeeded("p", this.props);
-    }
-    if (this.state) {
-      this._recurseAddListenersIfNeeded("s", this.state);
-    }
-    const node = this.findDOMNode();
-    if (INTERSECTION_OBSERVER_AVAILABLE && !this.customIsEventuallyVisible && node && node.nodeType) {
-      this.__intersectionVisibility = false;
-      onIdle(() => {
-        this.__intersectionObserverInstance = new IntersectionObserver(entries => {
-          const entry = entries.pop();
-          if (entry.intersectionRatio < 0.2 && !entry.isIntersecting) {
-            this.__intersectionVisibility = false;
-          } else {
-            this.__intersectionVisibility = true;
-            if (this._requiresUpdateOnResize) {
-              this.debouncedForceUpdate();
-            }
-          }
-          if (this.onVisibilityChange) {
-            this.onVisibilityChange(this.__intersectionVisibility);
-          }
-        }, {
-          threshold: 0.1
-        });
-        this.__intersectionObserverInstance.observe(node);
-      });
-    }
-    if (this.onResizeObserved) {
-      if (!RESIZE_OBSERVER_AVAILABLE) {
-        $(document.body).rebind(`resize.resObs${  this.getUniqueId()}`, () => {
-          this.onResizeObserved(node.offsetWidth, node.offsetHeight);
-        });
-      } else {
-        this.__resizeObserverInstance = new ResizeObserver(entries => {
-          this.onResizeObserved(entries[0].contentRect.width, entries[0].contentRect.height);
-        });
-        this.__resizeObserverInstance.observe(node);
-      }
-    }
-    if (this.attachRerenderCallbacks) {
-      this.attachRerenderCallbacks();
-    }
-  }
-  findDOMNode() {
-    if (!this.domNode) {
-      let _this$domRef;
-      this.domNode = (_this$domRef = this.domRef) == null ? void 0 : _this$domRef.current;
-    }
-    return this.domNode;
-  }
-  isComponentVisible() {
-    if (!this.__isMounted) {
-      return false;
-    }
-    if (this.customIsEventuallyVisible) {
-      const ciev = this.customIsEventuallyVisible;
-      const result = typeof ciev === "function" ? ciev.call(this) : ciev;
-      if (result !== -1) {
-        return result;
-      }
-    }
-    if (this.__intersectionVisibility === false) {
-      return false;
-    } else if (this.__intersectionVisibility === true) {
-      return true;
-    }
-    const domNode = this.findDOMNode();
-    if (!this.props.hideable && (!domNode || domNode.offsetParent === null)) {
-      return false;
-    }
-    if (!$(domNode).is(":visible")) {
-      return false;
-    }
-    return verge.inViewport(domNode);
-  }
-  isComponentEventuallyVisible() {
-    if (!this.__isMounted) {
-      return false;
-    }
-    if (this.customIsEventuallyVisible) {
-      const ciev = this.customIsEventuallyVisible;
-      return typeof ciev === "function" ? ciev.call(this) : !!ciev;
-    }
-    if (typeof this.props.isVisible !== 'undefined') {
-      return this.props.isVisible;
-    }
-    return this.__intersectionVisibility !== false;
-  }
-  eventuallyUpdate() {
-    if (!window.megaChat || megaChat.isLoggingOut || this._updatesDisabled || !this._wasRendered || !this.__isMounted) {
-      return;
-    }
-    if (!this.isComponentEventuallyVisible()) {
-      this._requiresUpdateOnResize = true;
-      return;
-    }
-    if (this._requiresUpdateOnResize) {
-      this._requiresUpdateOnResize = false;
-    }
-    this.forceUpdate();
-  }
-  tempDisableUpdates(forHowLong) {
-    const self = this;
-    self._updatesDisabled = true;
-    if (self._updatesReenableTimer) {
-      clearTimeout(self._updatesReenableTimer);
-    }
-    const timeout = forHowLong ? forHowLong : self.REENABLE_UPDATES_AFTER_TIMEOUT ? self.REENABLE_UPDATES_AFTER_TIMEOUT : REENABLE_UPDATES_AFTER_TIMEOUT;
-    self._updatesReenableTimer = setTimeout(() => {
-      self.tempEnableUpdates();
-    }, timeout);
-  }
-  tempEnableUpdates() {
-    clearTimeout(this._updatesReenableTimer);
-    this._updatesDisabled = false;
-    this.eventuallyUpdate();
-  }
-  onResizeDoUpdate() {
-    this.eventuallyUpdate();
-  }
-  _getUniqueIDForMap(map, payload) {
-    return `${map  }.${  payload}`;
-  }
-  _recurseAddListenersIfNeeded(idx, map, depth) {
-    depth |= 0;
-    if (map instanceof MegaDataMap && !(this._contactChangeListeners && this._contactChangeListeners.includes(map))) {
-      const cacheKey = this._getUniqueIDForMap(map, idx);
-      const instanceId = this.getUniqueId();
-      if (!_propertyTrackChangesVars._listenersMap[instanceId]) {
-        _propertyTrackChangesVars._listenersMap[instanceId] = Object.create(null);
-      }
-      if (!_propertyTrackChangesVars._listenersMap[instanceId][cacheKey]) {
-        _propertyTrackChangesVars._listenersMap[instanceId][cacheKey] = [map, map.addChangeListener(() => this.onPropOrStateUpdated())];
-      }
-    }
-    if (depth++ < MAX_TRACK_CHANGES_RECURSIVE_DEPTH && !this.props.manualDataChangeTracking) {
-      const mapKeys = map instanceof MegaDataMap ? map.keys() : Object.keys(map);
-      for (let i = 0; i < mapKeys.length; i++) {
-        const k = mapKeys[i];
-        if (map[k]) {
-          this._recurseAddListenersIfNeeded(`${idx  }_${  k}`, map[k], depth);
-        }
-      }
-    }
-  }
-  _checkDataStructForChanges(idx, v, rv, depth) {
-    if (!v && v === rv) {
-      return false;
-    }
-    if (!rv && v) {
-      return true;
-    }
-    if (v === null) {
-      return rv !== null;
-    }
-    if (v instanceof MegaDataMap) {
-      const cacheKey = this._getUniqueIDForMap(v, idx);
-      const dataChangeHistory = _propertyTrackChangesVars._dataChangedHistory;
-      const instanceId = this.getUniqueId();
-      if (!dataChangeHistory[instanceId]) {
-        dataChangeHistory[instanceId] = Object.create(null);
-      }
-      if (dataChangeHistory[instanceId][cacheKey] !== v._dataChangeIndex) {
-        if (window.RENDER_DEBUG) {
-          console.error("changed: ", this.getElementName(), cacheKey, v._dataChangeTrackedId, v._dataChangeIndex, v);
-        }
-        dataChangeHistory[instanceId][cacheKey] = v._dataChangeIndex;
-        return true;
-      }
-      return false;
-    }
-    return depth < MAX_TRACK_CHANGES_RECURSIVE_DEPTH && v && v.byteLength === undefined && typeof v === "object" && this._recursiveSearchForDataChanges(idx, v, rv, depth + 1) === true;
-  }
-  _recursiveSearchForDataChanges(idx, map, referenceMap, depth) {
-    const self = this;
-    depth = depth || 0;
-    if (!this.isMounted() || this._updatesDisabled === true) {
-      return;
-    }
-    if (!this._wasRendered) {
-      if (window.RENDER_DEBUG) console.error("First time render", self.getElementName(), map, referenceMap);
-      this._wasRendered = true;
-      return true;
-    }
-    if (idx === "p_children") {
-      if (map.map && referenceMap.map) {
-        const oldKeys = map.map((child) => {
-          return child ? child.key : child;
-        });
-        const newKeys = referenceMap.map((child) => {
-          return child ? child.key : child;
-        });
-        if (!shallowEqual(oldKeys, newKeys)) {
-          return true;
-        }
-      } else if (!map && referenceMap || map && !referenceMap) {
-        return true;
-      } else if (map.$$typeof && referenceMap.$$typeof) {
-        if (!shallowEqual(map.props, referenceMap.props) || !shallowEqual(map.state, referenceMap.state)) {
-          return true;
-        }
-      }
-    } else if (map && !referenceMap || !map && referenceMap || map && referenceMap && !shallowEqual(map, referenceMap)) {
-      return true;
-    }
-    const mapKeys = map instanceof MegaDataMap ? map.keys() : Object.keys(map);
-    for (let i = mapKeys.length; i--;) {
-      const k = mapKeys[i];
-      if (this._checkDataStructForChanges(`${idx  }_${  k}`, map[k], referenceMap[k], depth)) {
-        return true;
-      }
-    }
-    return false;
-  }
-  shouldComponentUpdate(nextProps, nextState) {
-    let shouldRerender = false;
-    if (megaChat && megaChat.isLoggingOut) {
-      return false;
-    }
-    if (!this.isMounted() || this._updatesDisabled === true) {
-      if (window.RENDER_DEBUG) {
-        console.error("shouldUpdate? No.", "F1", this.getElementName(), this.props, nextProps, this.state, nextState);
-      }
-      return false;
-    }
-    if (this.customIsEventuallyVisible) {
-      let ciev = this.customIsEventuallyVisible;
-      ciev = typeof ciev === "function" ? ciev.call(this) : !!ciev;
-      if (!this._queueUpdateWhenVisible && !ciev) {
-        this._queueUpdateWhenVisible = true;
-        if (window.RENDER_DEBUG) {
-          console.error("shouldUpdate? No.", "F1.1", this.getElementName(), this.props, nextProps, this.state, nextState);
-        }
-      } else if (this._queueUpdateWhenVisible && ciev) {
-        delete this._queueUpdateWhenVisible;
-        return true;
-      }
-    }
-    if (this.specShouldComponentUpdate) {
-      const r = this.specShouldComponentUpdate(nextProps, nextState);
-      if (r === false) {
-        if (window.RENDER_DEBUG) {
-          console.error("shouldUpdate? No.", "F2", this.getElementName(), this.props, nextProps, this.state, nextState);
-        }
-        this._requiresUpdateOnResize = true;
-        return false;
-      } else if (r === true) {
-        return true;
-      }
-    }
-    if (!this.props.disableCheckingVisibility && !this.isComponentEventuallyVisible()) {
-      if (window.RENDER_DEBUG) {
-        console.error("shouldUpdate? No.", "FVis", this.getElementName(), this.props, nextProps, this.state, nextState);
-      }
-      this._requiresUpdateOnResize = true;
-      return false;
-    }
-    if (this.props !== null) {
-      shouldRerender = this._recursiveSearchForDataChanges("p", nextProps, this.props);
-    }
-    if (shouldRerender === false) {
-      if (window.RENDER_DEBUG) {
-        console.error("shouldUpdate? No.", "F3", this.getElementName(), this.props, nextProps, this.state, nextState);
-      }
-    }
-    if (shouldRerender === false && this.state !== null) {
-      shouldRerender = this._recursiveSearchForDataChanges("s", nextState, this.state);
-    }
-    if (window.RENDER_DEBUG) {
-      if (shouldRerender) {}
-      console.error("shouldRerender?", shouldRerender, "rendered: ", this.getElementName(), "props:", this.props, "nextProps:", this.props, "state:", this.state);
-    }
-    if (shouldRerender === true) {
-      if (this.props) {
-        this._recurseAddListenersIfNeeded("p", this.props);
-      }
-      if (this.state) {
-        this._recurseAddListenersIfNeeded("s", this.state);
-      }
-    } else {
-      if (window.RENDER_DEBUG) {
-        console.error("shouldUpdate? No.", "F4", this.getElementName(), this.props, nextProps, this.state, nextState);
-      }
-    }
-    return shouldRerender;
-  }
-  onPropOrStateUpdated() {
-    this.eventuallyUpdate();
-  }
-  getElementName() {
-    return this._reactInternalFiber.elementType.name;
-  }
-  safeForceUpdate() {
-    if (this.__isMounted) {
-      this.forceUpdate();
-    }
-  }
-  componentDidUpdate() {
-    if (window.RENDER_DEBUG) {
-      const self = this;
-      const getElementName = function () {
-        if (!self.constructor) {
-          return "unknown";
-        }
-        return self.constructor.name;
-      };
-      console.error("renderedX: ", getElementName(), "props:", this.props, "state:", this.state);
-    }
-    if (this.domNode && !this.domNode.isConnected) {
-      delete this.domNode;
-    }
-  }
-  UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
-    if (localStorageProfileRenderFns) {
-      const self = this;
-      const componentName = self.constructor ? self.constructor.name : "unknown";
-      if (!this._wrappedRender) {
-        FUNCTIONS.forEach((fnName) => {
-          const _origFn = self[fnName];
-          if (_origFn) {
-            self[fnName] = function () {
-              const start = performance.now();
-              const res = _origFn.apply(this, arguments);
-              REACT_RENDER_CALLS[`${componentName  }.${  fnName}`] = REACT_RENDER_CALLS[`${componentName  }.${  fnName}`] || 0;
-              REACT_RENDER_CALLS[`${componentName  }.${  fnName}`] += performance.now() - start;
-              return res;
-            };
-          }
-        });
-        self._wrappedRender = true;
-      }
-      REACT_RENDER_CALLS.sorted = function () {
-        const sorted = [];
-        Object.keys(REACT_RENDER_CALLS).sort((a, b) => {
-          if (REACT_RENDER_CALLS[a] < REACT_RENDER_CALLS[b]) {
-            return 1;
-          } else if (REACT_RENDER_CALLS[a] > REACT_RENDER_CALLS[b]) {
-            return -1;
-          } else {
-            return 0;
-          }
-        }).forEach((k) => {
-          if (typeof REACT_RENDER_CALLS[k] !== 'function') {
-            sorted.push([k, REACT_RENDER_CALLS[k]]);
-          }
-        });
-        return sorted;
-      };
-      REACT_RENDER_CALLS.clear = function () {
-        Object.keys(REACT_RENDER_CALLS).forEach((k) => {
-          if (typeof REACT_RENDER_CALLS[k] !== 'function') {
-            delete REACT_RENDER_CALLS[k];
-          }
-        });
-      };
-    }
-  }
-  _internalDetachRenderCallbacks() {
-    const items = this._dataStructListeners || false;
-    for (let i = items.length; i--;) {
-      const item = items[i];
-      if (item[0] === 'dsprops') {
-        console.assert(item[2].removeChangeListener(item[1]), 'listener not found..');
-      }
-    }
-  }
-  addDataStructListenerForProperties(obj, properties) {
-    if (!(obj instanceof MegaDataMap)) {
-      return;
-    }
-    if (!this._dataStructListeners) {
-      this._dataStructListeners = [];
-    }
-    properties = array.to.object(properties);
-    const id = obj.addChangeListener((obj, data, k) => properties[k] && this.onPropOrStateUpdated());
-    this._dataStructListeners.push(['dsprops', id, obj]);
-  }
-}, (0,_babel_runtime_helpers_applyDecoratedDescriptor0__ .A)(_class.prototype, "componentWillUnmount", [_dec], Object.getOwnPropertyDescriptor(_class.prototype, "componentWillUnmount"), _class.prototype), (0,_babel_runtime_helpers_applyDecoratedDescriptor0__ .A)(_class.prototype, "debouncedForceUpdate", [_dec2], Object.getOwnPropertyDescriptor(_class.prototype, "debouncedForceUpdate"), _class.prototype), (0,_babel_runtime_helpers_applyDecoratedDescriptor0__ .A)(_class.prototype, "componentDidMount", [_dec3], Object.getOwnPropertyDescriptor(_class.prototype, "componentDidMount"), _class.prototype), (0,_babel_runtime_helpers_applyDecoratedDescriptor0__ .A)(_class.prototype, "eventuallyUpdate", [_dec4], Object.getOwnPropertyDescriptor(_class.prototype, "eventuallyUpdate"), _class.prototype), (0,_babel_runtime_helpers_applyDecoratedDescriptor0__ .A)(_class.prototype, "onResizeDoUpdate", [_dec5], Object.getOwnPropertyDescriptor(_class.prototype, "onResizeDoUpdate"), _class.prototype), _class);
-class ContactAwareComponent extends MegaRenderMixin {
-  constructor(props) {
-    super(props);
-    this.loadContactInfo();
-  }
-  _validContact() {
-    const {
-      contact
-    } = this.props;
-    if (!contact) {
-      return false;
-    }
-    return (contact.h || contact.u) in M.u;
-  }
-  _attachRerenderCbContacts(others) {
-    if (!this._validContact()) {
-      return;
-    }
-    this.addDataStructListenerForProperties(this.props.contact, ['name', 'firstName', 'lastName', 'nickname', 'm', 'avatar'].concat(Array.isArray(others) ? others : []));
-  }
-  attachRerenderCallbacks() {
-    this._attachRerenderCbContacts();
-  }
-  loadContactInfo() {
-    let _contact$avatar;
-    if (!this._validContact()) {
-      return;
-    }
-    const {
-      contact,
-      chatRoom
-    } = this.props;
-    const contactHandle = contact.h || contact.u;
-    const syncName = !ContactAwareComponent.unavailableNames[contactHandle] && !contact.firstName && !contact.lastName;
-    const syncMail = megaChat.FORCE_EMAIL_LOADING || (contact.c === 1 || contact.c === 2) && !contact.m && !is_chatlink;
-    const syncAvtr = (is_chatlink && (!contact.avatar || ((_contact$avatar = contact.avatar) == null ? void 0 : _contact$avatar.type) === "text") || !contact.avatar) && !avatars[contactHandle] && !ContactAwareComponent.unavailableAvatars[contactHandle];
-    const loader = () => {
-      if (!this.isComponentEventuallyVisible()) {
-        this.__isLoadingContactInfo = null;
-        this._requiresUpdateOnResize = true;
-        return;
-      }
-      const promises = [];
-      const chatHandle = is_chatlink.ph || chatRoom && chatRoom.publicChatHandle;
-      if (syncName) {
-        promises.push(megaChat.plugins.userHelper.getUserName(contactHandle, chatHandle));
-      }
-      if (syncMail) {
-        promises.push(M.syncContactEmail(contactHandle));
-      }
-      if (syncAvtr) {
-        promises.push(useravatar.loadAvatar(contactHandle, chatHandle).catch(() => {
-          ContactAwareComponent.unavailableAvatars[contactHandle] = true;
-        }));
-      }
-      return Promise.allSettled(promises).always(() => {
-        this.eventuallyUpdate();
-        this.__isLoadingContactInfo = false;
-        if (!contact.firstName && !contact.lastName) {
-          ContactAwareComponent.unavailableNames[contactHandle] = true;
-        }
-      });
-    };
-    if (syncName || syncMail || syncAvtr) {
-      (this.__isLoadingContactInfo = tSleep(0.3)).then(loader).catch(dump);
-    }
-  }
-  componentDidUpdate() {
-    super.componentDidUpdate();
-    if (this.__isLoadingContactInfo === null) {
-      this.loadContactInfo();
-    }
-  }
-  componentWillUnmount() {
-    super.componentWillUnmount();
-    if (this.__isLoadingContactInfo) {
-      this.__isLoadingContactInfo.abort();
-      this.__isLoadingContactInfo = false;
-    }
-  }
-  isLoadingContactInfo() {
-    return !!this.__isLoadingContactInfo;
-  }
-}
-ContactAwareComponent.unavailableAvatars = Object.create(null);
-ContactAwareComponent.unavailableNames = Object.create(null);
-
- },
-
- 8676
-(_, EXP_, REQ_) {
-
-"use strict";
- REQ_.d(EXP_, {
-   r: () =>  chatGlobalEventManager
- });
-const ChatGlobalEventManager = function () {};
-lazy(ChatGlobalEventManager.prototype, 'listeners', function () {
-  window.addEventListener('hashchange', ev => this.triggered(ev));
-  $(window).rebind('resize.chatGlobalEventManager', ev => this.triggered(ev));
-  const listeners = Object.create(null);
-  listeners.resize = Object.create(null);
-  listeners.hashchange = Object.create(null);
-  return listeners;
-});
-ChatGlobalEventManager.prototype.addEventListener = function (eventName, namespace, cb) {
-  this.listeners[eventName][namespace] = this.listeners[namespace] || cb;
-};
-ChatGlobalEventManager.prototype.removeEventListener = function (eventName, namespace) {
-  delete this.listeners[eventName][namespace];
-};
-ChatGlobalEventManager.prototype.triggered = SoonFc(140, function _chatEVDispatcher(ev) {
-  if (M.chat) {
-    const listeners = this.listeners[ev.type];
-    for (const k in listeners) {
-      listeners[k](ev);
-    }
-  }
-});
-const chatGlobalEventManager = new ChatGlobalEventManager();
 
  }
 

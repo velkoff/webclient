@@ -2,6 +2,93 @@
 "use strict";
 (self.webpackChunk_meganz_webclient = self.webpackChunk_meganz_webclient || []).push([[543],{
 
+ 2678
+(_, EXP_, REQ_) {
+
+REQ_.r(EXP_);
+ REQ_.d(EXP_, {
+   "default": () => __WEBPACK_DEFAULT_EXPORT__
+ });
+ const react0__ = REQ_(1594);
+ const react0___default = REQ_.n(react0__);
+ const _contacts1__ = REQ_(8022);
+ const _ui_modalDialogs_jsx2__ = REQ_(8120);
+ const _mixins_js3__ = REQ_(8264);
+
+
+
+
+class ContactSelectorDialog extends _mixins_js3__ .w9 {
+  constructor(...args) {
+    super(...args);
+    this.dialogName = 'contact-selector-dialog';
+  }
+  componentDidMount() {
+    super.componentDidMount();
+    M.safeShowDialog(this.dialogName, () => $(`.${this.dialogName}`));
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    if ($.dialog === this.dialogName) {
+      closeDialog();
+    }
+  }
+  render() {
+    const {
+      active,
+      selectFooter,
+      exclude,
+      allowEmpty,
+      multiple,
+      topButtons,
+      showAddContact,
+      className,
+      multipleSelectedButtonLabel,
+      singleSelectedButtonLabel,
+      nothingSelectedButtonLabel,
+      onClose,
+      onSelectDone
+    } = this.props;
+    return JSX_(_ui_modalDialogs_jsx2__ .A.ModalDialog, {
+      className: `
+                    popup
+                    contacts-search
+                    ${className}
+                    ${this.dialogName}
+                `,
+      onClose
+    }, JSX_(_contacts1__ .hU, {
+      active,
+      className: "popup contacts-search small-footer",
+      contacts: M.u,
+      selectFooter,
+      megaChat,
+      withSelfNote: megaChat.WITH_SELF_NOTE,
+      exclude,
+      allowEmpty,
+      multiple,
+      topButtons,
+      showAddContact,
+      multipleSelectedButtonLabel,
+      singleSelectedButtonLabel,
+      nothingSelectedButtonLabel,
+      onClose,
+      onAddContact: () => {
+        eventlog(500237);
+        onClose();
+      },
+      onSelected: () => {
+        eventlog(500238);
+        onClose();
+      },
+      onSelectDone
+    }));
+  }
+}
+ const __WEBPACK_DEFAULT_EXPORT__ = ContactSelectorDialog;
+
+ },
+
  192
 (_, EXP_, REQ_) {
 
@@ -351,93 +438,6 @@ const withPermissionsObserver = Component => {
 
  },
 
- 2678
-(_, EXP_, REQ_) {
-
-REQ_.r(EXP_);
- REQ_.d(EXP_, {
-   "default": () => __WEBPACK_DEFAULT_EXPORT__
- });
- const react0__ = REQ_(1594);
- const react0___default = REQ_.n(react0__);
- const _contacts1__ = REQ_(8022);
- const _ui_modalDialogs_jsx2__ = REQ_(8120);
- const _mixins_js3__ = REQ_(8264);
-
-
-
-
-class ContactSelectorDialog extends _mixins_js3__ .w9 {
-  constructor(...args) {
-    super(...args);
-    this.dialogName = 'contact-selector-dialog';
-  }
-  componentDidMount() {
-    super.componentDidMount();
-    M.safeShowDialog(this.dialogName, () => $(`.${this.dialogName}`));
-  }
-  componentWillUnmount() {
-    super.componentWillUnmount();
-    if ($.dialog === this.dialogName) {
-      closeDialog();
-    }
-  }
-  render() {
-    const {
-      active,
-      selectFooter,
-      exclude,
-      allowEmpty,
-      multiple,
-      topButtons,
-      showAddContact,
-      className,
-      multipleSelectedButtonLabel,
-      singleSelectedButtonLabel,
-      nothingSelectedButtonLabel,
-      onClose,
-      onSelectDone
-    } = this.props;
-    return JSX_(_ui_modalDialogs_jsx2__ .A.ModalDialog, {
-      className: `
-                    popup
-                    contacts-search
-                    ${className}
-                    ${this.dialogName}
-                `,
-      onClose
-    }, JSX_(_contacts1__ .hU, {
-      active,
-      className: "popup contacts-search small-footer",
-      contacts: M.u,
-      selectFooter,
-      megaChat,
-      withSelfNote: megaChat.WITH_SELF_NOTE,
-      exclude,
-      allowEmpty,
-      multiple,
-      topButtons,
-      showAddContact,
-      multipleSelectedButtonLabel,
-      singleSelectedButtonLabel,
-      nothingSelectedButtonLabel,
-      onClose,
-      onAddContact: () => {
-        eventlog(500237);
-        onClose();
-      },
-      onSelected: () => {
-        eventlog(500238);
-        onClose();
-      },
-      onSelectDone
-    }));
-  }
-}
- const __WEBPACK_DEFAULT_EXPORT__ = ContactSelectorDialog;
-
- },
-
  3546
 (_, EXP_, REQ_) {
 
@@ -645,53 +645,180 @@ Preview.STREAMS = {
 
  },
 
- 5009
+ 7190
 (_, EXP_, REQ_) {
 
+REQ_.r(EXP_);
  REQ_.d(EXP_, {
-   A: () => __WEBPACK_DEFAULT_EXPORT__
+   "default": () =>  Start
  });
- const react0__ = REQ_(1594);
- const react0___default = REQ_.n(react0__);
- const _chat_mixins1__ = REQ_(8264);
+ const _babel_runtime_helpers_extends0__ = REQ_(8168);
+ const react1__ = REQ_(1594);
+ const react1___default = REQ_.n(react1__);
+ const _ui_modalDialogs_jsx2__ = REQ_(8120);
+ const _button_jsx3__ = REQ_(6740);
+ const _preview_jsx4__ = REQ_(3546);
+ const _link_jsx5__ = REQ_(4649);
+ const _ui_utils6__ = REQ_(6411);
+
+let _Start;
 
 
-class ToggleCheckbox extends _chat_mixins1__ .w9 {
+
+
+
+
+class Start extends react1___default().Component {
   constructor(props) {
     super(props);
-    this.domRef = react0___default().createRef();
-    this.onToggle = () => {
-      const newState = !this.state.value;
-      this.setState({
-        value: newState
-      });
-      if (this.props.onToggle) {
-        this.props.onToggle(newState);
+    this.inputRef = react1___default().createRef();
+    this.defaultTopic = l.default_meeting_topic.replace('%NAME', M.getNameByHandle(u_handle));
+    this.state = {
+      audio: false,
+      video: false,
+      editing: false,
+      previousTopic: undefined,
+      topic: undefined
+    };
+    this.handleChange = ev => this.setState({
+      topic: ev.target.value
+    });
+    this.toggleEdit = () => {
+      this.setState(state => {
+        const topic = state.topic.trim() || this.defaultTopic;
+        return {
+          editing: !state.editing,
+          topic,
+          previousTopic: topic
+        };
+      }, () => onIdle(this.doFocus));
+    };
+    this.doFocus = () => {
+      if (this.state.editing) {
+        const input = this.inputRef.current;
+        input.focus();
+        input.setSelectionRange(0, input.value.length);
       }
     };
-    this.state = {
-      value: this.props.value
+    this.doReset = () => this.setState(state => ({
+      editing: false,
+      topic: state.previousTopic,
+      previousTopic: undefined
+    }));
+    this.bindEvents = () => $(document).rebind(`mousedown.${Start.NAMESPACE}`, ev => {
+      if (this.state.editing && !ev.target.classList.contains(Start.CLASS_NAMES.EDIT) && !ev.target.classList.contains(Start.CLASS_NAMES.INPUT)) {
+        this.toggleEdit();
+      }
+    }).rebind(`keyup.${Start.NAMESPACE}`, ({
+      keyCode
+    }) => {
+      if (this.state.editing) {
+        const [ENTER, ESCAPE] = [13, 27];
+        return keyCode === ENTER ? this.toggleEdit() : keyCode === ESCAPE ? this.doReset() : null;
+      }
+    });
+    this.Input = () => JSX_("input", {
+      type: "text",
+      ref: this.inputRef,
+      className: Start.CLASS_NAMES.INPUT,
+      value: this.state.topic,
+      maxLength: ChatRoom.TOPIC_MAX_LENGTH,
+      onChange: this.handleChange
+    });
+    this.onStreamToggle = (audio, video) => this.setState({
+      audio,
+      video
+    });
+    this.startMeeting = () => {
+      const {
+        onStart
+      } = this.props;
+      const {
+        topic,
+        audio,
+        video
+      } = this.state;
+      if (onStart) {
+        onStart(topic.trim() || this.defaultTopic, audio, video);
+      }
     };
+    this.state.topic = this.defaultTopic;
+  }
+  componentDidMount() {
+    this.bindEvents();
+    if ($.dialog === 'onboardingDialog') {
+      closeDialog();
+    }
+    M.safeShowDialog(Start.dialogName, () => $(`#${Start.NAMESPACE}`));
+  }
+  componentWillUnmount() {
+    $(document).unbind(`.${Start.NAMESPACE}`);
+    if ($.dialog === Start.dialogName) {
+      closeDialog();
+    }
   }
   render() {
-    return JSX_("div", {
-      ref: this.domRef,
-      className: `
-                    mega-switch
-                    ${this.props.className}
-                    ${this.state.value ? 'toggle-on' : ''}
-                `,
-      role: "switch",
-      "aria-checked": !!this.state.value,
-      onClick: this.onToggle
+    const {
+      NAMESPACE,
+      CLASS_NAMES
+    } = Start;
+    const {
+      editing,
+      topic
+    } = this.state;
+    return JSX_(_ui_modalDialogs_jsx2__ .A.ModalDialog, (0,_babel_runtime_helpers_extends0__ .A)({}, this.state, {
+      id: NAMESPACE,
+      dialogName: NAMESPACE,
+      className: NAMESPACE,
+      stopKeyPropagation: editing,
+      onClose: () => this.props.onClose()
+    }), JSX_("div", {
+      className: `${NAMESPACE}-preview`
+    }, JSX_(_preview_jsx4__ .A, {
+      context: NAMESPACE,
+      onToggle: this.onStreamToggle
+    })), JSX_("div", {
+      className: "fm-dialog-body"
     }, JSX_("div", {
-      className: `mega-feature-switch sprite-fm-mono-after
-                         ${this.state.value ? 'icon-check-after' : 'icon-minimise-after'}`
-    }));
+      className: `${NAMESPACE}-title`
+    }, editing ? JSX_(this.Input, null) : JSX_("h2", {
+      onClick: this.toggleEdit
+    }, JSX_(_ui_utils6__ .zT, null, topic)), JSX_(_button_jsx3__ .A, {
+      className: `
+                                mega-button
+                                action
+                                small
+                                ${CLASS_NAMES.EDIT}
+                                ${editing ? 'editing' : ''}
+                            `,
+      icon: "icon-rename",
+      simpletip: {
+        label: l[1342],
+        position: 'top'
+      },
+      onClick: this.toggleEdit
+    }, JSX_("span", null, l[1342]))), JSX_(_button_jsx3__ .A, {
+      className: "mega-button positive large start-meeting-button",
+      onClick: () => {
+        this.startMeeting();
+        eventlog(500235);
+      }
+    }, JSX_("span", null, l[7315])), JSX_(_link_jsx5__ .A, {
+      to: "https://mega.io/chatandmeetings",
+      target: "_blank"
+    }, l.how_meetings_work)));
   }
 }
- const __WEBPACK_DEFAULT_EXPORT__ = {
-  ToggleCheckbox
+_Start = Start;
+Start.NAMESPACE = 'start-meeting';
+Start.dialogName = `${_Start.NAMESPACE}-dialog`;
+Start.CLASS_NAMES = {
+  EDIT: 'call-title-edit',
+  INPUT: 'call-title-input'
+};
+Start.STREAMS = {
+  AUDIO: 1,
+  VIDEO: 2
 };
 
  },
@@ -1052,180 +1179,53 @@ StartGroupChatWizard.defaultProps = {
 
  },
 
- 7190
+ 5009
 (_, EXP_, REQ_) {
 
-REQ_.r(EXP_);
  REQ_.d(EXP_, {
-   "default": () =>  Start
+   A: () => __WEBPACK_DEFAULT_EXPORT__
  });
- const _babel_runtime_helpers_extends0__ = REQ_(8168);
- const react1__ = REQ_(1594);
- const react1___default = REQ_.n(react1__);
- const _ui_modalDialogs_jsx2__ = REQ_(8120);
- const _button_jsx3__ = REQ_(6740);
- const _preview_jsx4__ = REQ_(3546);
- const _link_jsx5__ = REQ_(4649);
- const _ui_utils6__ = REQ_(6411);
-
-let _Start;
+ const react0__ = REQ_(1594);
+ const react0___default = REQ_.n(react0__);
+ const _chat_mixins1__ = REQ_(8264);
 
 
-
-
-
-
-class Start extends react1___default().Component {
+class ToggleCheckbox extends _chat_mixins1__ .w9 {
   constructor(props) {
     super(props);
-    this.inputRef = react1___default().createRef();
-    this.defaultTopic = l.default_meeting_topic.replace('%NAME', M.getNameByHandle(u_handle));
+    this.domRef = react0___default().createRef();
+    this.onToggle = () => {
+      const newState = !this.state.value;
+      this.setState({
+        value: newState
+      });
+      if (this.props.onToggle) {
+        this.props.onToggle(newState);
+      }
+    };
     this.state = {
-      audio: false,
-      video: false,
-      editing: false,
-      previousTopic: undefined,
-      topic: undefined
+      value: this.props.value
     };
-    this.handleChange = ev => this.setState({
-      topic: ev.target.value
-    });
-    this.toggleEdit = () => {
-      this.setState(state => {
-        const topic = state.topic.trim() || this.defaultTopic;
-        return {
-          editing: !state.editing,
-          topic,
-          previousTopic: topic
-        };
-      }, () => onIdle(this.doFocus));
-    };
-    this.doFocus = () => {
-      if (this.state.editing) {
-        const input = this.inputRef.current;
-        input.focus();
-        input.setSelectionRange(0, input.value.length);
-      }
-    };
-    this.doReset = () => this.setState(state => ({
-      editing: false,
-      topic: state.previousTopic,
-      previousTopic: undefined
-    }));
-    this.bindEvents = () => $(document).rebind(`mousedown.${Start.NAMESPACE}`, ev => {
-      if (this.state.editing && !ev.target.classList.contains(Start.CLASS_NAMES.EDIT) && !ev.target.classList.contains(Start.CLASS_NAMES.INPUT)) {
-        this.toggleEdit();
-      }
-    }).rebind(`keyup.${Start.NAMESPACE}`, ({
-      keyCode
-    }) => {
-      if (this.state.editing) {
-        const [ENTER, ESCAPE] = [13, 27];
-        return keyCode === ENTER ? this.toggleEdit() : keyCode === ESCAPE ? this.doReset() : null;
-      }
-    });
-    this.Input = () => JSX_("input", {
-      type: "text",
-      ref: this.inputRef,
-      className: Start.CLASS_NAMES.INPUT,
-      value: this.state.topic,
-      maxLength: ChatRoom.TOPIC_MAX_LENGTH,
-      onChange: this.handleChange
-    });
-    this.onStreamToggle = (audio, video) => this.setState({
-      audio,
-      video
-    });
-    this.startMeeting = () => {
-      const {
-        onStart
-      } = this.props;
-      const {
-        topic,
-        audio,
-        video
-      } = this.state;
-      if (onStart) {
-        onStart(topic.trim() || this.defaultTopic, audio, video);
-      }
-    };
-    this.state.topic = this.defaultTopic;
-  }
-  componentDidMount() {
-    this.bindEvents();
-    if ($.dialog === 'onboardingDialog') {
-      closeDialog();
-    }
-    M.safeShowDialog(Start.dialogName, () => $(`#${Start.NAMESPACE}`));
-  }
-  componentWillUnmount() {
-    $(document).unbind(`.${Start.NAMESPACE}`);
-    if ($.dialog === Start.dialogName) {
-      closeDialog();
-    }
   }
   render() {
-    const {
-      NAMESPACE,
-      CLASS_NAMES
-    } = Start;
-    const {
-      editing,
-      topic
-    } = this.state;
-    return JSX_(_ui_modalDialogs_jsx2__ .A.ModalDialog, (0,_babel_runtime_helpers_extends0__ .A)({}, this.state, {
-      id: NAMESPACE,
-      dialogName: NAMESPACE,
-      className: NAMESPACE,
-      stopKeyPropagation: editing,
-      onClose: () => this.props.onClose()
-    }), JSX_("div", {
-      className: `${NAMESPACE}-preview`
-    }, JSX_(_preview_jsx4__ .A, {
-      context: NAMESPACE,
-      onToggle: this.onStreamToggle
-    })), JSX_("div", {
-      className: "fm-dialog-body"
-    }, JSX_("div", {
-      className: `${NAMESPACE}-title`
-    }, editing ? JSX_(this.Input, null) : JSX_("h2", {
-      onClick: this.toggleEdit
-    }, JSX_(_ui_utils6__ .zT, null, topic)), JSX_(_button_jsx3__ .A, {
+    return JSX_("div", {
+      ref: this.domRef,
       className: `
-                                mega-button
-                                action
-                                small
-                                ${CLASS_NAMES.EDIT}
-                                ${editing ? 'editing' : ''}
-                            `,
-      icon: "icon-rename",
-      simpletip: {
-        label: l[1342],
-        position: 'top'
-      },
-      onClick: this.toggleEdit
-    }, JSX_("span", null, l[1342]))), JSX_(_button_jsx3__ .A, {
-      className: "mega-button positive large start-meeting-button",
-      onClick: () => {
-        this.startMeeting();
-        eventlog(500235);
-      }
-    }, JSX_("span", null, l[7315])), JSX_(_link_jsx5__ .A, {
-      to: "https://mega.io/chatandmeetings",
-      target: "_blank"
-    }, l.how_meetings_work)));
+                    mega-switch
+                    ${this.props.className}
+                    ${this.state.value ? 'toggle-on' : ''}
+                `,
+      role: "switch",
+      "aria-checked": !!this.state.value,
+      onClick: this.onToggle
+    }, JSX_("div", {
+      className: `mega-feature-switch sprite-fm-mono-after
+                         ${this.state.value ? 'icon-check-after' : 'icon-minimise-after'}`
+    }));
   }
 }
-_Start = Start;
-Start.NAMESPACE = 'start-meeting';
-Start.dialogName = `${_Start.NAMESPACE}-dialog`;
-Start.CLASS_NAMES = {
-  EDIT: 'call-title-edit',
-  INPUT: 'call-title-input'
-};
-Start.STREAMS = {
-  AUDIO: 1,
-  VIDEO: 2
+ const __WEBPACK_DEFAULT_EXPORT__ = {
+  ToggleCheckbox
 };
 
  }

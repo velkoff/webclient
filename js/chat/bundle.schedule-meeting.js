@@ -2,232 +2,44 @@
 "use strict";
 (self.webpackChunk_meganz_webclient = self.webpackChunk_meganz_webclient || []).push([[716],{
 
- 1497
+ 8894
 (_, EXP_, REQ_) {
 
  REQ_.d(EXP_, {
-   CU: () =>  NAMESPACE,
-   Sc: () =>  Checkbox,
-   TM: () =>  Textarea,
-   VP: () =>  Column,
-   dO: () =>  Switch,
-   dh: () =>  UpgradeNotice,
-   fI: () =>  Row,
-   oK: () =>  dialogName,
-   pD: () =>  CloseDialog,
-   pd: () =>  Input
+   V: () =>  withDateObserver
  });
- const react0__ = REQ_(1594);
- const react0___default = REQ_.n(react0__);
- const _ui_modalDialogs_jsx1__ = REQ_(8120);
- const _button_jsx2__ = REQ_(6740);
+ const _babel_runtime_helpers_extends0__ = REQ_(8168);
+ const react1__ = REQ_(1594);
+ const react1___default = REQ_.n(react1__);
 
 
-
-const NAMESPACE = 'schedule-dialog';
-const dialogName = `meetings-${"schedule-dialog"}`;
-const CloseDialog = ({
-  onToggle,
-  onClose
-}) => {
-  return JSX_(react0___default().Fragment, null, JSX_(_ui_modalDialogs_jsx1__ .A.ModalDialog, {
-    name: `${NAMESPACE}-confirmation`,
-    dialogType: "message",
-    className: `
-                    with-close-btn
-                    ${NAMESPACE}-confirmation
-                `,
-    title: l.schedule_discard_dlg_title,
-    icon: "sprite-fm-uni icon-question",
-    buttons: [{
-      key: 'n',
-      label: l.schedule_discard_cancel,
-      onClick: () => onToggle('closeDialog')
-    }, {
-      key: 'y',
-      label: l.schedule_discard_confirm,
-      className: 'positive',
-      onClick: onClose
-    }],
-    noCloseOnClickOutside: true,
-    stopKeyPropagation: true,
-    hideOverlay: true,
-    onClose: () => onToggle('closeDialog')
-  }), JSX_("div", {
-    className: `${NAMESPACE}-confirmation-overlay`,
-    onClick: () => onToggle('closeDialog')
-  }));
+const withDateObserver = Component => class extends react1___default().Component {
+  constructor(...args) {
+    super(...args);
+    this.listener = undefined;
+    this.state = {
+      timestamp: undefined
+    };
+  }
+  componentWillUnmount() {
+    mBroadcaster.removeListener(this.listener);
+  }
+  componentDidMount() {
+    this.listener = mBroadcaster.addListener(withDateObserver.NAMESPACE, timestamp => this.setState({
+      timestamp
+    }));
+  }
+  render() {
+    return JSX_(Component, (0,_babel_runtime_helpers_extends0__ .A)({}, this.props, {
+      timestamp: this.state.timestamp
+    }));
+  }
 };
-const Row = ({
-  children,
-  className
-}) => JSX_("div", {
-  className: `
-            ${NAMESPACE}-row
-            ${className || ''}
-        `
-}, children);
-const Column = ({
-  children,
-  className
-}) => JSX_("div", {
-  className: `
-            ${NAMESPACE}-column
-            ${className || ''}
-        `
-}, children);
-const Input = ({
-  name,
-  placeholder,
-  value,
-  invalid,
-  invalidMessage,
-  autoFocus,
-  isLoading,
-  onFocus,
-  onChange
-}) => {
-  return JSX_(Row, {
-    className: invalid ? 'invalid-aligned' : ''
-  }, JSX_(Column, null, JSX_("i", {
-    className: "sprite-fm-mono icon-rename"
-  })), JSX_(Column, null, JSX_("div", {
-    className: `
-                        mega-input
-                        ${invalid ? 'error msg' : ''}
-                    `
-  }, JSX_("input", {
-    type: "text",
-    name: `${NAMESPACE}-${name}`,
-    className: isLoading ? 'disabled' : '',
-    disabled: isLoading,
-    autoFocus,
-    autoComplete: "off",
-    placeholder,
-    value,
-    onFocus,
-    onChange: ({
-      target
-    }) => onChange(target.value)
-  }), invalid && JSX_("div", {
-    className: "message-container mega-banner"
-  }, invalidMessage))));
-};
-const Checkbox = ({
-  name,
-  className,
-  checked,
-  label,
-  subLabel,
-  isLoading,
-  onToggle
-}) => {
-  return JSX_(Row, {
-    className: `
-                ${subLabel ? 'start-aligned' : ''}
-                ${className || ''}
-            `
-  }, JSX_(Column, null, JSX_("div", {
-    className: `
-                        checkdiv
-                        ${checked ? 'checkboxOn' : 'checkboxOff'}
-                        ${isLoading ? 'disabled' : ''}
-                    `
-  }, JSX_("input", {
-    name: `${NAMESPACE}-${name}`,
-    disabled: isLoading,
-    type: "checkbox",
-    onChange: () => onToggle(name)
-  }))), JSX_(Column, {
-    className: subLabel ? 'with-sub-label' : ''
-  }, JSX_("label", {
-    htmlFor: `${NAMESPACE}-${name}`,
-    className: isLoading ? 'disabled' : '',
-    onClick: () => isLoading ? null : onToggle(name)
-  }, label), subLabel && JSX_("div", {
-    className: "sub-label"
-  }, subLabel)));
-};
-const Switch = ({
-  name,
-  toggled,
-  label,
-  isLoading,
-  subLabel,
-  onToggle
-}) => {
-  return JSX_(Row, null, JSX_(Column, null, JSX_("i", {
-    className: "sprite-fm-uni icon-mega-logo"
-  })), JSX_(Column, {
-    className: subLabel ? `with-sub-label ${"schedule-dialog-switch"}` : "schedule-dialog-switch"
-  }, JSX_("span", {
-    className: `
-                        schedule-label
-                        ${isLoading ? 'disabled' : ''}
-                    `,
-    onClick: () => isLoading ? null : onToggle(name)
-  }, label), JSX_("div", {
-    className: `
-                        mega-switch
-                        ${toggled ? 'toggle-on' : ''}
-                        ${isLoading ? 'disabled' : ''}
-                    `,
-    onClick: () => isLoading ? null : onToggle(name)
-  }, JSX_("div", {
-    className: `
-                            mega-feature-switch
-                            sprite-fm-mono-after
-                            ${toggled ? 'icon-check-after' : 'icon-minimise-after'}
-                        `
-  })), subLabel && JSX_("div", {
-    className: "sub-label"
-  }, subLabel)));
-};
-const Textarea = ({
-  name,
-  placeholder,
-  isLoading,
-  value,
-  invalid,
-  onChange,
-  onFocus
-}) => {
-  return JSX_(Row, {
-    className: "start-aligned"
-  }, JSX_(Column, null, JSX_("i", {
-    className: "sprite-fm-mono icon-description"
-  })), JSX_(Column, null, JSX_("div", {
-    className: `mega-input box-style textarea ${invalid ? 'error' : ''}`
-  }, JSX_("textarea", {
-    name: `${NAMESPACE}-${name}`,
-    className: isLoading ? 'disabled' : '',
-    placeholder,
-    value,
-    readOnly: isLoading,
-    onChange: ({
-      target
-    }) => onChange(target.value),
-    onFocus
-  })), invalid && JSX_("div", {
-    className: "mega-input error msg textarea-error"
-  }, JSX_("div", {
-    className: "message-container mega-banner"
-  }, l.err_schedule_desc_long))));
-};
-const UpgradeNotice = ({
-  onUpgradeClicked
-}) => {
-  return !!mega.flags.ff_chmon && JSX_(Row, {
-    className: "schedule-upgrade-notice"
-  }, JSX_("h3", null, l.schedule_limit_title), JSX_("div", null, l.schedule_limit_upgrade_features), JSX_(_button_jsx2__ .A, {
-    className: "mega-button positive",
-    onClick: onUpgradeClicked
-  }, JSX_("span", null, l.upgrade_now)));
-};
+withDateObserver.NAMESPACE = 'meetings:onSelectDate';
 
  },
 
- 3448
+ 9290
 (_, EXP_, REQ_) {
 
  REQ_.d(EXP_, {
@@ -236,85 +48,76 @@ const UpgradeNotice = ({
  const react0__ = REQ_(1594);
  const react0___default = REQ_.n(react0__);
  const _mixins_js1__ = REQ_(8264);
- const _ui_perfectScrollbar_jsx2__ = REQ_(1301);
- const _helpers_jsx3__ = REQ_(6521);
- const _dateObserver4__ = REQ_(8894);
+ const _dateObserver2__ = REQ_(8894);
 
 
 
-
-
-class Select extends react0___default().Component {
-  constructor(...args) {
-    super(...args);
-    this.domRef = react0___default().createRef();
-    this.inputRef = react0___default().createRef();
-    this.menuRef = react0___default().createRef();
-    this.optionRefs = {};
-    this.state = {
-      expanded: false,
-      manualTimeInput: '',
-      timestamp: ''
-    };
-    this.handleMousedown = ({
-      target
-    }) => {
-      let _this$domRef;
-      return (_this$domRef = this.domRef) != null && _this$domRef.current.contains(target) ? null : this.setState({
-        expanded: false
-      });
-    };
-    this.handleToggle = ({
-      target
-    } = {}) => {
-      let _this$menuRef, _menuRef$domRef;
-      const menuRef = (_this$menuRef = this.menuRef) == null ? void 0 : _this$menuRef.current;
-      const menuElement = (_menuRef$domRef = menuRef.domRef) == null ? void 0 : _menuRef$domRef.current;
-      if (target !== menuElement) {
-        const {
-          value
-        } = this.props;
-        this.setState(state => ({
-          expanded: !state.expanded
-        }), () => {
-          if (value && this.optionRefs[value]) {
-            menuRef.scrollToElement(this.optionRefs[value]);
-          }
-        });
+class Datepicker extends react0___default().Component {
+  constructor(props) {
+    super(props);
+    this.OPTIONS = {
+      classes: 'meetings-datepicker-calendar',
+      dateFormat: '@',
+      minDate: null,
+      startDate: null,
+      selectedDates: [],
+      prevHtml: '<i class="sprite-fm-mono icon-arrow-right"></i>',
+      nextHtml: '<i class="sprite-fm-mono icon-arrow-right"></i>',
+      altField: null,
+      firstDay: 0,
+      autoClose: true,
+      toggleSelected: false,
+      position: 'bottom left',
+      language: {
+        daysMin: [l[8763], l[8764], l[8765], l[8766], l[8767], l[8768], l[8769]],
+        months: [l[408], l[409], l[410], l[411], l[412], l[413], l[414], l[415], l[416], l[417], l[418], l[419]],
+        monthsShort: [l[24035], l[24037], l[24036], l[24038], l[24047], l[24039], l[24040], l[24041], l[24042], l[24043], l[24044], l[24045]]
+      },
+      onSelect: dateText => {
+        const prevDate = new Date(+this.props.value);
+        const nextDate = new Date(+dateText);
+        nextDate.setHours(prevDate.getHours(), prevDate.getMinutes());
+        this.props.onSelect(nextDate.getTime());
+        mBroadcaster.sendMessage(_dateObserver2__ .V.NAMESPACE, nextDate.getTime());
       }
     };
+    this.domRef = react0___default().createRef();
+    this.inputRef = react0___default().createRef();
+    this.datepicker = null;
+    this.formatValue = value => {
+      if (typeof value === 'number') {
+        return time2date(value / 1000, 18);
+      }
+      return value;
+    };
+    this.OPTIONS.startDate = new Date(this.props.startDate);
+    this.OPTIONS.selectedDates = this.props.selectedDates || [this.OPTIONS.startDate];
+    this.OPTIONS.minDate = this.props.minDate ? new Date(this.props.minDate) : new Date();
+    this.OPTIONS.position = this.props.position || this.OPTIONS.position;
+    this.OPTIONS.altField = `input.${this.props.altField}`;
   }
-  getFormattedDuration(duration) {
-    duration = moment.duration(duration);
-    const days = duration.get('days');
-    const hours = duration.get('hours');
-    const minutes = duration.get('minutes');
-    if (!hours && !minutes && !days) {
-      return '';
+  initialize() {
+    const inputRef = this.inputRef && this.inputRef.current;
+    if (inputRef) {
+      let _this$props$onMount, _this$props;
+      $(inputRef).datepicker(this.OPTIONS);
+      this.datepicker = $(inputRef).data('datepicker');
+      (_this$props$onMount = (_this$props = this.props).onMount) == null || _this$props$onMount.call(_this$props, this.datepicker);
     }
-    const totalHours = days ? ~~duration.asHours() : hours;
-    if (!hours && minutes) {
-      return days ? `(${totalHours}\u00a0h ${minutes}\u00a0m)` : `(${minutes}\u00a0m)`;
-    }
-    return minutes ? `(${totalHours}\u00a0h ${minutes}\u00a0m)` : `(${totalHours}\u00a0h)`;
   }
   componentWillUnmount() {
-    document.removeEventListener('mousedown', this.handleMousedown);
-    if (this.inputRef && this.inputRef.current) {
-      $(this.inputRef.current).unbind(`keyup.${Select.NAMESPACE}`);
+    if (this.domRef && this.domRef.current) {
+      $(this.domRef.current).unbind(`keyup.${Datepicker.NAMESPACE}`);
     }
   }
   componentDidMount() {
-    let _this$inputRef;
-    document.addEventListener('mousedown', this.handleMousedown);
-    const inputRef = (_this$inputRef = this.inputRef) == null ? void 0 : _this$inputRef.current;
-    if (inputRef) {
-      $(inputRef).rebind(`keyup.${Select.NAMESPACE}`, ({
+    M.require('datepicker_js').done(() => this.initialize());
+    if (this.domRef && this.domRef.current) {
+      $(this.domRef.current).rebind(`keyup.${Datepicker.NAMESPACE}`, ({
         keyCode
       }) => {
         if (keyCode === 13) {
-          this.handleToggle();
-          inputRef.blur();
+          this.datepicker.hide();
           return false;
         }
       });
@@ -323,115 +126,165 @@ class Select extends react0___default().Component {
   render() {
     const {
       NAMESPACE
-    } = Select;
+    } = Datepicker;
     const {
+      value,
       name,
       className,
-      icon,
-      typeable,
-      options,
-      value,
-      format,
+      placeholder,
       isLoading,
+      onFocus,
       onChange,
-      onBlur,
-      onSelect
+      onBlur
     } = this.props;
+    const formattedValue = this.formatValue(value);
     return JSX_("div", {
       ref: this.domRef,
-      className: `
-                    ${NAMESPACE}
-                    ${className || ''}
-                `
+      className: NAMESPACE
     }, JSX_("div", {
-      className: `
-                        mega-input
-                        dropdown-input
-                        ${typeable ? 'typeable' : ''}
-                    `,
-      onClick: isLoading ? null : this.handleToggle
-    }, typeable ? null : value && JSX_("span", null, format ? format(value) : value), JSX_("input", {
+      className: "mega-input datepicker-input"
+    }, JSX_("input", {
       ref: this.inputRef,
       type: "text",
+      name,
       className: `
-                            ${NAMESPACE}-input
-                            ${name}
+                            dialog-input
+                            ${className || ''}
                         `,
-      value: (() => {
-        if (this.state.manualTimeInput) {
-          return this.state.manualTimeInput;
+      autoComplete: "off",
+      disabled: isLoading,
+      placeholder: placeholder || '',
+      value: formattedValue,
+      onFocus: ev => onFocus == null ? void 0 : onFocus(ev),
+      onChange: ev => onChange == null ? void 0 : onChange(ev),
+      onBlur: ev => onBlur == null ? void 0 : onBlur(ev)
+    }), JSX_("i", {
+      className: "sprite-fm-mono icon-calendar1",
+      onClick: isLoading ? null : () => {
+        if (this.datepicker) {
+          let _this$inputRef$curren;
+          this.datepicker.show();
+          (_this$inputRef$curren = this.inputRef.current) == null || _this$inputRef$curren.focus();
         }
-        return format ? format(value) : value;
-      })(),
+      }
+    })));
+  }
+}
+Datepicker.NAMESPACE = 'meetings-datepicker';
+ const __WEBPACK_DEFAULT_EXPORT__ = (0,_mixins_js1__ .Zz)(_dateObserver2__ .V)(Datepicker);
+
+ },
+
+ 9811
+(_, EXP_, REQ_) {
+
+ REQ_.d(EXP_, {
+   c: () =>  DateTime
+ });
+ const react0__ = REQ_(1594);
+ const react0___default = REQ_.n(react0__);
+ const _helpers_jsx1__ = REQ_(6521);
+ const _datepicker_jsx2__ = REQ_(9290);
+ const _select_jsx3__ = REQ_(3448);
+
+
+
+
+class DateTime extends react0___default().Component {
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      datepickerRef: undefined,
+      manualDateInput: '',
+      manualTimeInput: '',
+      initialDate: ''
+    };
+    this.handleChange = ev => {
+      const {
+        onChange
+      } = this.props;
+      const {
+        datepickerRef,
+        initialDate
+      } = this.state;
+      if (!datepickerRef) {
+        return;
+      }
+      const {
+        value
+      } = ev.target;
+      const date = (0,_helpers_jsx1__ .XH)(value);
+      const timestamp = date.valueOf();
+      const dateObj = new Date(timestamp);
+      dateObj.setHours(initialDate.getHours(), initialDate.getMinutes());
+      datepickerRef.selectedDates = [dateObj];
+      datepickerRef.currentDate = dateObj;
+      datepickerRef.nav._render();
+      datepickerRef.views.days._render();
+      onChange == null || onChange(value);
+      this.setState({
+        manualDateInput: dateObj.getTime()
+      });
+    };
+  }
+  render() {
+    const {
+      name,
+      startDate,
+      altField,
+      value,
+      minDate,
+      filteredTimeIntervals,
+      label,
+      isLoading,
+      onMount,
+      onSelectDate,
+      onSelectTime,
+      onBlur
+    } = this.props;
+    return JSX_(react0___default().Fragment, null, label && JSX_("span", null, label), JSX_(_datepicker_jsx2__ .A, {
+      name: `${_datepicker_jsx2__ .A.NAMESPACE}-${name}`,
+      className: isLoading ? 'disabled' : '',
+      isLoading,
+      startDate,
+      altField: `${_select_jsx3__ .A.NAMESPACE}-${altField}`,
+      value,
+      minDate,
+      onMount: datepickerRef => this.setState({
+        datepickerRef
+      }, () => onMount(datepickerRef)),
+      onSelect: onSelectDate,
       onFocus: ({
         target
       }) => {
         this.setState({
-          manualTimeInput: '',
-          timestamp: ''
+          manualDateInput: undefined,
+          manualTimeInput: undefined,
+          initialDate: new Date(value)
         }, () => target.select());
       },
-      onChange: ({
-        target
-      }) => {
-        const {
-          value: manualTimeInput
-        } = target;
-        const {
-          value
-        } = this.props;
-        const prevDate = moment(value);
-        const inputTime = (0,_helpers_jsx3__ .We)(manualTimeInput);
-        prevDate.set({
-          hours: inputTime.get('hours'),
-          minutes: inputTime.get('minutes')
-        });
-        const timestamp = prevDate.valueOf();
-        onChange == null || onChange(timestamp);
-        if (this.optionRefs[value]) {
-          this.menuRef.current.scrollToElement(this.optionRefs[value]);
+      onChange: this.handleChange,
+      onBlur: () => onBlur(this.state.manualDateInput)
+    }), JSX_(_select_jsx3__ .A, {
+      name: `${_select_jsx3__ .A.NAMESPACE}-${altField}`,
+      className: isLoading ? 'disabled' : '',
+      isLoading,
+      typeable: true,
+      options: filteredTimeIntervals,
+      value: (() => typeof value === 'number' ? value : this.state.datepickerRef.currentDate.getTime())(),
+      format: toLocaleTime,
+      onSelect: onSelectTime,
+      onChange: () => false,
+      onBlur: timestamp => {
+        if (timestamp) {
+          onSelectTime({
+            value: timestamp
+          });
         }
-        this.setState({
-          manualTimeInput,
-          timestamp
-        });
-      },
-      onBlur: () => {
-        onBlur(this.state.timestamp);
-        this.setState({
-          manualTimeInput: '',
-          timestamp: ''
-        });
       }
-    }), icon && JSX_("i", {
-      className: "sprite-fm-mono icon-dropdown"
-    }), options && JSX_("div", {
-      className: `
-                                mega-input-dropdown
-                                ${this.state.expanded ? '' : 'hidden'}
-                            `
-    }, JSX_(_ui_perfectScrollbar_jsx2__ .O, {
-      ref: this.menuRef,
-      options: {
-        suppressScrollX: true
-      }
-    }, options.map(option => {
-      return JSX_("div", {
-        ref: ref => {
-          this.optionRefs[option.value] = ref;
-        },
-        key: option.value,
-        className: `
-                                                option
-                                                ${option.value === value || option.label === value ? 'active' : ''}
-                                            `,
-        onClick: () => onSelect(option)
-      }, option.label, "\xA0", option.duration && this.getFormattedDuration(option.duration));
-    })))));
+    }));
   }
 }
-Select.NAMESPACE = 'meetings-select';
- const __WEBPACK_DEFAULT_EXPORT__ = (0,_mixins_js1__ .Zz)(_dateObserver4__ .V)(Select);
 
  },
 
@@ -2150,44 +2003,7 @@ const Footer = ({
 
  },
 
- 8894
-(_, EXP_, REQ_) {
-
- REQ_.d(EXP_, {
-   V: () =>  withDateObserver
- });
- const _babel_runtime_helpers_extends0__ = REQ_(8168);
- const react1__ = REQ_(1594);
- const react1___default = REQ_.n(react1__);
-
-
-const withDateObserver = Component => class extends react1___default().Component {
-  constructor(...args) {
-    super(...args);
-    this.listener = undefined;
-    this.state = {
-      timestamp: undefined
-    };
-  }
-  componentWillUnmount() {
-    mBroadcaster.removeListener(this.listener);
-  }
-  componentDidMount() {
-    this.listener = mBroadcaster.addListener(withDateObserver.NAMESPACE, timestamp => this.setState({
-      timestamp
-    }));
-  }
-  render() {
-    return JSX_(Component, (0,_babel_runtime_helpers_extends0__ .A)({}, this.props, {
-      timestamp: this.state.timestamp
-    }));
-  }
-};
-withDateObserver.NAMESPACE = 'meetings:onSelectDate';
-
- },
-
- 9290
+ 3448
 (_, EXP_, REQ_) {
 
  REQ_.d(EXP_, {
@@ -2196,76 +2012,85 @@ withDateObserver.NAMESPACE = 'meetings:onSelectDate';
  const react0__ = REQ_(1594);
  const react0___default = REQ_.n(react0__);
  const _mixins_js1__ = REQ_(8264);
- const _dateObserver2__ = REQ_(8894);
+ const _ui_perfectScrollbar_jsx2__ = REQ_(1301);
+ const _helpers_jsx3__ = REQ_(6521);
+ const _dateObserver4__ = REQ_(8894);
 
 
 
-class Datepicker extends react0___default().Component {
-  constructor(props) {
-    super(props);
-    this.OPTIONS = {
-      classes: 'meetings-datepicker-calendar',
-      dateFormat: '@',
-      minDate: null,
-      startDate: null,
-      selectedDates: [],
-      prevHtml: '<i class="sprite-fm-mono icon-arrow-right"></i>',
-      nextHtml: '<i class="sprite-fm-mono icon-arrow-right"></i>',
-      altField: null,
-      firstDay: 0,
-      autoClose: true,
-      toggleSelected: false,
-      position: 'bottom left',
-      language: {
-        daysMin: [l[8763], l[8764], l[8765], l[8766], l[8767], l[8768], l[8769]],
-        months: [l[408], l[409], l[410], l[411], l[412], l[413], l[414], l[415], l[416], l[417], l[418], l[419]],
-        monthsShort: [l[24035], l[24037], l[24036], l[24038], l[24047], l[24039], l[24040], l[24041], l[24042], l[24043], l[24044], l[24045]]
-      },
-      onSelect: dateText => {
-        const prevDate = new Date(+this.props.value);
-        const nextDate = new Date(+dateText);
-        nextDate.setHours(prevDate.getHours(), prevDate.getMinutes());
-        this.props.onSelect(nextDate.getTime());
-        mBroadcaster.sendMessage(_dateObserver2__ .V.NAMESPACE, nextDate.getTime());
-      }
-    };
+
+
+class Select extends react0___default().Component {
+  constructor(...args) {
+    super(...args);
     this.domRef = react0___default().createRef();
     this.inputRef = react0___default().createRef();
-    this.datepicker = null;
-    this.formatValue = value => {
-      if (typeof value === 'number') {
-        return time2date(value / 1000, 18);
-      }
-      return value;
+    this.menuRef = react0___default().createRef();
+    this.optionRefs = {};
+    this.state = {
+      expanded: false,
+      manualTimeInput: '',
+      timestamp: ''
     };
-    this.OPTIONS.startDate = new Date(this.props.startDate);
-    this.OPTIONS.selectedDates = this.props.selectedDates || [this.OPTIONS.startDate];
-    this.OPTIONS.minDate = this.props.minDate ? new Date(this.props.minDate) : new Date();
-    this.OPTIONS.position = this.props.position || this.OPTIONS.position;
-    this.OPTIONS.altField = `input.${this.props.altField}`;
+    this.handleMousedown = ({
+      target
+    }) => {
+      let _this$domRef;
+      return (_this$domRef = this.domRef) != null && _this$domRef.current.contains(target) ? null : this.setState({
+        expanded: false
+      });
+    };
+    this.handleToggle = ({
+      target
+    } = {}) => {
+      let _this$menuRef, _menuRef$domRef;
+      const menuRef = (_this$menuRef = this.menuRef) == null ? void 0 : _this$menuRef.current;
+      const menuElement = (_menuRef$domRef = menuRef.domRef) == null ? void 0 : _menuRef$domRef.current;
+      if (target !== menuElement) {
+        const {
+          value
+        } = this.props;
+        this.setState(state => ({
+          expanded: !state.expanded
+        }), () => {
+          if (value && this.optionRefs[value]) {
+            menuRef.scrollToElement(this.optionRefs[value]);
+          }
+        });
+      }
+    };
   }
-  initialize() {
-    const inputRef = this.inputRef && this.inputRef.current;
-    if (inputRef) {
-      let _this$props$onMount, _this$props;
-      $(inputRef).datepicker(this.OPTIONS);
-      this.datepicker = $(inputRef).data('datepicker');
-      (_this$props$onMount = (_this$props = this.props).onMount) == null || _this$props$onMount.call(_this$props, this.datepicker);
+  getFormattedDuration(duration) {
+    duration = moment.duration(duration);
+    const days = duration.get('days');
+    const hours = duration.get('hours');
+    const minutes = duration.get('minutes');
+    if (!hours && !minutes && !days) {
+      return '';
     }
+    const totalHours = days ? ~~duration.asHours() : hours;
+    if (!hours && minutes) {
+      return days ? `(${totalHours}\u00a0h ${minutes}\u00a0m)` : `(${minutes}\u00a0m)`;
+    }
+    return minutes ? `(${totalHours}\u00a0h ${minutes}\u00a0m)` : `(${totalHours}\u00a0h)`;
   }
   componentWillUnmount() {
-    if (this.domRef && this.domRef.current) {
-      $(this.domRef.current).unbind(`keyup.${Datepicker.NAMESPACE}`);
+    document.removeEventListener('mousedown', this.handleMousedown);
+    if (this.inputRef && this.inputRef.current) {
+      $(this.inputRef.current).unbind(`keyup.${Select.NAMESPACE}`);
     }
   }
   componentDidMount() {
-    M.require('datepicker_js').done(() => this.initialize());
-    if (this.domRef && this.domRef.current) {
-      $(this.domRef.current).rebind(`keyup.${Datepicker.NAMESPACE}`, ({
+    let _this$inputRef;
+    document.addEventListener('mousedown', this.handleMousedown);
+    const inputRef = (_this$inputRef = this.inputRef) == null ? void 0 : _this$inputRef.current;
+    if (inputRef) {
+      $(inputRef).rebind(`keyup.${Select.NAMESPACE}`, ({
         keyCode
       }) => {
         if (keyCode === 13) {
-          this.datepicker.hide();
+          this.handleToggle();
+          inputRef.blur();
           return false;
         }
       });
@@ -2274,165 +2099,340 @@ class Datepicker extends react0___default().Component {
   render() {
     const {
       NAMESPACE
-    } = Datepicker;
+    } = Select;
     const {
-      value,
       name,
       className,
-      placeholder,
+      icon,
+      typeable,
+      options,
+      value,
+      format,
       isLoading,
-      onFocus,
       onChange,
-      onBlur
+      onBlur,
+      onSelect
     } = this.props;
-    const formattedValue = this.formatValue(value);
     return JSX_("div", {
       ref: this.domRef,
-      className: NAMESPACE
+      className: `
+                    ${NAMESPACE}
+                    ${className || ''}
+                `
     }, JSX_("div", {
-      className: "mega-input datepicker-input"
-    }, JSX_("input", {
+      className: `
+                        mega-input
+                        dropdown-input
+                        ${typeable ? 'typeable' : ''}
+                    `,
+      onClick: isLoading ? null : this.handleToggle
+    }, typeable ? null : value && JSX_("span", null, format ? format(value) : value), JSX_("input", {
       ref: this.inputRef,
       type: "text",
-      name,
       className: `
-                            dialog-input
-                            ${className || ''}
+                            ${NAMESPACE}-input
+                            ${name}
                         `,
-      autoComplete: "off",
-      disabled: isLoading,
-      placeholder: placeholder || '',
-      value: formattedValue,
-      onFocus: ev => onFocus == null ? void 0 : onFocus(ev),
-      onChange: ev => onChange == null ? void 0 : onChange(ev),
-      onBlur: ev => onBlur == null ? void 0 : onBlur(ev)
-    }), JSX_("i", {
-      className: "sprite-fm-mono icon-calendar1",
-      onClick: isLoading ? null : () => {
-        if (this.datepicker) {
-          let _this$inputRef$curren;
-          this.datepicker.show();
-          (_this$inputRef$curren = this.inputRef.current) == null || _this$inputRef$curren.focus();
+      value: (() => {
+        if (this.state.manualTimeInput) {
+          return this.state.manualTimeInput;
         }
-      }
-    })));
-  }
-}
-Datepicker.NAMESPACE = 'meetings-datepicker';
- const __WEBPACK_DEFAULT_EXPORT__ = (0,_mixins_js1__ .Zz)(_dateObserver2__ .V)(Datepicker);
-
- },
-
- 9811
-(_, EXP_, REQ_) {
-
- REQ_.d(EXP_, {
-   c: () =>  DateTime
- });
- const react0__ = REQ_(1594);
- const react0___default = REQ_.n(react0__);
- const _helpers_jsx1__ = REQ_(6521);
- const _datepicker_jsx2__ = REQ_(9290);
- const _select_jsx3__ = REQ_(3448);
-
-
-
-
-class DateTime extends react0___default().Component {
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      datepickerRef: undefined,
-      manualDateInput: '',
-      manualTimeInput: '',
-      initialDate: ''
-    };
-    this.handleChange = ev => {
-      const {
-        onChange
-      } = this.props;
-      const {
-        datepickerRef,
-        initialDate
-      } = this.state;
-      if (!datepickerRef) {
-        return;
-      }
-      const {
-        value
-      } = ev.target;
-      const date = (0,_helpers_jsx1__ .XH)(value);
-      const timestamp = date.valueOf();
-      const dateObj = new Date(timestamp);
-      dateObj.setHours(initialDate.getHours(), initialDate.getMinutes());
-      datepickerRef.selectedDates = [dateObj];
-      datepickerRef.currentDate = dateObj;
-      datepickerRef.nav._render();
-      datepickerRef.views.days._render();
-      onChange == null || onChange(value);
-      this.setState({
-        manualDateInput: dateObj.getTime()
-      });
-    };
-  }
-  render() {
-    const {
-      name,
-      startDate,
-      altField,
-      value,
-      minDate,
-      filteredTimeIntervals,
-      label,
-      isLoading,
-      onMount,
-      onSelectDate,
-      onSelectTime,
-      onBlur
-    } = this.props;
-    return JSX_(react0___default().Fragment, null, label && JSX_("span", null, label), JSX_(_datepicker_jsx2__ .A, {
-      name: `${_datepicker_jsx2__ .A.NAMESPACE}-${name}`,
-      className: isLoading ? 'disabled' : '',
-      isLoading,
-      startDate,
-      altField: `${_select_jsx3__ .A.NAMESPACE}-${altField}`,
-      value,
-      minDate,
-      onMount: datepickerRef => this.setState({
-        datepickerRef
-      }, () => onMount(datepickerRef)),
-      onSelect: onSelectDate,
+        return format ? format(value) : value;
+      })(),
       onFocus: ({
         target
       }) => {
         this.setState({
-          manualDateInput: undefined,
-          manualTimeInput: undefined,
-          initialDate: new Date(value)
+          manualTimeInput: '',
+          timestamp: ''
         }, () => target.select());
       },
-      onChange: this.handleChange,
-      onBlur: () => onBlur(this.state.manualDateInput)
-    }), JSX_(_select_jsx3__ .A, {
-      name: `${_select_jsx3__ .A.NAMESPACE}-${altField}`,
-      className: isLoading ? 'disabled' : '',
-      isLoading,
-      typeable: true,
-      options: filteredTimeIntervals,
-      value: (() => typeof value === 'number' ? value : this.state.datepickerRef.currentDate.getTime())(),
-      format: toLocaleTime,
-      onSelect: onSelectTime,
-      onChange: () => false,
-      onBlur: timestamp => {
-        if (timestamp) {
-          onSelectTime({
-            value: timestamp
-          });
+      onChange: ({
+        target
+      }) => {
+        const {
+          value: manualTimeInput
+        } = target;
+        const {
+          value
+        } = this.props;
+        const prevDate = moment(value);
+        const inputTime = (0,_helpers_jsx3__ .We)(manualTimeInput);
+        prevDate.set({
+          hours: inputTime.get('hours'),
+          minutes: inputTime.get('minutes')
+        });
+        const timestamp = prevDate.valueOf();
+        onChange == null || onChange(timestamp);
+        if (this.optionRefs[value]) {
+          this.menuRef.current.scrollToElement(this.optionRefs[value]);
         }
+        this.setState({
+          manualTimeInput,
+          timestamp
+        });
+      },
+      onBlur: () => {
+        onBlur(this.state.timestamp);
+        this.setState({
+          manualTimeInput: '',
+          timestamp: ''
+        });
       }
-    }));
+    }), icon && JSX_("i", {
+      className: "sprite-fm-mono icon-dropdown"
+    }), options && JSX_("div", {
+      className: `
+                                mega-input-dropdown
+                                ${this.state.expanded ? '' : 'hidden'}
+                            `
+    }, JSX_(_ui_perfectScrollbar_jsx2__ .O, {
+      ref: this.menuRef,
+      options: {
+        suppressScrollX: true
+      }
+    }, options.map(option => {
+      return JSX_("div", {
+        ref: ref => {
+          this.optionRefs[option.value] = ref;
+        },
+        key: option.value,
+        className: `
+                                                option
+                                                ${option.value === value || option.label === value ? 'active' : ''}
+                                            `,
+        onClick: () => onSelect(option)
+      }, option.label, "\xA0", option.duration && this.getFormattedDuration(option.duration));
+    })))));
   }
 }
+Select.NAMESPACE = 'meetings-select';
+ const __WEBPACK_DEFAULT_EXPORT__ = (0,_mixins_js1__ .Zz)(_dateObserver4__ .V)(Select);
+
+ },
+
+ 1497
+(_, EXP_, REQ_) {
+
+ REQ_.d(EXP_, {
+   CU: () =>  NAMESPACE,
+   Sc: () =>  Checkbox,
+   TM: () =>  Textarea,
+   VP: () =>  Column,
+   dO: () =>  Switch,
+   dh: () =>  UpgradeNotice,
+   fI: () =>  Row,
+   oK: () =>  dialogName,
+   pD: () =>  CloseDialog,
+   pd: () =>  Input
+ });
+ const react0__ = REQ_(1594);
+ const react0___default = REQ_.n(react0__);
+ const _ui_modalDialogs_jsx1__ = REQ_(8120);
+ const _button_jsx2__ = REQ_(6740);
+
+
+
+const NAMESPACE = 'schedule-dialog';
+const dialogName = `meetings-${"schedule-dialog"}`;
+const CloseDialog = ({
+  onToggle,
+  onClose
+}) => {
+  return JSX_(react0___default().Fragment, null, JSX_(_ui_modalDialogs_jsx1__ .A.ModalDialog, {
+    name: `${NAMESPACE}-confirmation`,
+    dialogType: "message",
+    className: `
+                    with-close-btn
+                    ${NAMESPACE}-confirmation
+                `,
+    title: l.schedule_discard_dlg_title,
+    icon: "sprite-fm-uni icon-question",
+    buttons: [{
+      key: 'n',
+      label: l.schedule_discard_cancel,
+      onClick: () => onToggle('closeDialog')
+    }, {
+      key: 'y',
+      label: l.schedule_discard_confirm,
+      className: 'positive',
+      onClick: onClose
+    }],
+    noCloseOnClickOutside: true,
+    stopKeyPropagation: true,
+    hideOverlay: true,
+    onClose: () => onToggle('closeDialog')
+  }), JSX_("div", {
+    className: `${NAMESPACE}-confirmation-overlay`,
+    onClick: () => onToggle('closeDialog')
+  }));
+};
+const Row = ({
+  children,
+  className
+}) => JSX_("div", {
+  className: `
+            ${NAMESPACE}-row
+            ${className || ''}
+        `
+}, children);
+const Column = ({
+  children,
+  className
+}) => JSX_("div", {
+  className: `
+            ${NAMESPACE}-column
+            ${className || ''}
+        `
+}, children);
+const Input = ({
+  name,
+  placeholder,
+  value,
+  invalid,
+  invalidMessage,
+  autoFocus,
+  isLoading,
+  onFocus,
+  onChange
+}) => {
+  return JSX_(Row, {
+    className: invalid ? 'invalid-aligned' : ''
+  }, JSX_(Column, null, JSX_("i", {
+    className: "sprite-fm-mono icon-rename"
+  })), JSX_(Column, null, JSX_("div", {
+    className: `
+                        mega-input
+                        ${invalid ? 'error msg' : ''}
+                    `
+  }, JSX_("input", {
+    type: "text",
+    name: `${NAMESPACE}-${name}`,
+    className: isLoading ? 'disabled' : '',
+    disabled: isLoading,
+    autoFocus,
+    autoComplete: "off",
+    placeholder,
+    value,
+    onFocus,
+    onChange: ({
+      target
+    }) => onChange(target.value)
+  }), invalid && JSX_("div", {
+    className: "message-container mega-banner"
+  }, invalidMessage))));
+};
+const Checkbox = ({
+  name,
+  className,
+  checked,
+  label,
+  subLabel,
+  isLoading,
+  onToggle
+}) => {
+  return JSX_(Row, {
+    className: `
+                ${subLabel ? 'start-aligned' : ''}
+                ${className || ''}
+            `
+  }, JSX_(Column, null, JSX_("div", {
+    className: `
+                        checkdiv
+                        ${checked ? 'checkboxOn' : 'checkboxOff'}
+                        ${isLoading ? 'disabled' : ''}
+                    `
+  }, JSX_("input", {
+    name: `${NAMESPACE}-${name}`,
+    disabled: isLoading,
+    type: "checkbox",
+    onChange: () => onToggle(name)
+  }))), JSX_(Column, {
+    className: subLabel ? 'with-sub-label' : ''
+  }, JSX_("label", {
+    htmlFor: `${NAMESPACE}-${name}`,
+    className: isLoading ? 'disabled' : '',
+    onClick: () => isLoading ? null : onToggle(name)
+  }, label), subLabel && JSX_("div", {
+    className: "sub-label"
+  }, subLabel)));
+};
+const Switch = ({
+  name,
+  toggled,
+  label,
+  isLoading,
+  subLabel,
+  onToggle
+}) => {
+  return JSX_(Row, null, JSX_(Column, null, JSX_("i", {
+    className: "sprite-fm-uni icon-mega-logo"
+  })), JSX_(Column, {
+    className: subLabel ? `with-sub-label ${"schedule-dialog-switch"}` : "schedule-dialog-switch"
+  }, JSX_("span", {
+    className: `
+                        schedule-label
+                        ${isLoading ? 'disabled' : ''}
+                    `,
+    onClick: () => isLoading ? null : onToggle(name)
+  }, label), JSX_("div", {
+    className: `
+                        mega-switch
+                        ${toggled ? 'toggle-on' : ''}
+                        ${isLoading ? 'disabled' : ''}
+                    `,
+    onClick: () => isLoading ? null : onToggle(name)
+  }, JSX_("div", {
+    className: `
+                            mega-feature-switch
+                            sprite-fm-mono-after
+                            ${toggled ? 'icon-check-after' : 'icon-minimise-after'}
+                        `
+  })), subLabel && JSX_("div", {
+    className: "sub-label"
+  }, subLabel)));
+};
+const Textarea = ({
+  name,
+  placeholder,
+  isLoading,
+  value,
+  invalid,
+  onChange,
+  onFocus
+}) => {
+  return JSX_(Row, {
+    className: "start-aligned"
+  }, JSX_(Column, null, JSX_("i", {
+    className: "sprite-fm-mono icon-description"
+  })), JSX_(Column, null, JSX_("div", {
+    className: `mega-input box-style textarea ${invalid ? 'error' : ''}`
+  }, JSX_("textarea", {
+    name: `${NAMESPACE}-${name}`,
+    className: isLoading ? 'disabled' : '',
+    placeholder,
+    value,
+    readOnly: isLoading,
+    onChange: ({
+      target
+    }) => onChange(target.value),
+    onFocus
+  })), invalid && JSX_("div", {
+    className: "mega-input error msg textarea-error"
+  }, JSX_("div", {
+    className: "message-container mega-banner"
+  }, l.err_schedule_desc_long))));
+};
+const UpgradeNotice = ({
+  onUpgradeClicked
+}) => {
+  return !!mega.flags.ff_chmon && JSX_(Row, {
+    className: "schedule-upgrade-notice"
+  }, JSX_("h3", null, l.schedule_limit_title), JSX_("div", null, l.schedule_limit_upgrade_features), JSX_(_button_jsx2__ .A, {
+    className: "mega-button positive",
+    onClick: onUpgradeClicked
+  }, JSX_("span", null, l.upgrade_now)));
+};
 
  }
 

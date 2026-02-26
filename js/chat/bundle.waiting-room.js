@@ -351,6 +351,200 @@ const withPermissionsObserver = Component => {
 
  },
 
+ 3056
+(_, EXP_, REQ_) {
+
+REQ_.r(EXP_);
+ REQ_.d(EXP_, {
+   "default": () =>  Admit
+ });
+ const react0__ = REQ_(1594);
+ const react0___default = REQ_.n(react0__);
+ const _mixins_js1__ = REQ_(8264);
+ const _ui_utils_jsx2__ = REQ_(6411);
+ const _contacts_jsx3__ = REQ_(8022);
+ const _button_jsx4__ = REQ_(6740);
+ const _ui_perfectScrollbar_jsx5__ = REQ_(1301);
+ const _link6__ = REQ_(4649);
+
+
+
+
+
+
+
+const NAMESPACE = 'admit';
+class Admit extends _mixins_js1__ .w9 {
+  constructor(...args) {
+    super(...args);
+    this.domRef = react0___default().createRef();
+    this.peersWaitingRef = react0___default().createRef();
+    this.state = {
+      expanded: false
+    };
+    this.doAdmit = peers => {
+      let _this$props$call;
+      return (_this$props$call = this.props.call) == null || (_this$props$call = _this$props$call.sfuClient) == null ? void 0 : _this$props$call.wrAllowJoin([peers]);
+    };
+    this.doDeny = peers => {
+      let _this$props$call2;
+      return (_this$props$call2 = this.props.call) == null || (_this$props$call2 = _this$props$call2.sfuClient) == null ? void 0 : _this$props$call2.wrKickOut([peers]);
+    };
+    this.Icon = ({
+      icon,
+      label,
+      onClick
+    }) => JSX_("i", {
+      className: `
+                sprite-fm-mono
+                simpletip
+                ${icon}
+            `,
+      "data-simpletip": label,
+      "data-simpletipposition": "top",
+      "data-simpletipoffset": "5",
+      "data-simpletip-class": "theme-dark-forced",
+      onClick
+    });
+    this.CallLimitBanner = ({
+      call
+    }) => JSX_("div", {
+      className: `${NAMESPACE}-user-limit-banner`
+    }, call.organiser === u_handle ? (0,_ui_utils_jsx2__ .lI)(l.admit_limit_banner_organiser, '[A]', _link6__ .A, {
+      onClick() {
+        window.open(`${getBaseUrl()}/pro`, '_blank', 'noopener,noreferrer');
+        eventlog(500259);
+      }
+    }) : l.admit_limit_banner_host);
+    this.renderPeersList = () => {
+      const {
+        peers,
+        call,
+        chatRoom
+      } = this.props;
+      const disableAdding = call.sfuClient.callLimits && call.sfuClient.callLimits.usr && chatRoom.getCallParticipants().length >= call.sfuClient.callLimits.usr;
+      return JSX_(_ui_perfectScrollbar_jsx5__ .O, {
+        ref: this.peersWaitingRef,
+        options: {
+          'suppressScrollX': true
+        }
+      }, JSX_("div", {
+        className: "peers-waiting"
+      }, this.isUserLimited && JSX_(this.CallLimitBanner, {
+        call
+      }), peers.map(handle => {
+        return JSX_("div", {
+          key: handle,
+          className: "peers-waiting-card"
+        }, JSX_("div", {
+          className: "peer-avatar"
+        }, JSX_(_contacts_jsx3__ .eu, {
+          contact: M.u[handle]
+        })), JSX_("div", {
+          className: "peer-name"
+        }, JSX_(_contacts_jsx3__ .uA, {
+          contact: M.u[handle],
+          emoji: true
+        })), JSX_("div", {
+          className: "peer-controls"
+        }, JSX_(this.Icon, {
+          icon: "icon-close-component",
+          label: l.wr_deny,
+          onClick: () => this.doDeny(handle)
+        }), JSX_(this.Icon, {
+          icon: `icon-check ${disableAdding ? 'disabled' : ''}`,
+          label: l.wr_admit,
+          onClick: () => !disableAdding && this.doAdmit(handle)
+        })));
+      })));
+    };
+    this.renderMultiplePeersWaiting = () => {
+      const {
+        call,
+        peers,
+        expanded,
+        onWrListToggle
+      } = this.props;
+      if (peers && peers.length) {
+        const disableAddAll = this.isUserLimited;
+        return JSX_(react0___default().Fragment, null, JSX_("div", {
+          className: `${NAMESPACE}-head`
+        }, JSX_("h3", null, mega.icu.format(l.wr_peers_waiting, peers.length)), expanded ? JSX_(this.Icon, {
+          icon: "icon-arrow-up",
+          onClick: () => onWrListToggle(false)
+        }) : null), !expanded && disableAddAll && JSX_(this.CallLimitBanner, {
+          call
+        }), expanded && JSX_("div", {
+          className: `${NAMESPACE}-content`
+        }, this.renderPeersList()), JSX_("div", {
+          className: `${NAMESPACE}-controls`
+        }, expanded ? null : JSX_(_button_jsx4__ .A, {
+          className: "mega-button theme-dark-forced",
+          onClick: () => onWrListToggle(true)
+        }, JSX_("span", null, l.wr_see_waiting)), JSX_(_button_jsx4__ .A, {
+          peers,
+          className: `mega-button positive theme-dark-forced ${disableAddAll ? 'disabled' : ''}`,
+          onClick: () => !disableAddAll && call.sfuClient.wrAllowJoin(peers)
+        }, JSX_("span", null, l.wr_admit_all))));
+      }
+      return null;
+    };
+    this.renderSinglePeerWaiting = () => {
+      const {
+        peers,
+        call
+      } = this.props;
+      const peer = peers[0];
+      const disableAdding = this.isUserLimited;
+      if (peer) {
+        return JSX_(react0___default().Fragment, null, JSX_(_ui_utils_jsx2__ .P9, {
+          tag: "h3",
+          content: l.wr_peer_waiting.replace('%s', megaChat.html(M.getNameByHandle(peer)))
+        }), disableAdding && JSX_(this.CallLimitBanner, {
+          call
+        }), JSX_("div", {
+          className: `${NAMESPACE}-controls`
+        }, JSX_(_button_jsx4__ .A, {
+          className: "mega-button theme-dark-forced",
+          onClick: () => this.doDeny(peer)
+        }, JSX_("span", null, l.wr_deny)), JSX_(_button_jsx4__ .A, {
+          className: `mega-button positive theme-dark-forced ${disableAdding ? 'disabled' : ''}`,
+          onClick: () => !disableAdding && this.doAdmit(peer)
+        }, JSX_("span", null, l.wr_admit))));
+      }
+      return null;
+    };
+  }
+  get isUserLimited() {
+    const {
+      call,
+      chatRoom,
+      peers
+    } = this.props;
+    return call.sfuClient.callLimits && call.sfuClient.callLimits.usr && chatRoom.getCallParticipants().length + (peers ? peers.length : 0) > call.sfuClient.callLimits.usr;
+  }
+  render() {
+    const {
+      chatRoom,
+      peers
+    } = this.props;
+    if (chatRoom.iAmOperator()) {
+      return JSX_("div", {
+        ref: this.domRef,
+        className: `
+                        ${NAMESPACE}
+                        theme-dark-forced
+                    `
+      }, JSX_("div", {
+        className: `${NAMESPACE}-wrapper`
+      }, peers && peers.length > 1 ? this.renderMultiplePeersWaiting() : this.renderSinglePeerWaiting()));
+    }
+    return null;
+  }
+}
+
+ },
+
  2659
 (_, EXP_, REQ_) {
 
@@ -741,200 +935,6 @@ class WaitingRoom extends _mixins_js1__ .w9 {
                         ${megaChat.initialChatId || is_chatlink ? `${NAMESPACE}--chatlink-landing` : ''}
                     `
     }, this.renderView(view)));
-  }
-}
-
- },
-
- 3056
-(_, EXP_, REQ_) {
-
-REQ_.r(EXP_);
- REQ_.d(EXP_, {
-   "default": () =>  Admit
- });
- const react0__ = REQ_(1594);
- const react0___default = REQ_.n(react0__);
- const _mixins_js1__ = REQ_(8264);
- const _ui_utils_jsx2__ = REQ_(6411);
- const _contacts_jsx3__ = REQ_(8022);
- const _button_jsx4__ = REQ_(6740);
- const _ui_perfectScrollbar_jsx5__ = REQ_(1301);
- const _link6__ = REQ_(4649);
-
-
-
-
-
-
-
-const NAMESPACE = 'admit';
-class Admit extends _mixins_js1__ .w9 {
-  constructor(...args) {
-    super(...args);
-    this.domRef = react0___default().createRef();
-    this.peersWaitingRef = react0___default().createRef();
-    this.state = {
-      expanded: false
-    };
-    this.doAdmit = peers => {
-      let _this$props$call;
-      return (_this$props$call = this.props.call) == null || (_this$props$call = _this$props$call.sfuClient) == null ? void 0 : _this$props$call.wrAllowJoin([peers]);
-    };
-    this.doDeny = peers => {
-      let _this$props$call2;
-      return (_this$props$call2 = this.props.call) == null || (_this$props$call2 = _this$props$call2.sfuClient) == null ? void 0 : _this$props$call2.wrKickOut([peers]);
-    };
-    this.Icon = ({
-      icon,
-      label,
-      onClick
-    }) => JSX_("i", {
-      className: `
-                sprite-fm-mono
-                simpletip
-                ${icon}
-            `,
-      "data-simpletip": label,
-      "data-simpletipposition": "top",
-      "data-simpletipoffset": "5",
-      "data-simpletip-class": "theme-dark-forced",
-      onClick
-    });
-    this.CallLimitBanner = ({
-      call
-    }) => JSX_("div", {
-      className: `${NAMESPACE}-user-limit-banner`
-    }, call.organiser === u_handle ? (0,_ui_utils_jsx2__ .lI)(l.admit_limit_banner_organiser, '[A]', _link6__ .A, {
-      onClick() {
-        window.open(`${getBaseUrl()}/pro`, '_blank', 'noopener,noreferrer');
-        eventlog(500259);
-      }
-    }) : l.admit_limit_banner_host);
-    this.renderPeersList = () => {
-      const {
-        peers,
-        call,
-        chatRoom
-      } = this.props;
-      const disableAdding = call.sfuClient.callLimits && call.sfuClient.callLimits.usr && chatRoom.getCallParticipants().length >= call.sfuClient.callLimits.usr;
-      return JSX_(_ui_perfectScrollbar_jsx5__ .O, {
-        ref: this.peersWaitingRef,
-        options: {
-          'suppressScrollX': true
-        }
-      }, JSX_("div", {
-        className: "peers-waiting"
-      }, this.isUserLimited && JSX_(this.CallLimitBanner, {
-        call
-      }), peers.map(handle => {
-        return JSX_("div", {
-          key: handle,
-          className: "peers-waiting-card"
-        }, JSX_("div", {
-          className: "peer-avatar"
-        }, JSX_(_contacts_jsx3__ .eu, {
-          contact: M.u[handle]
-        })), JSX_("div", {
-          className: "peer-name"
-        }, JSX_(_contacts_jsx3__ .uA, {
-          contact: M.u[handle],
-          emoji: true
-        })), JSX_("div", {
-          className: "peer-controls"
-        }, JSX_(this.Icon, {
-          icon: "icon-close-component",
-          label: l.wr_deny,
-          onClick: () => this.doDeny(handle)
-        }), JSX_(this.Icon, {
-          icon: `icon-check ${disableAdding ? 'disabled' : ''}`,
-          label: l.wr_admit,
-          onClick: () => !disableAdding && this.doAdmit(handle)
-        })));
-      })));
-    };
-    this.renderMultiplePeersWaiting = () => {
-      const {
-        call,
-        peers,
-        expanded,
-        onWrListToggle
-      } = this.props;
-      if (peers && peers.length) {
-        const disableAddAll = this.isUserLimited;
-        return JSX_(react0___default().Fragment, null, JSX_("div", {
-          className: `${NAMESPACE}-head`
-        }, JSX_("h3", null, mega.icu.format(l.wr_peers_waiting, peers.length)), expanded ? JSX_(this.Icon, {
-          icon: "icon-arrow-up",
-          onClick: () => onWrListToggle(false)
-        }) : null), !expanded && disableAddAll && JSX_(this.CallLimitBanner, {
-          call
-        }), expanded && JSX_("div", {
-          className: `${NAMESPACE}-content`
-        }, this.renderPeersList()), JSX_("div", {
-          className: `${NAMESPACE}-controls`
-        }, expanded ? null : JSX_(_button_jsx4__ .A, {
-          className: "mega-button theme-dark-forced",
-          onClick: () => onWrListToggle(true)
-        }, JSX_("span", null, l.wr_see_waiting)), JSX_(_button_jsx4__ .A, {
-          peers,
-          className: `mega-button positive theme-dark-forced ${disableAddAll ? 'disabled' : ''}`,
-          onClick: () => !disableAddAll && call.sfuClient.wrAllowJoin(peers)
-        }, JSX_("span", null, l.wr_admit_all))));
-      }
-      return null;
-    };
-    this.renderSinglePeerWaiting = () => {
-      const {
-        peers,
-        call
-      } = this.props;
-      const peer = peers[0];
-      const disableAdding = this.isUserLimited;
-      if (peer) {
-        return JSX_(react0___default().Fragment, null, JSX_(_ui_utils_jsx2__ .P9, {
-          tag: "h3",
-          content: l.wr_peer_waiting.replace('%s', megaChat.html(M.getNameByHandle(peer)))
-        }), disableAdding && JSX_(this.CallLimitBanner, {
-          call
-        }), JSX_("div", {
-          className: `${NAMESPACE}-controls`
-        }, JSX_(_button_jsx4__ .A, {
-          className: "mega-button theme-dark-forced",
-          onClick: () => this.doDeny(peer)
-        }, JSX_("span", null, l.wr_deny)), JSX_(_button_jsx4__ .A, {
-          className: `mega-button positive theme-dark-forced ${disableAdding ? 'disabled' : ''}`,
-          onClick: () => !disableAdding && this.doAdmit(peer)
-        }, JSX_("span", null, l.wr_admit))));
-      }
-      return null;
-    };
-  }
-  get isUserLimited() {
-    const {
-      call,
-      chatRoom,
-      peers
-    } = this.props;
-    return call.sfuClient.callLimits && call.sfuClient.callLimits.usr && chatRoom.getCallParticipants().length + (peers ? peers.length : 0) > call.sfuClient.callLimits.usr;
-  }
-  render() {
-    const {
-      chatRoom,
-      peers
-    } = this.props;
-    if (chatRoom.iAmOperator()) {
-      return JSX_("div", {
-        ref: this.domRef,
-        className: `
-                        ${NAMESPACE}
-                        theme-dark-forced
-                    `
-      }, JSX_("div", {
-        className: `${NAMESPACE}-wrapper`
-      }, peers && peers.length > 1 ? this.renderMultiplePeersWaiting() : this.renderSinglePeerWaiting()));
-    }
-    return null;
   }
 }
 
