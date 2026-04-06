@@ -3169,7 +3169,7 @@ accountUI.transfers = {
                                     }, 700);
 
                                     if (bandwidthLimit > 99) {
-                                        msgDialog('warningb:!' + l[776], l[882], l[12689], 0, function(e) {
+                                        msgDialog(`confirmation:!^${l[776]}!${l[82]}`, l[882], l[12689], 0, (e) => {
                                             if (e) {
                                                 done();
                                             }
@@ -4093,7 +4093,6 @@ accountUI.s4 = {
                         loadingDialog.show('s4optsout.s4r');
                         s4.utils.optsOut()
                             .then(() => {
-                                mega.config.remove('s4onboarded');
                                 loadSubPage('fm');
                                 location.reload();
                             })

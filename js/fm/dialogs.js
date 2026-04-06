@@ -450,6 +450,9 @@
         var autoSelect = $.copyToUpload && !$.copyToUpload[2];
 
         if (section === 'conversations') {
+            if (!aTarget) {
+                $.mcselected = undefined;
+            }
             return handleChatBreadcrumb(aTarget, autoSelect);
         }
         if (section === 'shared-with-me' && !aTarget) {
@@ -1659,6 +1662,40 @@
         return menu;
     };
 
+    const lastSectionData = Object.create(null);
+    const getOpeningSection = async(blocked) => {
+        const data = lastSectionData.s ? lastSectionData : await M.getPersistentData('cmdlgsect').catch(nop);
+        const { t, s } = data || {};
+        if (s && t && t > Date.now()) {
+            if (!blocked || !blocked.includes(s)) {
+                if (s === 's4') {
+                    if (u_attr && u_attr.s4) {
+                        return s;
+                    }
+                }
+                else if (s === 'shared-with-me') {
+                    if (u_type && (!$.selected.length || M.getNodeRoot($.selected[0]) !== M.RubbishID)) {
+                        return s;
+                    }
+                }
+                else {
+                    return s;
+                }
+            }
+        }
+        else if (t) {
+            delete lastSectionData.t;
+            delete lastSectionData.s;
+            M.delPersistentData('cmdlgsect').catch(dump);
+        }
+
+        await mega.quickAccessLocations.load();
+        if (mega.quickAccessLocations.top().length) {
+            return 'quick-access';
+        }
+        return 'cloud-drive';
+    };
+
     /**
      * Dialogs content handler
      * @param {String} dialogTabClass Dialog tab class name.
@@ -2105,7 +2142,9 @@
         if (isUserAllowedToOpenDialogs()) {
             M.safeShowDialog('copy', function() {
                 $.shareToContactId = u_id;
-                handleOpenDialog('quick-access', undefined, 'copyToShare');
+                getOpeningSection(['shared-with-me']).always(section => {
+                    handleOpenDialog(section, undefined, 'copyToShare');
+                });
                 return $dialog;
             });
         }
@@ -2159,10 +2198,21 @@
                     onBeforeShown($dialog);
                 }
 
-                handleOpenDialog(
-                    activeTab,
-                    !activeTab || typeof activeTab !== 'string' || activeTab === 'quick-access' ? undefined : M.RootID
-                );
+                if (activeTab && typeof activeTab === 'string') {
+                    handleOpenDialog(
+                        activeTab,
+                        activeTab === 'quick-access' ? undefined : M.RootID
+                    );
+                }
+                else {
+                    getOpeningSection(!!$.albumImport && ['shared-with-me']).always(activeTab => {
+                        handleOpenDialog(
+                            activeTab,
+                            !activeTab || typeof activeTab !== 'string' || activeTab === 'quick-access' ?
+                                undefined : M.RootID
+                        );
+                    });
+                }
                 return $dialog;
             });
 
@@ -2185,7 +2235,7 @@
         // Not allowed chats
         if (isUserAllowedToOpenDialogs()) {
             M.safeShowDialog('move', function() {
-                handleOpenDialog(0);
+                getOpeningSection().always(handleOpenDialog);
                 return $dialog;
             });
         }
@@ -2203,11 +2253,22 @@
             M.safeShowDialog('copy', function() {
                 $.saveToDialogCb = cb;
                 $.saveToDialogNode = node;
-                handleOpenDialog(
-                    activeTab,
-                    !activeTab || activeTab === 'quick-access' ? undefined : M.RootID,
-                    activeTab !== 'conversations' && 'saveToDialog'
-                );
+                if (activeTab) {
+                    handleOpenDialog(
+                        activeTab,
+                        activeTab === 'quick-access' ? undefined : M.RootID,
+                        activeTab !== 'conversations' && 'saveToDialog'
+                    );
+                }
+                else {
+                    getOpeningSection().always(activeTab => {
+                        handleOpenDialog(
+                            activeTab,
+                            !activeTab || activeTab === 'quick-access' ? undefined : M.RootID,
+                            activeTab !== 'conversations' && 'saveToDialog'
+                        );
+                    });
+                }
                 return $dialog;
             });
         }
@@ -2235,7 +2296,7 @@
             $.saveAsCallBack = cb;
             $.nodeSaveAs = typeof node === 'string' ? M.getNodeByHandle(node) : node;
             $.saveAsContent = content;
-            handleOpenDialog(null);
+            getOpeningSection(['s4']).always(handleOpenDialog);
             return $dialog;
         });
 
@@ -2272,7 +2333,16 @@
                     if (dialogName === 'selectFolder') {
                         M.clearSelectedNodes();
                     }
-                    handleOpenDialog(0, undefined, mode);
+                    const blocked = [];
+                    if (dialogName === 'selectFolder') {
+                        blocked.push('shared-with-me');
+                    }
+                    if (mode === 'fileRequestNew') {
+                        blocked.push('s4');
+                    }
+                    getOpeningSection(blocked).always(section => {
+                        handleOpenDialog(section, undefined, mode);
+                    });
 
                     $.selectFolderCallback = (target) => {
                         if ($.dialog !== dialogName) {
@@ -2871,6 +2941,12 @@
                 selectedNodes = [...$.selected];
             }
 
+            if (section !== 'conversations') {
+                lastSectionData.s = section;
+                lastSectionData.t = Date.now() + 6 * 36e5;
+                M.setPersistentData('cmdlgsect', lastSectionData).catch(dump);
+            }
+
             // closeDialog would cleanup some $.* variables, so we need them cloned here
             const {
                 saveToDialogCb,
@@ -2887,6 +2963,17 @@
             if ($.copyToUpload) {
                 var data = $.copyToUpload;
                 var target = $.mcselected;
+                const isSameTarget = $.mcselected === (M.currentCustomView.nodeID || M.currentdirid);
+                const skipForSameChatTarget = section === 'conversations' &&
+                    chats.length === 1 &&
+                    (
+                        !M.currentdirid ||
+                        chats.includes(M.currentdirid.split('/').pop())
+                    );
+
+                if (!isSameTarget && !skipForSameChatTarget) {
+                    eventlog(section === 'quick-access' ? 501139 : 501138);
+                }
 
                 if (section === 'conversations') {
                     target = chats.map(function(h) {
@@ -2909,6 +2996,7 @@
 
                 if ($('.notagain', $dialog).prop('checked')) {
                     mega.config.setn('ulddd', 1);
+                    eventlog(501137);
                 }
 
                 closeDialog();

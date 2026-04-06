@@ -1968,9 +1968,6 @@ function topbarUI(holderId) {
             container.classList.remove("show");
         }
         else {
-            if (fmconfig.rvonbrddl === 1) {
-                $('.js-accountbtn.feedback', topbar).removeClass('highlight');
-            }
 
             const $accountAvatar = $('.js-account-avatar', topbar);
             if (!$accountAvatar.hasClass('rendered')) {
@@ -2015,15 +2012,6 @@ function topbarUI(holderId) {
         else if (this.classList.contains('logout')) {
             mLogout();
             eventlog(500329);
-        }
-        else if (this.classList.contains('feedback')) {
-            mega.config.set('rvonbrddl', 1);
-            window.open(
-                'https://survey.mega.co.nz/index.php?r=survey/index&sid=692176&lang=en',
-                '_blank',
-                'noopener,noreferrer'
-            );
-            eventlog(500328);
         }
         var dropdown = document.getElementsByClassName('js-dropdown-account');
 
@@ -2578,11 +2566,6 @@ function topmenuUI() {
             }
         }
 
-        if (!e || (!e.target.closest('.js-dropdown-notification') &&
-            ((c && c.indexOf('js-topbarnotification') === -1) || !c))) {
-            notify.closePopup();
-        }
-
         if (!e || (!e.target.closest('.js-dropdown-warning') &&
             ((c && c.indexOf('js-dropdown-warning') === -1) || !c))) {
             elements = document.getElementsByClassName('js-dropdown-warning');
@@ -3090,22 +3073,9 @@ function loadSubPage(tpage, event) {
 
     if (window.slideshowid) {
         mBroadcaster.sendMessage('trk:event', 'preview', 'close-nav', tpage, slideshowid);
-
-        slideshow(0, 1);
     }
 
-    if ('transferItOverlay' in T.ui && T.ui.transferItOverlay.data.active) {
-        T.ui.transferItOverlay.hide();
-    }
-
-    if (window.textEditorVisible) {
-        // if we are loading a page and text editor was visible, then hide it.
-        mega.textEditorUI.doClose();
-    }
-
-    if (window.fileversioning && fileversioning.isOpen) {
-        fileversioning.closeFileVersioningDialog();
-    }
+    closeOverlays();
 
     if (event && Object(event.state).view) {
         onIdle(function() {
@@ -3238,6 +3208,30 @@ function loadSubPage(tpage, event) {
         init_page();
     }
     mBroadcaster.sendMessage('pagechange', tpage);
+}
+
+function closeOverlays() {
+    'use strict';
+
+    if (window.textEditorVisible) {
+        mega.textEditorUI.doClose();
+    }
+
+    if (window.slideshowid && typeof slideshow === 'function') {
+        slideshow(0, 1);
+    }
+
+    if (is_mobile && mega.ui.viewerOverlay) {
+        mega.ui.viewerOverlay.hide();
+    }
+
+    if ('transferItOverlay' in T.ui && T.ui.transferItOverlay.data.active) {
+        T.ui.transferItOverlay.hide();
+    }
+
+    if (window.fileversioning && fileversioning.isOpen) {
+        fileversioning.closeFileVersioningDialog();
+    }
 }
 
 window.addEventListener('popstate', function(event) {

@@ -5,6 +5,7 @@ lazy(mega.ui, 'mInfoPanel', () => {
     let activeStats;
     function resetStats() {
         activeStats = Object.create(null);
+        activeStats.folderBytes = 0;
         activeStats.folderCount = 0;
         activeStats.fileCount = 0;
         activeStats.imageCount = 0;
@@ -109,7 +110,8 @@ lazy(mega.ui, 'mInfoPanel', () => {
                 mimeCountStats(node);
                 if (node.t) {
                     activeStats.folderCount++;
-                    activeStats.bytes += node.tb;
+                    activeStats.folderBytes += node.tb || 0;
+                    activeStats.bytes += node.tb || 0;
                 }
                 else if (node.h in M.dcd) {
                     activeStats.bytes += node.tb;
@@ -123,7 +125,7 @@ lazy(mega.ui, 'mInfoPanel', () => {
                     activeStats.takedownCount++;
                 }
                 if (node.t || M.dcd[node.h] || node.isDeviceFolder) {
-                    activeStats.subDirs += node.td;
+                    activeStats.subDirs += node.td || 0;
                     activeStats.subFiles += node.tf;
                 }
 
@@ -311,6 +313,10 @@ lazy(mega.ui, 'mInfoPanel', () => {
                     this.text = bytesToSize(activeStats.versionsPrevBytes);
                     break;
                 }
+                case TYPES.ACTIVITY: {
+                    this.showActivity();
+                    break;
+                }
             }
         }
 
@@ -432,6 +438,29 @@ lazy(mega.ui, 'mInfoPanel', () => {
                     icon.remove();
                 }
                 this.removeClass('taken-down');
+            }
+        }
+
+        showActivity() {
+            const actionNode = this.getSubNode('info-action');
+            actionNode.replaceChildren();
+            actionNode.classList.add('mega-node', 'user');
+
+            const owner = u_handle !== this.node.u && this.node.u || sharer(this.node.h);
+            MegaAvatarComponent.factory({
+                parentNode: actionNode,
+                userHandle: owner || u_handle,
+                size: 16,
+                simpletip: false,
+            });
+
+            M.recentsRender.buildFileAction($(actionNode), this.handles[0]);
+            const nameNode = actionNode.querySelector('span');
+            nameNode.classList.add('info-user-name', 'text-ellipsis');
+
+            if (nameNode.scrollWidth > nameNode.clientWidth) {
+                actionNode.classList.add('simpletip');
+                actionNode.dataset.simpletip = actionNode.textContent;
             }
         }
 
@@ -645,7 +674,7 @@ lazy(mega.ui, 'mInfoPanel', () => {
                             parentNode: usersNode,
                             userHandle: userHandles[i],
                             size: size || 24,
-                            simpletip: true,
+                            simpletip: false,
                         });
                     }
                     else {
@@ -662,10 +691,30 @@ lazy(mega.ui, 'mInfoPanel', () => {
                     }
                 }
                 if (useName) {
-                    const nameNode = document.createElement('span');
-                    nameNode.className = 'info-user-name';
-                    nameNode.textContent = M.getNameByHandle(userHandles[0]);
-                    usersNode.appendChild(nameNode);
+                    const user = M.getUserByHandle(userHandles[0]);
+
+                    const container = document.createElement('span');
+                    container.className = 'info-user-name text-ellipsis';
+
+                    const link = document.createElement('a');
+                    link.className = 'action-user-name underline text-color-primary-link simpletip';
+                    link.textContent = user.name;
+
+                    link.setAttribute('id', user.h);
+                    link.addEventListener('click', () => {
+                        if (user.h) {
+                            mega.ui.flyout.showContactFlyout(user.h);
+                        }
+                        return false;
+                    });
+
+                    container.appendChild(link);
+                    usersNode.appendChild(container);
+
+                    if (container.scrollWidth > container.clientWidth) {
+                        usersNode.classList.add('simpletip');
+                        usersNode.dataset.simpletip = usersNode.textContent;
+                    }
                 }
             }
             else {
@@ -776,6 +825,7 @@ lazy(mega.ui, 'mInfoPanel', () => {
         MIME: 'mime',
         THUMBNAIL: 'thumbnail',
         NAME: l.info_panel_name,
+        ACTIVITY: l[8020],
         TAKEDOWN: 'takedown',
         NODE_TYPE: l[93],
         PERMISSION: l[5906],
@@ -1433,6 +1483,9 @@ lazy(mega.ui, 'mInfoPanel', () => {
         if (activeStats.heartbeat) {
             blockSet.add(TYPES.TIME_HEARTBEAT);
         }
+        if (M.currentdirid === "recents") {
+            blockSet.add(TYPES.ACTIVITY);
+        }
     }
 
     function finaliseBlocks(blockSet, handles, nodes, node) {
@@ -1650,7 +1703,7 @@ lazy(mega.ui, 'mInfoPanel', () => {
                 }
                 blockSet.add(TYPES.MIME);
             }
-            if (mega.lite.inLiteMode && activeStats.folderCount) {
+            if (mega.lite.inLiteMode && activeStats.folderCount && !activeStats.folderBytes) {
                 blockSet.delete(TYPES.BYTE_SIZE);
                 blockSet.delete(TYPES.NODE_SIZE);
             }

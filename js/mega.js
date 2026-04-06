@@ -81,6 +81,11 @@ Object.defineProperty(mega, 'halt', {
                 delay.abort();
             }
         }
+
+        if ('rad' in mega) {
+            mega.rad.log('\ud83d\udd1a', `Issuing halt(${reason})...`);
+            return mega.rad.flush().catch(dump);
+        }
     }
 });
 
@@ -2606,6 +2611,9 @@ async function fetchfm(sn) {
     // link arrives, and this is how it knows that it is the first node.
     M.RootID = false;
 
+    self.newmissingkeys = false;
+    self.missingkeys = Object.create(null);
+
     if (window.pfcol) {
         console.assert(!window.fmdb);
         console.assert(loadfm.loading);
@@ -2947,6 +2955,46 @@ function sharer(h) {
 
     return false;
 }
+
+
+/**
+ * Returns the in-share a node belongs to, or false
+ * @property sharer.has
+ */
+lazy(sharer, 'has', () => {
+    'use strict';
+    const cache = new Map();
+
+    Object.defineProperty(sharer, 'clear', {
+        value() {
+            cache.clear();
+        }
+    });
+
+    return async(h) => {
+
+        while (h) {
+            const [n, c] = M.d[h] ? [M.d[h], 1] : cache.get(h) || await dbfetch.node([h]);
+
+            if (!n) {
+                break;
+            }
+
+            if (!c) {
+                cache.set(h, [n, 1]);
+            }
+
+            if (n.su) {
+                console.assert(M.c.shares[n.h]);
+                return n;
+            }
+
+            h = n.p;
+        }
+
+        return false;
+    };
+});
 
 // FIXME: remove alt
 function ddtype(ids, toid, alt) {
