@@ -3145,13 +3145,14 @@ MegaData.prototype.getRecentActionsList = function(limit, until) {
                 const n = new MegaNode(nodes[i]);
                 const actionType = n.tvf ? "updated" : "added";
                 const blockType = 'files';
+                const groupKey = n.p === M.RootID ? n.h : blockType;
                 index[n.u] = index[n.u] || Object.create(null);
                 index[n.u][n.p] = index[n.u][n.p] || Object.create(null);
                 index[n.u][n.p][actionType] = index[n.u][n.p][actionType] || Object.create(null);
-                index[n.u][n.p][actionType][blockType] = index[n.u][n.p][actionType][blockType] || { endts: 0 };
+                index[n.u][n.p][actionType][groupKey] = index[n.u][n.p][actionType][groupKey] || { endts: 0 };
 
                 // Split nodes into groups based on time separation.
-                const bucket = index[n.u][n.p][actionType][blockType];
+                const bucket = index[n.u][n.p][actionType][groupKey];
                 if (bucket.endts === 0 || n.ts < bucket.endts) {
                     bucket.endts = n.ts - 21600; // 6 Hours
                     bucket.group = newActionBucket(n, actionType, blockType);
