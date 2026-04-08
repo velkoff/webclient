@@ -1039,7 +1039,12 @@ MegaData.prototype.addUpload = function(u, ignoreWarning, emptyFolders, target) 
                     // Check whether the user logged in MEGAsync does match here
                     if (syncData.u === u_handle) {
                         // Let MEGAsync open the local file selector.
-                        megasync.uploadFile(M.currentdirid);
+                        if (M.vtol(syncData.v) < M.vtol('6.2.0')) {
+                            megasync.uploadFile(M.currentdirid);
+                        }
+                        else {
+                            megasync.uploadFilesAndFolders(M.currentdirid);
+                        }
                     }
                 }
             });
