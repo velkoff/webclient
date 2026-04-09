@@ -4715,7 +4715,7 @@ class TopicChange extends mixin.M {
       label: JSX_(utils.zT, null, displayName)
     }), datetime, JSX_("div", {
       className: "message text-block"
-    }, JSX_(utils.P9, null, (chatRoom.scheduledMeeting ? l.schedule_mgmt_title.replace('%1', `<strong>${oldTopic}</strong>`) : l[9081]).replace('%s', `<strong>${topic}</strong>`))))));
+    }, JSX_(utils.P9, null, chatRoom.scheduledMeeting ? l.schedule_mgmt_title.replace('%1', oldTopic).replace('%2', topic).replaceAll('[B]', '<b>').replaceAll('[/B]', '</b>') : l[9081].replace('%s', `<b>${topic}</b>`))))));
     return JSX_("div", null, messages);
   }
 }
