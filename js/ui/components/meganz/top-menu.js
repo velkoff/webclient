@@ -71,14 +71,14 @@ class MegaTopMenu extends MegaMobileTopMenu {
                 simpletipPos: 'right',
                 onClick: () => {
                     let width = fmconfig[persistanceKey] || 286;
-                    if (fmconfig.smallLhp) {
+                    if (tempCollapseState || fmconfig.smallLhp) {
                         eventlog(500955);
                     }
                     else {
                         eventlog(500954);
                         width = minWidth;
                     }
-                    uiShrink(!fmconfig.smallLhp);
+                    uiShrink(tempCollapseState ? false : !fmconfig.smallLhp);
                     this.leftPaneResizable.setWidth(width);
                 },
             });
