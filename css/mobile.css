@@ -4974,6 +4974,14 @@ textarea.mobile.support-text-field {
     height: 100%;
 }
 
+/* #region support page */
+.mobile .mega-sheet .support-select{
+    padding: 0 var(--spacing-7);
+    background: var(--mobile-surface-1);
+}
+
+/* #endregion support page */
+
 /* Change email page */
 .mobile.my-account-change-email-page .body-text {
     color: #818993;
