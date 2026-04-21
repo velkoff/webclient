@@ -7816,59 +7816,6 @@ div.camera-bottom-txt {
 .notification-avatar .verified .verified_icon, .context-avatar.verified .verified_icon {
     display: none;
 }
-.support .account-form-wrapper {
-    display: table;
-    table-layout: fixed;
-    width: 100%;
-}
-.free .support .account-form-wraper,
-.low-width .support .account-form-wraper {
-    padding: 0;
-}
-.support .fm-account-labels {
-    padding-top: 10px;
-    width: 70px;
-}
-.support .fm-account-inputs-blocks,
-.support .fm-account-labels {
-    display: table-cell;
-    vertical-align: top;
-}
-.support .fm-account-inputs-blocks {
-    padding-top: 15px;
-    width: 470px;
-}
-.support .fm-account-labels .labels-block {
-    display: table-row;
-}
-.support .fm-account-labels label {
-    height: 48px;
-    display: table-cell;
-    vertical-align: middle;
-    padding-right: 15px;
-    padding-bottom: 1px;
-    width: 100%;
-    box-sizing: border-box;
-}
-.support #support-subject {
-    float: none;
-}
-.support .fm-account-input {
-    line-height: 0;
-    height: auto;
-    margin: 16px 0 0;
-    border: none;
-}
-.support textarea {
-    width: 100%;
-    height: 80%;
-    border: 2px solid #e8e8e8;
-    font-size: 14px;
-    color: #666666;
-    box-sizing: border-box;
-    padding: 8px 35px 8px 10px;
-    border-radius: 4px;
-}
 .help2 img[alt="smallx"] {
     max-width: 50px;
 }

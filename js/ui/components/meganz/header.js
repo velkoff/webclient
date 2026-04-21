@@ -552,7 +552,12 @@ class MegaHeader extends MegaMobileHeader {
         mega.ui.header.handleMenu('avatar');
 
         if (u_attr.p) {
-            mega.ui.header.domNode.componentSelector('.priority-support').removeClass('hidden');
+            mega.ui.header.domNode.component.avatarMenu
+                .querySelector('.priority-support').classList.remove('hidden');
+        }
+        else {
+            mega.ui.header.domNode.component.avatarMenu
+                .querySelector('.standard-support').classList.remove('hidden');
         }
 
         eventlog(500323);
@@ -980,6 +985,18 @@ class MegaHeader extends MegaMobileHeader {
                 }
             });
 
+            const hasAccess = (u_attr && u_attr.p) || window.kbCatId;
+            const supportWillRedirect = !hasAccess && u_attr;
+            const upsellSupportOption = {
+                text: l[516],
+                subtext: l.upsell_priority_support,
+                subtextIcon: 'sprite-fm-mono icon-help-circle-thin-outline',
+                subtextIconSize: 16,
+                href: supportWillRedirect ? 'https://help.mega.io' : '/support',
+                componentClassname: `standard-support ${supportWillRedirect ? 'extlink' : ''} hidden`,
+                ...(supportWillRedirect && { target: '_blank' })
+            };
+
             this.support = _createSubMenu({
                 submenuClass: 'sub-menu support',
                 items: [
@@ -999,6 +1016,7 @@ class MegaHeader extends MegaMobileHeader {
                         text: l.menu_item_priority_support,
                         href: '/support'
                     },
+                    upsellSupportOption,
                     {
                         componentClassname: 'megaio extlink',
                         text: l.website_label,
@@ -1110,7 +1128,7 @@ class MegaHeader extends MegaMobileHeader {
                 'download-pwm-ext': cvType === 'pwm',
                 'top-contacts': uta,
                 'top-chats': uta,
-                'login-button': !u_type,
+                'login-button': !u_type && page !== 'support',
                 'signup-button': !u_type,
             },
             { // logged out
@@ -1128,7 +1146,7 @@ class MegaHeader extends MegaMobileHeader {
                 'download-pwm-ext': false,
                 'top-contacts': false,
                 'top-chats': false,
-                'login-button': true,
+                'login-button': page !== 'support',
                 'signup-button': true,
             }
         ][index];

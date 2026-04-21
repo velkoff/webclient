@@ -419,14 +419,20 @@ function getCleanSitePath(path) {
         if (path.miojid) {
             window.uTagMJID = path.miojid;
         }
+        if (path.kbLang) {
+            window.kbLang = path.kbLang;
+        }
+        if (path.kbPostId) {
+            window.kbPostId = path.kbPostId;
+        }
+        if (path.kbCatId) {
+            window.kbCatId = path.kbCatId;
+        }
 
         if (path.next) {
             window.nextPage = b64decode(path.next);
             if (path.plan) {
                 window.pickedPlan = path.plan;
-            }
-            else if (path.articleUrl) {
-                window.helpOrigin = b64decode(path.articleUrl);
             }
         }
     }
@@ -2084,6 +2090,7 @@ else if (!browserUpdate) {
     jsl.push({f:'css/fonts.css', n: 'fonts_css', j:2,w:5});
     jsl.push({f:'css/bottom-pages.css', n: 'bottom-pages_css', j:2,w:5});
     jsl.push({f:'css/bottom-menu.css', n: 'bottom-menu_css', j:2,w:5});
+    jsl.push({f:'css/support.css', n: 'support_css', j:2,w:5});
     jsl.push({f:'css/business.css', n: 'business_css', j:2,w:5});
     jsl.push({f:'css/pro.css', n: 'pro_css', j:2,w:5});
     jsl.push({f:'css/propay.css', n: 'propay_css', j:2,w:5});
@@ -2106,6 +2113,7 @@ else if (!browserUpdate) {
     jsl.push({f:'js/vendor/qrcode.js', n: 'qrcode', j:1,w:2, g: 'vendor'});
     jsl.push({f:'js/ui/password-revert.js', n: 'password-revert', j:1});
     jsl.push({f:'js/ui/publicServiceAnnouncement.js', n: 'psa_js', j:1,w:1});
+    jsl.push({f:'js/ui/dropdowns.js', n: 'dropdowns_js', j:1});
     jsl.push({f:'js/ui/megaInputs.js', n: 'megainputs_js', j:1,w:1});
     jsl.push({f:'js/ui/megaInputs-underlinedText.js', n: 'megainputs_underlinedtext_js', j:1,w:1});
     jsl.push({f:'js/ui/megaInputs-textArea.js', n: 'megainputs_textarea_js', j:1,w:1});
@@ -2376,7 +2384,6 @@ else if (!browserUpdate) {
         jsl.push({f:'js/fm/account-change-password.js', n: 'fm_account_change_password_js', j:1});
         jsl.push({f:'js/fm/account-change-email.js', n: 'fm_account_change_email_js', j:1});
         jsl.push({f:'js/fm/dialogs.js', n: 'fm_dialogs_js', j:1});
-        jsl.push({f:'js/ui/dropdowns.js', n: 'dropdowns_js', j:1});
         jsl.push({f:'css/node-filter.css', n: 'nodefilter_css', j:2});
         jsl.push({f:'js/ui/node-filter.js', n: 'nodefilter_js', j:1});
         jsl.push({f:'js/ui/info-panel.js', n: 'infopanel_js', j:1});
@@ -2558,6 +2565,7 @@ else if (!browserUpdate) {
         jsl.push({f:'css/sprites/mobile-fm-theme@light.css', n: 'mobile_fm_light_css', j:2, w:30});
 
         jsl.push({f:'html/top-mobile.html', n: 'top-mobile', j:0});
+        jsl.push({f:'html/mobile-loader.html', n: 'mobile-loader', j:0});
         jsl.push({f:'html/mobile-add-contact-card.html', n: 'mobile-add-contact-card', j:0});
         jsl.push({f:'css/mobile.css', n: 'mobile_css', j: 2, w: 30, c: 1, d: 1, m: 1});
         jsl.push({f:'css/mobile/mobile.settings.css', n: 'mobile_settings_css', j: 2, w: 30, c: 1, d: 1, m: 1});
@@ -2598,7 +2606,7 @@ else if (!browserUpdate) {
         jsl.push({f:'js/mobile/mobile.recovery.enter-key.js', n: 'mobile_rec_enter_key_js', j: 1, w: 1});
         jsl.push({f:'js/mobile/mobile.recovery.change-password.js', n: 'mobile_rec_change_password_js', j: 1, w: 1});
         jsl.push({f:'js/mobile/mobile.register.js', n: 'mobile_register_js', j: 1, w: 1});
-        jsl.push({f:'js/mobile/mobile.support.js', n: 'mobile_support_js', j: 1, w: 1});
+        jsl.push({f:'js/mobile/mobile.signin.js', n: 'mobile_signin_js', j: 1, w: 1});
         jsl.push({f:'js/mobile/mobile.upload-overlay.js', n: 'mobile_upload_overlay_js', j: 1, w: 1});
         jsl.push({f:'js/mobile/mobile.contact-link.js', n: 'mobile_contactlink_js', j: 1, w: 1});
         jsl.push({f:'js/mobile/mobile.twofactor.js', n: 'mobile_twofactor_js', j: 1, w: 1});

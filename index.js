@@ -68,7 +68,7 @@ mBroadcaster.once('startMega', function() {
 
     if (is_mobile) {
 
-        const usingMobPages = ['placeholder', 'register', 'key', 'support', 'keybackup',
+        const usingMobPages = ['placeholder', 'register', 'key', 'keybackup',
                                'disputenotice', 'download', 'reset', 'login'];
 
         for (let i = usingMobPages.length; i--;) {
@@ -1085,17 +1085,13 @@ function init_page() {
         init_key();
     }
     else if (page === 'support') {
-        if (is_mobile) {
-            parsepage(pages.support);
-            mobile.support.init();
-        }
-        else if (u_type === 0) {
-            loadSubPage('register');
-            return false;
+        const hasAccess = (u_attr && u_attr.p) || window.kbCatId;
+        if (u_attr && !hasAccess) {
+            mega.redirect(l.mega_help_host);
         }
         else {
             parsepage(pages.support);
-            support.initUI();
+            support.init(hasAccess);
         }
     }
     else if (page == 'contact') {
@@ -2074,9 +2070,9 @@ function topmenuUI() {
         }
 
         // @todo: remove condition when we start using new header in all sections
-        if (isFm || dlid || page === 'linkaccess' || page === 'chat') {
-            mega.ui.header.show();
+        if (isFm || dlid || page === 'linkaccess' || page === 'chat' || page === 'support') {
             mega.ui.header.update();
+            mega.ui.header.show();
         }
         else {
             mega.ui.header.hide();
@@ -2101,6 +2097,7 @@ function topmenuUI() {
     var $menuHomeItem = $('.top-menu-item.start', $topMenu);
     var $menuPricingItem = $('.top-menu-item.pro', $topMenu);
     const $menuAchievementsItem = $('.top-menu-item.achievements', $topMenu);
+    const $menuPrioritySupportItem = $('.top-menu-item.support', $topMenu);
     var $menuBackupItem = $('.top-menu-item.backup', $topMenu);
     var $menuFeedbackItem = $('.top-menu-item.feedback', $topMenu);
     var $menuUserinfo = $('.top-menu-account-info', $menuLoggedBlock);
@@ -2179,6 +2176,7 @@ function topmenuUI() {
 
     // Remove red bar from all menu items
     $topMenuItems.removeClass('active');
+    $menuPrioritySupportItem.toggleClass('hidden', !u_attr || !u_attr.p);
 
     // If in mobile My Account section, show red bar
     if (is_mobile && page.indexOf('fm') === 0) {
@@ -2972,6 +2970,9 @@ function parsepage(pagehtml) {
     if (pagehtml.indexOf('((PAGESMENU))') > -1) {
         pagehtml = pagehtml.replace(/\(\(PAGESMENU\)\)/g, translate(pages.pagesmenu));
     }
+    if (pagehtml.includes('((MOBILE_LOADER))')) {
+        pagehtml = pagehtml.replaceAll('((MOBILE_LOADER))', is_mobile ? translate(pages['mobile-loader']) : '');
+    }
     if (is_chrome_web_ext || is_firefox_web_ext) {
         pagehtml = pagehtml.replace(/\/#/g, '/' + urlrootfile + '#');
     }
@@ -2994,7 +2995,7 @@ function parsepage(pagehtml) {
 
     // if this is bottom page & not Download Page we have to enforce light mode for now.
     if (page === 'download' || pfid ||
-        page === 'login' || page.substring(0, 8) === 'register' || page === 'recovery') {
+        page === 'login' || page.substring(0, 8) === 'register' || page === 'recovery' || page === 'support') {
 
         mega.ui.setTheme();
         document.body.classList.add('bottom-pages');
