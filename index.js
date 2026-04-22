@@ -1747,7 +1747,7 @@ function init_page() {
                     loadingDialog.show();
                     ulmanager.abort(null);
                     Soon(function() {
-                        u_logout().then(() => location.reload());
+                        u_logout(true).then(() => location.reload());
                     });
                 };
 
