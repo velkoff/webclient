@@ -484,6 +484,10 @@
             }
         });
 
+        if (is_mobile && page !== 'login') {
+            return loadSubPage('login');
+        }
+
         const component = getLoginDialogComponent(pageBound);
 
         if (!component) {
@@ -519,12 +523,7 @@
             noBlurBackground: pageBound
         };
 
-        if (is_mobile) {
-            if (page !== 'login') {
-                return loadSubPage('login');
-            }
-        }
-        else {
+        if (!is_mobile) {
             showOptions.type = 'modal';
             showOptions.sheetHeight = 'auto';
             showOptions.sheetWidth = 'auto';
