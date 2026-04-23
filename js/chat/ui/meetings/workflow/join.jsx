@@ -51,7 +51,7 @@ export default class Join extends React.Component {
 
     showConfirmationDialog = () => {
         megaChat.destroy();
-        return mega.ui.sendSignupLinkDialog(JSON.parse(localStorage.awaitingConfirmationAccount), () => {
+        return mega.ui.signup.showLinkDialog(JSON.parse(localStorage.awaitingConfirmationAccount), () => {
             delete localStorage.awaitingConfirmationAccount;
             u_logout(true).then(() => location.reload());
         });
@@ -143,7 +143,7 @@ export default class Join extends React.Component {
                         <a
                             href="#"
                             onClick={() =>
-                                mega.ui.showLoginRequiredDialog({ minUserType: 3, skipInitialDialog: 1 })
+                                mega.ui.login.showRequiredDialog({ minUserType: 3, skipInitialDialog: 1 })
                                     .done(() =>
                                         this.setState({ view: JOIN_VIEW.ACCOUNT })
                                     )

@@ -253,13 +253,14 @@ function u_checklogin3a(res, ctx) {
                 const stack = String(ex && ex.stack).trim().replace(/\s+/g, ' ').replace(msg, '').substr(0, 512);
 
                 const payload = [
-                    4,
+                    5,
                     msg,
                     stack,
                     tag | 0,
                     is_mobile | 0,
                     is_extension | 0,
-                    buildVersion.website || 'dev'
+                    buildVersion.website || 'dev',
+                    mega.keyMgr.importfailure
                 ];
                 return eventlog(99810, JSON.stringify(payload));
             }
@@ -683,6 +684,10 @@ function u_setrsa(rsakey) {
                             return mega.keyMgr.initKeyManagement();
                         })
                         .then(() => {
+                            if (security.login.deferSetSid) {
+                                delete security.login.deferSetSid;
+                                watchdog.notify('setsid', u_sid);
+                            }
                             $promise.resolve(rsakey);
                         })
                         .catch((ex) => {
