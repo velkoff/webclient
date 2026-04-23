@@ -6420,7 +6420,7 @@ class Join extends react0___default().Component {
     };
     this.showConfirmationDialog = () => {
       megaChat.destroy();
-      return mega.ui.sendSignupLinkDialog(JSON.parse(localStorage.awaitingConfirmationAccount), () => {
+      return mega.ui.signup.showLinkDialog(JSON.parse(localStorage.awaitingConfirmationAccount), () => {
         delete localStorage.awaitingConfirmationAccount;
         u_logout(true).then(() => location.reload());
       });
@@ -6489,7 +6489,7 @@ class Join extends react0___default().Component {
           onClick: () => loadSubPage('register')
         }, l[5582]), JSX_("span", null, l[5585], JSX_("a", {
           href: "#",
-          onClick: () => mega.ui.showLoginRequiredDialog({
+          onClick: () => mega.ui.login.showRequiredDialog({
             minUserType: 3,
             skipInitialDialog: 1
           }).done(() => this.setState({
