@@ -2138,8 +2138,8 @@ var slideshowid;
         }
 
         if (previews[id].poster !== undefined) {
-            // $video.attr('poster', previews[id].poster);
-            $video.css('background-image', `url(${previews[id].poster})`);
+            $video.attr('poster', previews[id].poster);
+            // $video.css('background-image', `url(${previews[id].poster})`);
         }
         else if (String(n.fa).indexOf(':1*') > 0) {
             getImage(n, 1).then(function(uri) {
