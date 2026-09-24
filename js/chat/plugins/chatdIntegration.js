@@ -995,6 +995,9 @@ ChatdIntegration.prototype._parseMessage = function(chatRoom, message) {
         message.trackDataChange();
     }
     else if (textContents[0] === Message.MANAGEMENT_MESSAGE_TYPES.MANAGEMENT) {
+        Message.sanitize(message);
+        textContents = message.textContents;
+
         var messageHasAttachment = (textContents[1] === Message.MANAGEMENT_MESSAGE_TYPES.ATTACHMENT);
         var messageIsVoiceClip = (textContents[1] === Message.MANAGEMENT_MESSAGE_TYPES.VOICE_CLIP);
 
@@ -1035,6 +1038,7 @@ ChatdIntegration.prototype._parseMessage = function(chatRoom, message) {
                 }
 
                 message.meta = meta;
+                Message.sanitize(message);
             }
             catch (e) {
                 message.textContents = "";

@@ -598,6 +598,11 @@ Message.SOURCE = {
     'SENT': 2,
 };
 
+/**
+ * Management message types, the second byte of a client-built payload: MANAGEMENT + type + body.
+ * Add to the sanitiser the expected payload.
+ * @see Message.sanitize
+ */
 Message.MANAGEMENT_MESSAGE_TYPES = {
     "MANAGEMENT": "\x00",
     "ATTACHMENT": "\x10",
@@ -607,6 +612,11 @@ Message.MANAGEMENT_MESSAGE_TYPES = {
     "VOICE_CLIP": "\x14"
 };
 
+/**
+ * Meta types, the third byte of a CONTAINS_META payload: MANAGEMENT + CONTAINS_META + type + JSON.
+ * Add to the sanitiser the expected payload.
+ * @see Message.sanitize
+ */
 Message.MESSAGE_META_TYPE = {
     "RICH_PREVIEW": "\x00",
     "GEOLOCATION": "\x01",
@@ -740,6 +750,64 @@ Message.prototype.toPersistableObject = function() {
     return r;
 };
 
+/**
+ * Expected body of each message type, as built by clients, keyed by type.
+ * @name validators
+ * @memberOf Message
+ */
+lazy(Message, 'validators', () => {
+    'use strict';
+    const { ATTACHMENT, VOICE_CLIP, CONTACT, CONTAINS_META } = Message.MANAGEMENT_MESSAGE_TYPES;
+    const { RICH_PREVIEW, GEOLOCATION, GIPHY } = Message.MESSAGE_META_TYPE;
+    const isObject = (v) => !!v && typeof v === 'object';
+    const isPrimitive = (v) => v === null || typeof v !== 'object';
+    const isPreview = (e) => isObject(e) && typeof e.url === 'string' && /^https?:\/\//i.test(e.url)
+        && [e.t, e.d, e.i, e.ic].every(isPrimitive);
+    const isContact = (c) => isObject(c) && typeof c.u === 'string' && [c.email, c.m, c.name].every(isPrimitive);
+    const isNodeList = (b) => Array.isArray(b) && b.every(isObject);
+
+    return {
+        // \0 + type + JSON, with the meta type ahead of the JSON for CONTAINS_META
+        bodies: {
+            [ATTACHMENT]: isNodeList,
+            [VOICE_CLIP]: isNodeList,
+            [CONTACT]: (b) => Array.isArray(b) && b.every(isContact),
+            [CONTAINS_META]: isObject
+        },
+        // CONTAINS_META body once its textMessage is split off
+        metas: {
+            [RICH_PREVIEW]: (m) => Array.isArray(m.extra) && m.extra.every(isPreview),
+            [GEOLOCATION]: (m) => Array.isArray(m.extra) && isObject(m.extra[0])
+                && m.extra[0].la !== undefined && m.extra[0].lng !== undefined,
+            [GIPHY]: (m) => typeof m.src === 'string' && [m.src_webp, m.s, m.s_webp, m.w, m.h].every(isPrimitive)
+        }
+    };
+});
+
+/**
+ * Neutralise sender-supplied content and meta that the UI renders unchecked.
+ * @param {Message|Object} msg message with its textContents, and its meta and metaType if any
+ * @returns {void}
+ */
+Message.sanitize = function(msg) {
+    'use strict';
+    const { MANAGEMENT, CONTAINS_META } = Message.MANAGEMENT_MESSAGE_TYPES;
+    const { bodies, metas } = Message.validators;
+    const text = typeof msg.textContents === 'string' ? msg.textContents : '';
+    const isBody = text[0] === MANAGEMENT && bodies[text[1]];
+    const isMeta = metas[msg.metaType];
+
+    if (text !== msg.textContents
+        || isBody && !isBody(Message.prototype._safeParseJSON(text.substr(text[1] === CONTAINS_META ? 3 : 2)))) {
+        msg.textContents = '';
+        msg.messageHtml = '';
+    }
+
+    // Fall back to plain text, as for an unknown meta type
+    if (isMeta && !(msg.meta && isMeta(msg.meta))) {
+        msg.metaType = -1;
+    }
+};
 
 Message.fromPersistableObject = function(chatRoom, msgData) {
     "use strict";
@@ -774,6 +842,11 @@ Message.fromPersistableObject = function(chatRoom, msgData) {
             msg[k] = msgObj[k];
         }
     });
+
+    // Cached before sanitize() existed
+    if (msg.metaType !== undefined || msg.isManagement()) {
+        Message.sanitize(msg);
+    }
 
     msg.source = Message.SOURCE.IDB;
 
