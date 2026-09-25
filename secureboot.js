@@ -2413,6 +2413,10 @@ else if (!browserUpdate) {
         jsl.push({f:'js/ui/components/meganz/MTab.js', n: 'm_tab_js', j:1});
         jsl.push({f:'js/ui/components/meganz/MTabs.js', n: 'm_tabs_js', j:1});
 
+        // Temporary for desktop only
+        jsl.push({f:'js/ui/components/chip-input.js', n: 'component_chip_input_js', j: 1, w:1});
+        jsl.push({f:'js/ui/components/dropdown.js', n: 'component_dropdown_js', j: 1, w:1});
+
         jsl.push({f:'html/top.html', n: 'top', j:0});
         jsl.push({f:'css/style.css', n: 'style_css', j:2, w:30});
         jsl.push({f:'css/tree.css', n: 'tree_css', j:2, w:30});
@@ -2508,6 +2512,8 @@ else if (!browserUpdate) {
         jsl.push({f:'css/components/meganz/fm-left-pane.css', n: 'fm_left_pane_css', j:2, w:30, c:1, d:1, cache:1});
         jsl.push({f:'css/components/meganz/info-panel.css', n: 'info_panel_css', j:2, w:30, c:1, d:1, cache:1});
         jsl.push({f:'css/components/meganz/storage-block.css', n: 'storage_block_css', j:2, w:30, c:1, d:1, cache:1});
+        jsl.push({f:'css/components/chip-input.css', n: 'component_chip_input_css', j:2, w:30, c:1, d:1, cache:1});
+        jsl.push({f:'css/components/dropdown.css', n: 'component_dropdown_css', j:2, w:30, c:1, d:1, cache:1});
 
         // `Meetings` UI styles
         jsl.push({f:'css/chat-bundle.css', n: 'meetings_css', j:2, w:30});
@@ -2565,8 +2571,6 @@ else if (!browserUpdate) {
     jsl.push({f:'js/eaffiliate.js', n: 'eaffiliate_js', j: 1});
     jsl.push({f:'js/utags.js', n: 'utags_js', j: 1});
     jsl.push({f:'js/ui/share-dialog.js', n: 'fm_share_js', j: 1});
-    jsl.push({f:'js/ui/share-unverified-contacts-dialog.js', n: 'fm_share_unverified_contacts_js', j: 1});
-    jsl.push({f:'js/ui/share-collaborators-dialog.js', n: 'fm_share_collaborators_js', j: 1});
     jsl.push({f:'js/fm/message-dialog.js', n: 'fm_message-dialog_js', j: 1, w: 1});
     jsl.push({f:'js/fm/message-overlay.js', n: 'fm_message_overlay_js', j: 1, w: 1});
     jsl.push({f:'js/ui/node-name-control.js', n: 'node_name_control_js', j: 1, w: 1});

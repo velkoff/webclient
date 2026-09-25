@@ -634,8 +634,6 @@ FileManager.prototype.initFileManagerUI = function() {
             || $.dialog === 'stripe-pay'
             || $.dialog === 'start-meeting-dialog'
             || $.dialog === 'meetings-call-consent'
-            || $.dialog === 'fingerprint-dialog'
-            || $.dialog === 'fingerprint-admin-dlg'
             || $.dialog === 'meetings-schedule-dialog'
             || $.dialog === 'upgrade-to-pro-dialog'
             || String($.dialog).startsWith('verify-email')
@@ -1059,9 +1057,10 @@ FileManager.prototype.initFileManagerUI = function() {
             'js-selectable-text',
             'nw-conversations-name',
             'albums-grid',
+            'chip-editor',
         ];
         var ALLOWED_PARENTS =
-            '#startholder, .fm-account-main, .export-link-item, .contact-fingerprint-txt, .fm-breadcrumbs, ' +
+            '#startholder, .fm-account-main, .export-link-item, .fingerprint, .fm-breadcrumbs, ' +
             '.text-editor-container, .media-viewer .img-wrap';
         var ALLOWED_CLOSEST =
             '.multiple-input, .create-folder-input-bl, .content-panel.conversations, ' +
@@ -2359,8 +2358,7 @@ FileManager.prototype.initUIKeyEvents = function() {
             topMenu(1);
         }
         else if (e.keyCode == 27 && $.dialog) {
-            if ($.dialog === 'share-add' || $.dialog === 'share' || $.dialog === 'meetings-schedule-dialog' ||
-                $.fingerprintDialog) {
+            if ($.dialog === 'share-add' || $.dialog === 'share' || $.dialog === 'meetings-schedule-dialog') {
                 return false;
             }
             closeDialog();
@@ -3810,11 +3808,6 @@ FileManager.prototype.cameraUploadUI = function() {
         'confirm-account-dialog': ['languages'],
         selectFolder: ['create-folder', 's4-create-bucket'],
         saveAs: ['create-folder', 's4-create-bucket'],
-        share: [
-            'share-with-unverified-contacts', 'fingerprint-dialog', 'contact-info', 'share-access-contacts-dialog'
-        ],
-        'share-with-unverified-contacts': ['fingerprint-dialog'],
-        'share-access-contacts-dialog': ['fingerprint-dialog'],
         'stripe-pay': ['stripe-pay-success', 'stripe-pay-failure'],
         'sendToChat': ['start-group-chat'],
     };

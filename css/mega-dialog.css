@@ -10,16 +10,17 @@
 
         /* z-index of dialog relate elements
          *
-         * overlay - 1100
+         * arranged back dialog and overlay - 900
+         * common dialog container in arrage back status - 1000
          * low visual impact dialog (banner) - 1090
+         * overlay - 1100
+         * mega-sheet.base - 1110
+         * normal dialog container, mega-sheet.normal - 1111
          * normal dialog - 1115
-         * modal dialog - 1200
+         * modal dialog, mega-sheet.high - 1200
          * message dialog - 1201
          * message dialog container when account loading - 1215
-         * arranged back dialog and overlay - 900
-         * normal dialog container - 1111
          * common dialog container - 1300
-         * common dialog container in arrage back status - 1000
          */
 
         .mega-dialog-container,

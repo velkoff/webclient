@@ -5,17 +5,30 @@ class MegaSheet extends MegaOverlay {
 
         this.rebind(`${is_mobile ? 'tap' : 'click'}.closeSheet`, (e) => {
             if (e.target === this.domNode
-                // do not close sheet when an input element is focussed
-                && !this.domNode.querySelector('.mega-input.active')) {
+                // do not close sheet when an editable area is focussed
+                && !this.domNode.querySelector('.mega-input.active')
+                && !this.domNode.querySelector('.chip-editor:focus')
+                && !this.domNode.querySelector('textarea:focus')) {
                 if (this.preventBgClosing) {
                     return false;
                 }
-                this.hide();
-                this.trigger('close');
 
-                if (typeof this.onClose === 'function') {
-                    this.onClose();
+                const doClose = () => {
+                    this.hide();
+                    this.trigger('close');
+
+                    if (typeof this.onClose === 'function') {
+                        this.onClose();
+                    }
+                };
+
+                // Allow the consumer to veto/confirm closing (e.g. unsaved changes).
+                if (typeof this.confirmClose === 'function') {
+                    this.confirmClose().then((ok) => ok && doClose()).catch(tell);
+                    return;
                 }
+
+                doClose();
             }
         });
 
@@ -128,6 +141,20 @@ class MegaSheet extends MegaOverlay {
         return this.domNode.megaSheetWidth;
     }
 
+    _arrangeToBack() {
+        if (mega.ui.overlay.visible) {
+            mega.ui.overlay.domNode.classList.add('arrange-to-back');
+        }
+
+        if ($.dialog && this.name !== $.dialog) {
+            this.arrangedNode = document.querySelector(`.mega-sheet.${$.dialog}`);
+
+            if (this.arrangedNode) {
+                this.arrangedNode.classList.add('arrange-to-back');
+            }
+        }
+    }
+
     /**
      * Method to open a sheet with data if passed as a param
      * @param {Object} [options] contains optional fields to set data
@@ -153,27 +180,47 @@ class MegaSheet extends MegaOverlay {
      */
     show(options) {
         if (options) {
-            if (!options.name) {
+            const {
+                name,
+                noBlurBackground,
+                onClose,
+                confirmClose,
+                preventBgClosing = false,
+                safeShow = true,
+                sheetHeight = 'auto',
+                sheetWidth = '',
+                type = 'normal'
+            } = options;
+
+            if (!name) {
                 console.error('Sheet name is missing in the options');
                 return;
             }
 
-            this.safeShow = true;
-
-            M.safeShowDialog(options.name, () => {
+            const render = () => {
                 super.show(options);
-                // clear() already removes this on hide, but nothing ever added it, so no sheet could
-                // be targeted by its own name in CSS. Added here to make that hook actually work.
                 this.domNode.classList.add(options.name);
-                this.type = options.type || 'normal';
-                this.height = options.sheetHeight || 'auto';
-                this.width = options.sheetWidth || '';
-                this.preventBgClosing = options.preventBgClosing || false;
-                this.onClose = options.onClose;
-                if (!options.noBlurBackground) {
+
+                this.type = type;
+                this.height = sheetHeight;
+                this.width = sheetWidth;
+                this.preventBgClosing = preventBgClosing;
+                this.onClose = onClose;
+                this.confirmClose = confirmClose;
+
+                if (!noBlurBackground) {
                     document.documentElement.classList.add('overlayed');
                 }
-            });
+            };
+
+            this.safeShow = safeShow;
+
+            if (safeShow) {
+                M.safeShowDialog(name, render);
+            }
+            else {
+                render();
+            }
         }
         else {
             if (!this.type) {
@@ -188,18 +235,24 @@ class MegaSheet extends MegaOverlay {
             document.documentElement.classList.add('overlayed');
         }
 
-        if (mega.ui.overlay.visible) {
-            mega.ui.overlay.domNode.classList.add('arrange-to-back');
-        }
+        this._arrangeToBack();
 
         mainlayout.classList.add('fm-overlay');
         tryCatch(() => document.activeElement.blur())();
 
-        document.addEventListener('keydown', this._escHandler);
+        this._onEscape = options && typeof options.onEscape === 'function'
+            ? options.onEscape
+            : this._escHandler;
+
+        document.addEventListener('keydown', this._onEscape);
     }
 
     hide(name) {
         mega.ui.overlay.domNode.classList.remove('arrange-to-back');
+
+        if (this.arrangedNode) {
+            this.arrangedNode.classList.remove('arrange-to-back');
+        }
 
         if ($.msgDialog && this.hasClass('msg-dialog')) {
             closeMsg(null);
@@ -213,7 +266,7 @@ class MegaSheet extends MegaOverlay {
 
         super.hide(name);
 
-        document.removeEventListener('keydown', this._escHandler);
+        document.removeEventListener('keydown', this._onEscape);
     }
 
     clear() {
@@ -226,6 +279,7 @@ class MegaSheet extends MegaOverlay {
         delete this.domNode.megaSheetType;
         delete this.domNode.megaSheetHeight;
         delete this.domNode.megaSheetWidth;
+        delete this.arrangedNode;
 
         super.clear();
     }
@@ -254,7 +308,9 @@ class MegaSheet extends MegaOverlay {
 }
 
 MegaSheet.typeClass = {
+    base: 'base',
     normal: 'normal',
+    high: 'high',
     modal: 'modal-dialog',
     modalLeft: 'modal-dialog-left'
 };

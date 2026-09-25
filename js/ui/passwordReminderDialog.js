@@ -494,6 +494,7 @@
                 contents: [this.initDialogContents()],
                 showClose: true,
                 icon: 'bell',
+                type: 'base'
             };
             if (is_mobile) {
                 options.onClose = () => this.hideDialog();
@@ -518,7 +519,6 @@
                     eventlog(500318);
                 };
                 mega.ui.sheet.show(options);
-                mega.ui.sheet.addClass(this.NAMESPACE);
             }
 
             if (promise) {
@@ -543,7 +543,6 @@
             const component = is_mobile ? mega.ui.overlay : mega.ui.sheet;
 
             if (component.name === this.NAMESPACE) {
-                component.removeClass(this.NAMESPACE);
                 component.hide();
                 component.clear();
             }

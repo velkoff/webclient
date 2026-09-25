@@ -1178,7 +1178,8 @@ mBroadcaster.once('boot_done', function populate_l() {
     l[7996] = escapeHTML(l[7996]).replace('[S]', '<span class="purchase">').replace('[/S]', '</span>');
 
     l[8436] = escapeHTML(l[8436])
-        .replace('[/A]', '</a>').replace('[A]', '<a class="red clickurl" target="_blank" href="/support">');
+        .replace('[/A]', '</a>')
+        .replace('[A]', '<a class="red clickurl" target="_blank" href="/support" rel="noopener">');
     l[8853] = escapeHTML(l[8853])
         .replace('[A]', '<a class="clickurl" target="_blank" href="/support">')
         .replace('[/A]', '</a>');

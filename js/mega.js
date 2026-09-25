@@ -1950,13 +1950,9 @@ scparser.$finalize = async() => {
             }
 
             if ($.dialog === 'share') {
+
                 // Re-render the content of the Access list in the Share dialog
                 mega.ui.mShareDialog.renderAccessList();
-            }
-
-            if ($.dialog === 'share-access-contacts-dialog') {
-                // Re-render the contents of the Share Collaborators dialog and its Access list
-                mega.ui.mShareCollaboratorsDialog.render();
             }
         });
 

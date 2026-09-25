@@ -1,0 +1,177 @@
+.mega-component.dropdown {
+    background: var(--mobile-page-background);
+    border-radius: 12px;
+    border: 1px solid var(--mobile-border-strong);
+    box-shadow: var(--mobile-shadow-medium);
+    box-sizing: border-box;
+    padding: 4px;
+    position: fixed;
+    z-index: 130;
+}
+
+.mega-component.dropdown .dropdown-body {
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+
+/* List */
+
+.mega-component.dropdown .dropdown-item {
+    align-items: center;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    height: auto;
+    padding: 12px 16px;
+    user-select: none;
+    white-space: normal;
+    width: 100%;
+}
+
+.mega-component.dropdown .dropdown-item > * ~ * {
+    margin-inline-start: 16px;
+}
+
+.mega-component.dropdown .dropdown-item.active {
+    background: var(--mobile-surface-1);
+}
+
+.mega-component.dropdown .dropdown-item-icon i {
+    --icons-size: 24px;
+    flex: 0;
+}
+
+.mega-component.dropdown .dropdown-item-avatar *:not(span) {
+    align-items: center;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    height: 24px;
+    justify-content: center;
+    text-align: center;
+    width: 24px;
+}
+
+.mega-component.dropdown .dropdown-item-body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.mega-component.dropdown .dropdown-item-name {
+    color: var(--mobile-text-primary);
+    font: var(--mobile-font-caption-large-semibold);
+}
+
+.mega-component.dropdown .dropdown-item-sub {
+    color: var(--mobile-text-secondary);
+    font: var(--mobile-font-caption-small-regular);
+}
+
+/* showCheck: true */
+
+.mega-component.dropdown.show-check .dropdown-item-body {
+    padding-inline-end: 16px;
+}
+
+.mega-component.dropdown.show-check .active .dropdown-item-body {
+    padding-inline-end: 0;
+}
+
+.mega-component.dropdown.show-check .dropdown-item.active::after {
+    display: block;
+    flex: 0 0 16px;
+}
+
+/* Nowrap for items */
+
+.mega-component.dropdown.no-wrap {
+    white-space: nowrap;
+}
+
+.mega-component.dropdown.no-wrap .dropdown-item {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* Select-mode trigger */
+
+.dropdown-trigger {
+    align-items: center;
+    background: var(--mobile-page-background);
+    border: 1px solid var(--mobile-border-strong);
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: var(--mobile-text-primary);
+    cursor: text;
+    display: inline-grid;
+    font: var(--mobile-font-caption-large-regular);
+    gap: 8px;
+    grid-auto-columns: max-content;
+    grid-auto-flow: column;
+    min-height: 40px;
+    outline: none;
+    padding: 7px 11px;
+}
+
+.dropdown-trigger .trigger-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdown-trigger .trigger-arrow {
+    --icon-size: 20px;
+    flex: 0 0 auto;
+}
+
+
+/* Select-mode trigger. Types */
+
+.dropdown-trigger.ghost {
+    background: none;
+    border: 0;
+    color: var(--mobile-text-secondary);
+    gap: 8px;
+    grid-auto-columns: max-content;
+    grid-auto-flow: column;
+    min-height: 0;
+}
+
+.dropdown-trigger.ghost.ghost i {
+    --icon-size: 16px;
+    --mask-color: var(--mobile-icon-primary);
+}
+
+.dropdown-trigger.ghost.sm-size {
+    font: var(--mobile-font-caption-small-regular);
+    padding: 3px 8px;
+}
+
+
+/* States */
+
+/* States. Focused state. */
+
+.dropdown-trigger:focus-within {
+    border-color: var(--mobile-border-strong-selected);
+}
+
+/* States. Hover state. Only for non-touch devices. */
+
+@media (hover: hover) {
+
+    .dropdown-trigger.ghost:hover {
+        color: var(--mobile-text-primary);
+    }
+    
+    .dropdown-trigger.ghost.ghost:hover i {
+        --mask-color: var(--mobile-icon-primary);
+    }
+
+}
+
