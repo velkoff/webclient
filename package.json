@@ -82,7 +82,7 @@
     "postcss-url": "10.1.4",
     "posthtml": "0.16.7",
     "posthtml-urls": "1.0.0",
-    "webpack": "5.110.3",
+    "webpack": "5.111.1",
     "webpack-cli": "7.2.3"
   },
   "devDependencies": {
