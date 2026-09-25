@@ -1,0 +1,166 @@
+.mega-component.chip-input {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.mega-component.chip-input.dropdown-attached {
+    position: relative;
+    z-index: 131;
+}
+
+
+/* Bordered field that contains the chips + editor */
+
+.mega-component.chip-input .chip-field {
+    background: var(--mobile-page-background);
+    border: 1px solid var(--mobile-border-strong);
+    border-radius: 8px;
+    box-sizing: border-box;
+    cursor: text;
+}
+
+.mega-component.chip-input.has-error .chip-field {
+    border-color: var(--mobile-text-error);
+}
+
+.mega-component.chip-input .chip-error {
+    color: var(--mobile-text-error);
+    display: none;
+    font: var(--mobile-font-caption-large-regular);
+    margin-top: 4px;
+}
+
+.mega-component.chip-input.has-error .chip-error {
+    display: block;
+}
+
+.mega-component.chip-input .chip-editor {
+    align-items: center;
+    box-sizing: border-box;
+    caret-color: var(--mobile-text-primary);
+    color: var(--mobile-text-primary);
+    cursor: text;
+    display: grid;
+    font: var(--mobile-font-caption-large-regular);
+    gap: 8px;
+    grid-auto-columns: max-content;
+    grid-auto-flow: column;
+    min-height: 38px;
+    outline: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 7px 11px;
+    position: relative;
+    white-space: nowrap;
+    scrollbar-width: none;
+}
+
+.mega-component.chip-input .chip-editor::-webkit-scrollbar {
+    display: none;
+}
+
+.mega-component.chip-input .chip-editor.is-empty {
+    caret-color: var(--mobile-text-placeholder);
+    color: var(--mobile-text-placeholder);
+    display: block;
+}
+
+.mega-component.chip-input .chip-editor.is-empty::before {
+    content: attr(data-placeholder);
+    color: var(--mobile-text-placeholder);
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+}
+
+.mega-component.chip-input .chip-editor br {
+    display: none;
+}
+
+
+/* Chip */
+
+.mega-component.chip-input .chip {
+    align-items: center;
+    color: var(--mobile-text-primary);
+    background: var(--mobile-button-secondary);
+    border-radius: 16px;
+    box-sizing: border-box;
+    display: inline-flex;
+    font: var(--mobile-font-caption-large-regular);
+    height: 24px;
+    max-width: 220px;
+    padding: 0 12px;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.mega-component.chip-input .chip > * + * {
+    margin-inline-start: 8px;
+}
+
+.mega-component.chip-input .chip-selected {
+    background: var(--mobile-button-secondary-pressed);
+}
+
+
+/* Avatar */
+
+.mega-component.chip-input .chip-avatar *:not(span) {
+    align-items: center;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    font-size: 9px;
+    height: 16px;
+    justify-content: center;
+    text-align: center;
+    width: 16px;
+}
+
+
+/* Label */
+
+.mega-component.chip-input .chip-label {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* Remove */
+
+.mega-component.chip-input .chip-remove {
+    background: none;
+    border: 0;
+    cursor: pointer;
+    outline: none;
+    padding: 0;
+}
+
+.mega-component.chip-input .chip-remove i {
+    --mask-color: var(--mobile-text-primary);
+    border-radius: 4px;
+    margin: 3px;
+}
+
+
+/* States */
+
+/* States. Focused state. */
+
+.mega-component.chip-input .chip-field:focus-within {
+    border-color: var(--mobile-border-strong-selected);
+}
+
+/* States. Hover state. Only for non-touch devices. */
+
+@media (hover: hover) {
+
+    .mega-component.chip-input .chip-remove:hover i {
+        background: var(--mobile-button-secondary-hover);
+    }
+
+}

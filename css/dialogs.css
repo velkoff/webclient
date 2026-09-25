@@ -2130,15 +2130,6 @@ body:not(.in-call) .drag-n-drop.overlay.chat-offset {
         cursor: pointer;
     }
 
-    .mega-sheet.export-links-dialog,
-    .mega-sheet.export-links-settings-dialog,
-    .mega-sheet.link-embed-dialog,
-    .mega-sheet.link-settings-discard-dialog,
-    .mega-sheet.migrate-dialog,
-    .mega-sheet.remove-link-dialog {
-        z-index: 1111;
-    }
-
     .mega-sheet.export-links-dialog .link-access-text {
         color: var(--mobile-text-info);
         margin: 12px 0 28px;
@@ -2151,7 +2142,7 @@ body:not(.in-call) .drag-n-drop.overlay.chat-offset {
     .mega-sheet.export-links-dialog .title {
         width: 100%;
     }
-
+ 
     .mega-sheet.export-links-dialog .main {
         max-height: 490px;
     }
@@ -4133,127 +4124,281 @@ body:not(.in-call) .drag-n-drop.overlay.chat-offset {
 
 /* fingerprint-dialog */
 
-    .mega-dialog.fingerprint-dialog {
-        width: 750px;
+    body.web-desktop .mega-sheet.fingerprint-dialog .sheet {
+        max-width: 750px;
     }
-    .mega-dialog.fingerprint-dialog .fingerprint-txt {
-        color: var(--text-color-medium);
-        text-transform: uppercase;
+
+    .mega-sheet.fingerprint-dialog .content-block {
+        display: grid;
+        gap: 24px;
     }
-    .mega-dialog.fingerprint-dialog .fingerprint-txt span {
-        padding-left: 10px;
-        display: inline-block;
-        width: 42px;
-        height: 19px;
-        box-sizing: border-box;
+
+    .mega-sheet.fingerprint-dialog .content-block > p {
+       margin: 0;
     }
-    .mega-dialog.fingerprint-dialog .fingerprint-txt span {
-        padding: 0 5px;
-        width: auto;
+
+    .mega-sheet.fingerprint-dialog .creds {
+        border: 1px solid var(--mobile-border-subtle);
+        border-radius: var(--mobile-border-radius-medium);
+        color: var(--mobile-text-secondary);
+        column-gap: 16px;
+        display: grid;
+        flex: 0 0 auto;
+        grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+        padding: 8px 24px;
+        row-gap: 8px;
     }
-    .mega-dialog.fingerprint-dialog .fingerprint-bott-txt {
-        padding: 15px 24px;
+
+    .mega-sheet.fingerprint-dialog .creds p {
+        color: var(--mobile-text-primary);
+        font: var(--mobile-font-copy-semibold);
+        grid-column: 1 / -1;
+        margin: 0;
     }
-    .mega-dialog.fingerprint-dialog .fingerprint-mid-txt {
-        padding: 4px;
-        background: var(--banner-background-info);
-        color: var(--banner-text-info);
-        border: 1px solid var(--banner-border-info);
-        border-radius: 4px;
-    }
-    .mega-dialog.fingerprint-dialog .fingerprint-bott-txt {
-        background-color: transparent;
-        padding: 15px 19px 0 0;
-    }
-    .mega-dialog.fingerprint-dialog .fingerprint-bott-txt .fingerprint-txt {
-        padding: 0;
-    }
-    .mega-dialog.fingerprint-dialog .fingerprint-bott-header {
-        padding: 0 5px 9px 5px;
-        font-size: 14px;
-    }
-    .mega-dialog.fingerprint-dialog .fingerprint-mid-info {
-        margin: 24px 0;
+
+    .mega-sheet.fingerprint-dialog .note {
+        background: var(--mobile-notification-info);
+        border-radius: var(--mobile-border-radius-medium);
         display: flex;
+        font: var(--mobile-font-caption-large-regular);
+        padding: 20px 24px;
     }
-    .mega-dialog.fingerprint-dialog .fingerprint-avatar {
-        display: flex;
+
+    .mega-sheet.fingerprint-dialog .note i {
+        --icon-size: 24px;
+        --mask-color: var(--mobile-support-info);
+        margin-inline-end: 8px;
+    }
+
+    .mega-sheet.fingerprint-dialog .contact-data,
+    .mega-sheet.fingerprint-dialog .contact-body {
         align-items: center;
+        display: flex;
+        overflow: hidden;
     }
-    .mega-dialog.fingerprint-dialog .fingerprint-avatar div {
-        width: 64px;
+
+    .mega-sheet.fingerprint-dialog .contact-body {
+        flex: 1 1 auto;
+        margin-inline-end: 24px;
+    }
+
+    .mega-sheet.fingerprint-dialog .contact-data .creds {
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    .mega-sheet.fingerprint-dialog .contact-avatar {
+        margin-inline-end: 16px;
+    }
+
+    .mega-sheet.fingerprint-dialog .contact-avatar *:not(span) {
+        align-items: center;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        font-size: 28px;
         height: 64px;
-    }
-    .mega-dialog.fingerprint-dialog .fingerprint-avatar .avatar-wrapper {
-        display: flex;
-        align-items: center;
         justify-content: center;
-        font: var(--text-h1);
+        text-align: center;
+        width: 64px;
     }
-    .mega-dialog.fingerprint-dialog .fingerprint-code {
-        width: 270px;
-        margin-left: auto;
-        padding: 14px 18px 12px 18px;
-        background: var(--surface-grey-1);
-        border-radius: 8px;
-        box-sizing: border-box;
-    }
-    .mega-dialog.fingerprint-dialog .fingerprint-code .contact-fingerprint-title {
-        padding: 0 5px 17px 5px;
-        height: auto;
-    }
-    .mega-dialog.fingerprint-dialog .fingerprint-contact-info {
-        margin: 0 16px;
-        padding: 21px 0 0 0;
-        max-width: 240px;
-    }
-    .mega-dialog.fingerprint-dialog .fingerprint-contact-info .contact-details-user-name,
-    .mega-dialog.fingerprint-dialog .fingerprint-contact-info .contact-details-email {
+
+    .mega-sheet.fingerprint-dialog .contact-info {
+        color: var(--mobile-text-secondary);
+        flex: 1 1 auto;
+        font: var(--mobile-font-copy-regular);
+        overflow: hidden;
         white-space: nowrap;
+    }
+
+    .mega-sheet.fingerprint-dialog .contact-info * {
+        min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
-        display: block;
-        float: none;
-        padding-right: 0;
     }
-    .mega-dialog.fingerprint-dialog .business-subuser-confirm {
+
+    .mega-sheet.fingerprint-dialog .contact-info .name {
+        color: var(--mobile-text-primary);
+        font: var(--mobile-font-heading-h3);
+    }
+
+    .mega-sheet.fingerprint-dialog .business-subuser-confirm {
         display: none;
     }
-    .mega-dialog.fingerprint-dialog.admin-verify .business-subuser-confirm {
-        background-image: url(../images/mega/fingerprint-icon.svg);
+
+    .mega-sheet.fingerprint-dialog.admin-verify .business-subuser-confirm {
+        background-image: url('../images/mega/fingerprint-icon.svg');
         background-repeat: no-repeat;
         background-position: center;
         width: 140px;
         height: 102px;
         display: block;
     }
-    .mega-dialog.fingerprint-dialog.admin-verify header {
+
+    .mega-sheet.fingerprint-dialog.admin-verify header {
         align-content: center;
         justify-content: center;
         align-items: center;
         gap: 16px;
     }
-    .mega-dialog.fingerprint-dialog.admin-verify header h2 {
+
+    .mega-sheet.fingerprint-dialog.admin-verify header h2 {
         text-align: center;
     }
-    .mega-dialog.fingerprint-dialog.admin-verify .content-block > p {
+
+    .mega-sheet.fingerprint-dialog.admin-verify .content-block > p {
         text-align: center;
     }
-    .mega-dialog.fingerprint-dialog.admin-verify footer button.dialog-skip-button {
-        display: none;
-    }
-    .mega-dialog.fingerprint-dialog.admin-verify footer .footer-container {
-        justify-content: center;
-        align-items: center;
-    }
-    .mega-dialog.fingerprint-dialog.e-modal button.js-close,
-    .mega-dialog.fingerprint-dialog.e-modal button.dialog-skip-button,
-    .mega-dialog.fingerprint-dialog.admin-verify button.js-close,
-    .mega-dialog.fingerprint-dialog.admin-verify button.dialog-skip-button {
-        display: none;
+
+    @media only screen and (max-width: 680px) {
+
+        .mega-sheet.fingerprint-dialog .contact-data {
+            align-items: normal;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .mega-sheet.fingerprint-dialog .contact-body {
+            margin: 0 0 24px;
+        }
+
+        .mega-sheet.fingerprint-dialog .contact-data .creds {
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+        }
+
     }
 
 /* end fingerprint-dialog */
+
+/* credentials-warning-dialog */
+
+    body.web-desktop .mega-sheet.credentials-warning-dialog .sheet {
+        max-width: 680px;
+    }
+
+    .mega-sheet.credentials-warning-dialog .content-block {
+        display: grid;
+        gap: 24px;
+    }
+
+    .mega-sheet.credentials-warning-dialog .content-block p {
+        margin: 12px 0 0;
+    }
+
+    .mega-sheet.credentials-warning-dialog .content-block p.title {
+        font-weight: 600;
+        margin: 24px 0 0;
+    }
+
+    .mega-sheet.credentials-warning-dialog .content-block button {
+        margin: 24px 0 0;
+    }
+
+    .mega-sheet.credentials-warning-dialog .contact-wrap {
+        display: flex;
+    }
+
+    .mega-sheet.credentials-warning-dialog .contact-avatar {
+        margin-inline-end: 16px;
+    }
+
+    .mega-sheet.credentials-warning-dialog .contact-avatar *:not(span) {
+        align-items: center;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        flex: 0 0 auto;
+        font-size: 28px;
+        height: 64px;
+        justify-content: center;
+        text-align: center;
+        width: 64px;
+    }
+
+    .mega-sheet.credentials-warning-dialog .creds {
+        border: 1px solid var(--mobile-border-subtle);
+        border-radius: var(--mobile-border-radius-medium);
+        display: grid;
+        padding: 8px 24px;
+        row-gap: 8px;
+    }
+
+    .mega-sheet.credentials-warning-dialog .creds p {
+        color: var(--mobile-text-primary);
+        font: var(--mobile-font-copy-semibold);
+        margin: 0;
+    }
+
+    .mega-sheet.credentials-warning-dialog .fingerprint {
+        color: var(--mobile-text-secondary);
+        column-gap: 16px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+        width: 100%;
+    }
+
+    .mega-sheet.credentials-warning-dialog .info .high,
+    .mega-sheet.credentials-warning-dialog .fingerprint .mismatch {
+        color: var(--mobile-text-error);
+    }
+
+    .mega-sheet.credentials-warning-dialog .info .normal::before {
+        content: ' ';
+        display: inline;
+    }
+
+    .mega-sheet.credentials-warning-dialog .info .email {
+        color: var(--mobile-text-primary);
+        font-weight: 600;
+    }
+
+    .mega-sheet.credentials-warning-dialog .highlight-bg .creds {
+        background: var(--mobile-surface-1);
+    }
+
+/* end credentials-warning-dialog */
+
+/* key-signature-warning-dialog */
+
+    body.web-desktop .mega-sheet.key-signature-warning-dialog .sheet {
+        max-width: 640px;
+    }
+
+    .mega-sheet.key-signature-warning-dialog .contact-wrap {
+        display: flex;
+    }
+
+    .mega-sheet.key-signature-warning-dialog .contact-avatar {
+        margin-inline-end: 16px;
+    }
+
+    .mega-sheet.key-signature-warning-dialog .contact-avatar *:not(span) {
+        align-items: center;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        flex: 0 0 auto;
+        font-size: 28px;
+        height: 64px;
+        justify-content: center;
+        text-align: center;
+        width: 64px;
+    }
+
+.mega-sheet.key-signature-warning-dialog .info .high {
+    color: var(--mobile-text-error);
+}
+
+.mega-sheet.key-signature-warning-dialog .info .normal::before {
+    content: ' ';
+    display: inline;
+}
+
+.mega-sheet.key-signature-warning-dialog .info .email {
+    color: var(--mobile-text-primary);
+    font-weight: 600;
+}
+
+/* end key-signature-warning-dialog */
 
 /* contact verification dialog */
 
@@ -5131,113 +5276,19 @@ body:not(.in-call) .drag-n-drop.overlay.chat-offset {
 
 /* contact-info dialog */
 
-    .mega-dialog.contact-info {
-        width: 560px;
+    body.web-desktop .mega-sheet.contact-info .sheet {
+        max-width: 640px;
+    }
+
+    .mega-sheet.contact-info .icon-email-link-3d {
+        background-image: url('../images/mega/icons-3d/icon-email-link-3d.png');
+        background-size: 81px auto;
+        height: 86px;
+        margin: 0 0 8px;
+        width: 81px;
     }
 
 /* end contact-info dialog */
-
-/* credentials-warning-dialog */
-
-    .mega-dialog.credentials-warning-dialog {
-        width: 600px;
-        z-index: 1101;
-        overflow: hidden;
-    }
-    .mega-dialog.credentials-warning-dialog .avatarAndWarningMessage {
-        overflow: hidden;
-    }
-    .mega-dialog.credentials-warning-dialog .userAvatar {
-        float: left;
-    }
-    .mega-dialog.credentials-warning-dialog .information {
-        float: left;
-        margin-inline-start: 20px;
-        width: 390px;
-    }
-    .mega-dialog.credentials-warning-dialog .information.noAvatar {
-        margin-inline-start: 0;
-        width: auto;
-    }
-    .mega-dialog.credentials-warning-dialog .information .firstLine {
-        color: var(--text-color-error);
-    }
-    .mega-dialog.credentials-warning-dialog .information .emailAddress {
-        color: var(--text-color-high);
-    }
-    .mega-dialog.credentials-warning-dialog .userAvatar img {
-        border-radius: 50%;
-        height: 90px;
-        width: 90px;
-    }
-    .mega-dialog.credentials-warning-dialog .previousCredentials .title {
-        color: var(--text-color-high);
-    }
-    .mega-dialog.credentials-warning-dialog .previousCredentials,
-    .mega-dialog.credentials-warning-dialog .newCredentials,
-    .mega-dialog.credentials-warning-dialog .postResetCredentials,
-    .mega-dialog.credentials-warning-dialog .avatarAndWarningMessage {
-        margin-bottom: 40px;
-    }
-    .mega-dialog.credentials-warning-dialog .previousCredentials .fingerprint,
-    .mega-dialog.credentials-warning-dialog .newCredentials .fingerprint,
-    .mega-dialog.credentials-warning-dialog .postResetCredentials .fingerprint {
-        font-family: monospace, sans-serif;
-        font-size: 14px;
-        margin-inline-start: -4px;
-        margin-top: 10px;
-        text-transform: uppercase;
-        border: 1px solid var(--stroke-grey-2);
-        border-radius: 4px;
-        height: 36px;
-        line-height: 34px;
-        background: var(--surface-grey-1);
-    }
-    .mega-dialog.credentials-warning-dialog .previousCredentials .fingerprint > span,
-    .mega-dialog.credentials-warning-dialog .newCredentials .fingerprint > span,
-    .mega-dialog.credentials-warning-dialog .postResetCredentials .fingerprint > span {
-        display: inline-block;
-        text-align: center;
-        width: 44px;
-    }
-    .mega-dialog.credentials-warning-dialog .newCredentials span.mismatch {
-        color: var(--text-color-error);
-    }
-    .mega-dialog.credentials-warning-dialog .newCredentials .title {
-        color: var(--text-color-error);
-        font-weight: bold;
-    }
-    .mega-dialog.credentials-warning-dialog .newCredentials .title.reset {
-        color: var(--text-color-high);
-    }
-    .mega-dialog.credentials-warning-dialog .resetCredentials .title {
-        margin-bottom: 10px;
-    }
-    .credentials-warning-dialog .resetCredentials .reset-credentials-button {
-        margin-top: 24px;
-    }
-    .mega-dialog.credentials-warning-dialog .verifyCredentials .verify-contact-button {
-        margin-top: 24px;
-    }
-    .mega-dialog.credentials-warning-dialog .postResetCredentials .title,
-    .mega-dialog.credentials-warning-dialog .verifyCredentials .title {
-        color: var(--text-color-high);
-    }
-    .mega-dialog.credentials-warning-dialog .instruction {
-        padding: 3px 20px;
-    }
-    .mega-dialog.credentials-warning-dialog .instruction .reject {
-        color: var(--text-color-error);
-    }
-    .mega-dialog.credentials-warning-dialog .instruction .accept {
-        color: var(--text-color-success);
-    }
-    .mega-dialog.credentials-warning-dialog .highlighted-section {
-        padding-top: 16px;
-        padding-bottom: 16px;
-    }
-
-/* end credentials-warning-dialog */
 
 /* cancel-subscription-benefits */
 
@@ -5469,26 +5520,6 @@ body:not(.in-call) .drag-n-drop.overlay.chat-offset {
     .mega-dialog.download-dialog .download-chrome-lnk span {
         vertical-align: middle;
     }
-
-/* key-signature-warning-dialog */
-
-    .mega-dialog.key-signature-warning-dialog {
-        z-index: 1101;
-    }
-    .mega-dialog.key-signature-warning-dialog .information .firstLine {
-        color: var(--text-color-error);
-        font-weight: bold;
-    }
-    .mega-dialog.key-signature-warning-dialog .information .emailAddress {
-        color: var(--text-color-high);
-    }
-    .mega-dialog.key-signature-warning-dialog .userAvatar img {
-        height: 100%;
-        width: 100%;
-        border-radius: 50%;
-    }
-
-/* end key-signature-warning-dialog */
 
 /* bitcoin-invoice-dialog */
 

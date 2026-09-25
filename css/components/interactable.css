@@ -239,6 +239,17 @@ button.nav-elem.no-active:active,
     background: var(--mobile-button-error-hover);
 }
 
+.nav-elem.link.text-only.destructive,
+.nav-elem.link.text-only.destructive:active,
+.nav-elem.link.text-only.destructive:hover {
+    background: none;
+    color: var(--mobile-text-error);
+}
+
+.nav-elem.link.text-only.destructive:hover span {
+    color: var(--mobile-text-error);
+}
+
 .nav-elem.text-only,
 .nav-elem.text-icon,
 .nav-elem.text-only.no-active:active,
@@ -368,6 +379,10 @@ button.nav-elem.no-active:active,
 }
 
 /* underlined text */
+
+.nav-elem.underline {
+    text-decoration: none;
+}
 
 .nav-elem.underline span,
 .nav-elem.underline-offset-4 span {

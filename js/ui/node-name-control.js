@@ -54,7 +54,6 @@ class NodeNameControl {
                 closeFired = true;
                 onClose();
             }
-            mega.ui.sheet.removeClass('node-name-dialog');
         };
 
         if (!typeInfo) {
@@ -85,7 +84,7 @@ class NodeNameControl {
         M.safeShowDialog(typeInfo.name, () => {
             mega.ui.sheet.clear();
 
-            mega.ui.sheet.type = is_mobile ? 'modal' : 'normal';
+            mega.ui.sheet.type = is_mobile ? 'modal' : 'high';
 
             mega.ui.sheet.showClose = true;
 
