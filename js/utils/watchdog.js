@@ -142,6 +142,33 @@ lazy(self, 'watchdog', () => {
                 mega.halt('ack:halt', data);
             }
         },
+        'halt(switch-session)'(data) {
+            if (storage.atfs || !M.hasPendingTransfers()) {
+                if (data[0]) {
+                    console.assert(u_storage === sessionStorage);
+
+                    const acc = [];
+                    for (let i = u_storage.length; i--;) {
+                        const k = u_storage.key(i);
+                        if (k && k.startsWith('@cc$witch!')) {
+                            acc.push([k, u_storage.getItem(k)]);
+                        }
+                    }
+                    u_storage.clear();
+                    for (let i = acc.length; i--;) {
+                        u_storage.setItem(acc[i][0], acc[i][1]);
+                    }
+
+                    u_storage.sid = data[1];
+                    u_storage.k = data[2];
+                }
+                if (!pfid && is_fm()) {
+                    pushHistoryState(true, 'fm');
+                }
+                tSleep.race(3, mega.halt('ack:halt').then(() => storage.atfs))
+                    .finally(() => location.reload());
+            }
+        },
         'refresh-account-ui'() {
             if (self.fminitialized) {
                 if (M.account) {

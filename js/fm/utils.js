@@ -356,6 +356,7 @@ MegaUtils.prototype.reload = function megaUtilsReload(force) {
         var apipath = debug && localStorage.apipath;
         var cdlogger = debug && localStorage.chatdLogger;
         const rad = sessionStorage.rad;
+        const subaccs = {};
         const {
             mInfinity,
             megaLiteMode,
@@ -366,6 +367,13 @@ MegaUtils.prototype.reload = function megaUtilsReload(force) {
 
         force = force || sessionStorage.fmAetherReload;
 
+        for (let i = u_storage.length; i--;) {
+            const key = u_storage.key(i);
+            if (key && key.startsWith('@cc$witch!')) {
+                subaccs[key] = u_storage.getItem(key);
+            }
+        }
+
         localStorage.clear();
         sessionStorage.clear();
 
@@ -374,6 +382,10 @@ MegaUtils.prototype.reload = function megaUtilsReload(force) {
             u_storage.privk = privk;
             u_storage.k = u_key;
             localStorage.wasloggedin = true;
+
+            for (const key in subaccs) {
+                u_storage.setItem(key, subaccs[key]);
+            }
         }
 
         if (debug) {

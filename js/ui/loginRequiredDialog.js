@@ -375,7 +375,7 @@
         var $inputs = $('input', $dialog);
         var pageBound = is_mobile || page === 'login';
 
-        if (!is_mobile) {
+        if (!is_mobile && options.showRegister === undefined) {
             options.showRegister = true;
         }
 
@@ -533,10 +533,14 @@
             };
         }
 
+        if (options.notShowRememberMe) {
+            showOptions.classList.push('pro-login-dialog-compact');
+        }
+
         component.show(showOptions);
         // On mobile, footer belongs to the overlay component even on page-bound login.
         placeLangBtnToLogin(is_mobile || !pageBound ? component : null);
-        $inputs.filter('[type="password"]').val('');
+        (options.clearAllInputs ? $inputs : $inputs.filter('[type="password"]')).val('');
         toggleLoginError($dialog);
         toggleLoginContextBanner($dialog);
 
@@ -572,6 +576,9 @@
             hideProLoginDialog();
             loadSubPage('recovery');
         });
+
+        $('.js-login-remember', $dialog).toggleClass('hidden', !!options.notShowRememberMe);
+        $('.login-page-forgot-bl', $dialog).toggleClass('hidden', !!options.notShowForgotPass);
     }
 
     var completePromise = null;
