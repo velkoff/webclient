@@ -1762,7 +1762,7 @@ FileManager.prototype.updFileManagerUI = async function() {
         await renderPromise;
     }
 
-    if (UItree && this.nodeRemovalUIRefresh.pending !== this.currentdirid) {
+    if (UItree && !this.albums && this.nodeRemovalUIRefresh.pending !== this.currentdirid) {
         this.onTreeUIOpen(this.currentdirid);
     }
 
