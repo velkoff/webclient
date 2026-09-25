@@ -1646,7 +1646,8 @@ function closeDialog(ev) {
         tryCatch(mega.onCloseDialogDispatcher)();
     }
 
-    if ($('.mega-dialog.incoming-call-dialog').is(':visible') === true || $.dialog === 'download-pre-warning') {
+    if ($('.mega-dialog.incoming-call-dialog').is(':visible') === true || $.dialog === 'download-pre-warning'
+        || $.msgDialog === 'switch-limit') {
         // managing dialogs should be done properly in the future, so that we won't need ^^ bad stuff like this one
         return false;
     }

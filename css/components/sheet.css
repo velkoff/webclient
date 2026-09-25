@@ -204,6 +204,9 @@ body.web-desktop .mega-sheet .overlay-footer {
     margin-top: 24px;
     border-radius: 0 0 var(--mobile-border-radius-large) var(--mobile-border-radius-large);
 }
+body.web-desktop .mega-sheet.msg-dialog .overlay-footer .flex-row-reverse .nav-elem {
+    flex-shrink: 0;
+}
 
 body.web-desktop .mega-sheet.modal-dialog .actions {
     padding: 24px 48px;

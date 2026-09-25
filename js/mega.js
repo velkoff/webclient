@@ -41,7 +41,7 @@ Object.defineProperties(window, {
 
 // @see {@link fm_fullreload}
 Object.defineProperty(mega, 'halt', {
-    async value(reason) {
+    async value(reason, data) {
         'use strict';
 
         if (self.fminitialized) {
@@ -54,7 +54,7 @@ Object.defineProperty(mega, 'halt', {
             }
 
             mBroadcaster.crossTab.leave();
-            watchdog.notify(`halt(${reason})`);
+            watchdog.notify(`halt(${reason})`, data);
 
             // stop further SC processing
             window.execsc = nop;
@@ -1636,6 +1636,10 @@ scparser.$add('sqac', (a) => {
 
     if (d) {
         console.info(a.a, [a]);
+    }
+
+    if (self.accountSwitcher) {
+        accountSwitcher.onPlanChange();
     }
 
     if (ulmanager.ulOverStorageQuota) {

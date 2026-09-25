@@ -242,7 +242,7 @@ class MegaInteractable extends MegaComponent {
             elm = document.createElement('i');
 
             this.domNode.appendChild(elm);
-            this.domNode.rightIcon = {};
+            this.domNode.rightIcon = {elm};
         }
         if (iconClass === false) {
             elm.remove();

@@ -360,6 +360,9 @@ body.web-desktop .overlay-wrap.pro-login-dialog-overlay .overlay-footer.pro-logi
         margin-bottom: 0;
         min-height: 530px;
     }
+    body.web-desktop .overlay-wrap.pro-login-dialog-overlay.pro-login-dialog-compact .sheet {
+        min-height: 0;
+    }
     body.web-desktop .overlay-wrap.pro-login-dialog-overlay .overlay-footer.pro-login-security-tip {
         display: none;
     }

@@ -15,6 +15,7 @@ function msgDialog(type, title, msg, subMsg, callback, checkboxCallback) {
 
     let dialogType = String(type);
     let showClose;
+    let safeShow = false;
     let isDestructive = false;
     var buttonsArray = is_mobile ? [] : [l.ok_button];
     var icon;
@@ -69,7 +70,6 @@ function msgDialog(type, title, msg, subMsg, callback, checkboxCallback) {
     if (is_mobile) {
 
         let image;
-        let safeShow = false;
 
         // Swap button position for specific types
         if (reverseAction && buttonsArray.length > 1) {
@@ -104,6 +104,11 @@ function msgDialog(type, title, msg, subMsg, callback, checkboxCallback) {
         );
     }
     else {
+        if (type === 'switch-limit') {
+            showClose = false;
+            safeShow = 'switch-limit';
+        }
+
         msgDialog.desktop({
             type,
             title,
@@ -115,7 +120,8 @@ function msgDialog(type, title, msg, subMsg, callback, checkboxCallback) {
             isDestructive,
             buttonsArray,
             reverseAction,
-            icon
+            icon,
+            safeShow
         });
     }
 
@@ -146,7 +152,8 @@ Object.defineProperty(msgDialog, 'desktop', {
             checkboxCallback,
             buttonsArray,
             reverseAction,
-            icon
+            icon,
+            safeShow
         } = opt;
 
         // Checkbox handling: desktop may pass 1 (show close) or a config key
@@ -266,7 +273,7 @@ Object.defineProperty(msgDialog, 'desktop', {
                     buttons: true
                 }
             },
-            false,
+            safeShow,
             showClose
         );
 

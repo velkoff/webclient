@@ -567,6 +567,11 @@ class MegaHeader extends MegaMobileHeader {
 
         mega.ui.header.updateUserName(u_attr.fullname);
         mega.ui.header.updateEmail(u_attr.email);
+
+        if (self.accountSwitcher) {
+            accountSwitcher.buildSwitchAccountMenu();
+        }
+
         mega.ui.header.handleMenu('avatar');
         eventlog(500323);
     }
@@ -847,10 +852,14 @@ class MegaHeader extends MegaMobileHeader {
 
                     $(submenu).addClass('active').position({
                         my: "right top",
-                        at: "left top",
+                        at: "left top-16",
                         of: btn.domNode,
                         collision: "flipfit"
                     });
+
+                    if (options.onMouseOver) {
+                        options.onMouseOver();
+                    }
                 });
 
                 wrapper.addEventListener('mouseleave', () => {
@@ -974,6 +983,24 @@ class MegaHeader extends MegaMobileHeader {
                     .catch(() => {
                         this.domNode.componentSelector('.achievements').hide();
                     });
+            }
+
+            if (u_type > 2 && self.accountSwitcher) {
+                this.switchAccount = _createSubMenu({
+                    submenuClass: 'header-dropdown-menu sub-menu accounts',
+                    items: [
+                        {
+                            componentClassname: 'switch-account',
+                            text: l.switch_account,
+                            rightIcon: 'sprite-fm-mono icon-chevron-right-thin-outline'
+                        }
+                    ]
+                });
+                accountSwitcher.buildSwitchAccountMenu(
+                    this.switchAccount.querySelector('.sub-menu'),
+                    () => this.closeAvatarMenu(),
+                    true
+                );
             }
 
             _buildInteractable({

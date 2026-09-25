@@ -2114,6 +2114,7 @@ else if (!browserUpdate) {
     jsl.push({f:'js/config.js', n: 'config_js', j:1,w:5});
     jsl.push({f:'js/crypto.js', n: 'crypto_js', j:1,w:5});
     jsl.push({f:'js/account.js', n: 'user_js', j:1});
+    jsl.push({f:'js/account-switcher.js', n: 'account_switcher_js', j:1});
     jsl.push({f:'js/security.js', n: 'security_js', j: 1, w: 5});
     jsl.push({f:'js/two-factor-auth.js', n: 'two_factor_auth_js', j: 1, w: 5});
     jsl.push({f:'js/attr.js', n: 'mega_attr_js', j:1});
@@ -4099,6 +4100,13 @@ else if (!browserUpdate) {
                         if (sessionStorage.sid) {
                             data.k = sessionStorage.k;
                             data.sid = sessionStorage.sid;
+
+                            for (var i = sessionStorage.length; i--;) {
+                                var sk = sessionStorage.key(i);
+                                if (sk && sk.indexOf('@cc$witch!') === 0) {
+                                    (data.acc = data.acc || {})[sk] = sessionStorage.getItem(sk);
+                                }
+                            }
                         }
 
                         setTimeout(function() {
@@ -4112,6 +4120,11 @@ else if (!browserUpdate) {
                             if (value.sid) {
                                 u_storage.k = value.k;
                                 u_storage.sid = value.sid;
+                            }
+                            if (value.acc) {
+                                for (var ak in value.acc) {
+                                    sessionStorage.setItem(ak, value.acc[ak]);
+                                }
                             }
                             ack();
                         }
