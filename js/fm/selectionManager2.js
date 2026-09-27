@@ -1145,6 +1145,7 @@ class SelectionManager2_DOM extends SelectionManager2Base {
             }
 
             __showBtn('download');
+            __showBtn('info');
         }
         else if (isMegaList) {
             __showBtn('options');

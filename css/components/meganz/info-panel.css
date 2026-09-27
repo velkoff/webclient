@@ -232,6 +232,7 @@
 .mega-component.menu-container.overlay-wrap.info-tags-menu {
     padding: 0;
     min-width: 270px;
+    z-index: 300;
 }
 .info-tags-menu .info-tag-prompt {
     font: var(--mobile-font-caption-large-regular);

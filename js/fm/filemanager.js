@@ -3692,7 +3692,18 @@ FileManager.prototype.initStatusBarLinks = function() {
             openMoveDialog();
         }
         else if (this.classList.contains('info')) {
-            mega.ui.mInfoPanel.show($.selected);
+            if (M.isAlbumsPage()) {
+                if (
+                    mega.gallery.albums.grid &&
+                    mega.gallery.albums.grid.timeline &&
+                    mega.gallery.albums.grid.timeline.selections
+                ) {
+                    mega.ui.mInfoPanel.show(Object.keys(mega.gallery.albums.grid.timeline.selections));
+                }
+            }
+            else {
+                mega.ui.mInfoPanel.show($.selected);
+            }
             if (M.isGalleryPage()) {
                 eventlog(501107);
             }
