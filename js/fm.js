@@ -1242,6 +1242,14 @@ function FMShortcuts() {
             !M.gallery &&
             !M.albums
         ) {
+            // Backspace goes one level up, Ctrl/Cmd+Backspace still removes
+            if (!e.ctrlKey && !e.metaKey) {
+                if (!$.msgDialog && !(e.originalEvent && e.originalEvent.repeat)) {
+                    M.openParentFolder();
+                }
+                return false;
+            }
+
             if (M.isInvalidUserStatus() || $.msgDialog === 'remove') {
                 return;
             }
