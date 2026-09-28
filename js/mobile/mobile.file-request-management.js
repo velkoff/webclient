@@ -71,6 +71,7 @@ mobile.fileRequestManagement = {
             confirmClose: () => this.confirmDiscardChanges(),
             contents: [this.container]
         });
+        this.titleMegaInput.$input.trigger('input.autoHeight');
         this.addButtons();
     },
 
@@ -129,9 +130,8 @@ mobile.fileRequestManagement = {
 
         const isManage = !!this.puHandleObject;
         // Title input field
-        const frTitleInput = document.createElement('input');
+        const frTitleInput = document.createElement('textarea');
         frTitleInput.maxLength = 80;
-        frTitleInput.type = 'text';
         frTitleInput.title = l.file_request_dialog_label_title;
         frTitleInput.className = 'fr-title-field underlinedText lengthChecker';
         frTitleInput.id = 'fr-title-field';
@@ -142,8 +142,24 @@ mobile.fileRequestManagement = {
         this.container.append(frTitleInput);
 
         this.currentTitle = frTitleInput.value;
-        this.titleMegaInput = new mega.ui.MegaInputs($(frTitleInput));
+        this.titleMegaInput = new mega.ui.MegaInputs($(frTitleInput), {
+            autoHeight: true
+        });
         this.titleMegaInput.$wrapper.addClass('box-style fr-title-field msg-left fixed-width mobile');
+
+        // Keep the title single line same as <input>
+        this.titleMegaInput.$input
+            .rebind('keydown.frTitle', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                }
+            })
+            .rebind('input.frTitle', (e) => {
+                if (/[\n\r]/.test(e.target.value)) {
+                    e.target.value = e.target.value.replace(/[\n\r]+/g, ' ');
+                    $(e.target).trigger('input.autoHeight');
+                }
+            });
 
         // Description textarea field
         const textarea = document.createElement('textarea');
