@@ -91,7 +91,11 @@ lazy(mega.slideshow.settings, 'caption', () => {
                 return;
             }
             const { $caption } = caption;
-            if ($caption.hasClass('hidden') || !$caption[0].offsetParent) {
+            if (
+                $caption.hasClass('hidden') ||
+                !$caption[0].offsetParent ||
+                !this.next && !$caption.hasClass('active')
+            ) {
                 return;
             }
 
