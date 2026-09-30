@@ -7,14 +7,15 @@
  * items ({name, email|id, handle}) and draws an avatar + name + email.
  *
  * @example
- * const dd = new MegaDropdown({parentNode});
+ * const dd = new MegaAnchoredDropdown({parentNode});
  * dd.on('select', item => ...);
  * dd.show({target: anchorNode, items});
  * // keyboard, driven by the host input: dd.selectNext()/selectPrev()/confirm()
  *
  * Events: "select" (the chosen item).
  */
-class MegaDropdown extends MegaComponent {
+// TODO: merge with pwn dropdown component
+class MegaAnchoredDropdown extends MegaComponent {
 
     constructor(options) {
         super(options);
