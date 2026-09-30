@@ -3544,6 +3544,12 @@ function process_suba(suba, ignoreDB) {
         return;
     }
 
+    // In memory now: the catch-up ssc packets run before fm:initialized and must update these
+    // objects, not be overwritten by this older snapshot once the parsing below runs.
+    for (let i = suba.length; i--;) {
+        M.suba[suba[i].u] = suba[i];
+    }
+
     M.onFileManagerReady(() => {
 
         M.require('businessAcc_js', 'businessAccUI_js').done(() => {
