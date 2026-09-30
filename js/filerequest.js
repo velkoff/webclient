@@ -1112,6 +1112,9 @@ lazy(mega, 'fileRequest', () => {
             this.commonDialog.$dialog.addClass('fr-link-settings');
             this.commonDialog.resetScroll();
 
+            if (this.datepicker) {
+                this.datepicker.clear();
+            }
             this.settings = linkSettings.read(this.puHandleObject);
             this.origSettings = { ...this.settings };
 
@@ -1143,9 +1146,6 @@ lazy(mega, 'fileRequest', () => {
             this.passwordSwitch.show();
             this.sizeSwitch.show();
 
-            if (this.datepicker) {
-                this.datepicker.clear();
-            }
             if (this.settings.expiry) {
                 M.require('datepicker_js').done(() => this.initExpiryDatePicker());
                 this.updateExpiryInputText(new Date(this.settings.expiry * 1000));
