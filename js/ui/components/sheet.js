@@ -13,22 +13,13 @@ class MegaSheet extends MegaOverlay {
                     return false;
                 }
 
-                const doClose = () => {
-                    this.hide();
-                    this.trigger('close');
-
-                    if (typeof this.onClose === 'function') {
-                        this.onClose();
-                    }
-                };
-
                 // Allow the consumer to veto/confirm closing (e.g. unsaved changes).
                 if (typeof this.confirmClose === 'function') {
-                    this.confirmClose().then((ok) => ok && doClose()).catch(tell);
+                    this.confirmClose().then((ok) => ok && this.close()).catch(tell);
                     return;
                 }
 
-                doClose();
+                this.close();
             }
         });
 
@@ -44,9 +35,11 @@ class MegaSheet extends MegaOverlay {
                     sheetElm.style.transform = `translateY(${Math.max(0, -yDiff)}px)`;
                 },
                 onSwipeDown: () => {
+                    if (this.preventBgClosing) {
+                        return;
+                    }
 
-                    this.hide();
-                    this.trigger('close');
+                    this.close();
                 },
                 onTouchEnd: () => {
                     sheetElm.style.transform = '';
@@ -83,8 +76,7 @@ class MegaSheet extends MegaOverlay {
                 return;
             }
 
-            this.hide();
-            this.trigger('close');
+            this.close();
         };
     }
 
@@ -199,21 +191,32 @@ class MegaSheet extends MegaOverlay {
 
             const render = () => {
                 super.show(options);
-                this.domNode.classList.add(options.name);
+                this.domNode.classList.add(name);
 
+                this.name = name;
                 this.type = type;
                 this.height = sheetHeight;
                 this.width = sheetWidth;
                 this.preventBgClosing = preventBgClosing;
                 this.onClose = onClose;
                 this.confirmClose = confirmClose;
+                this.safeShow = safeShow;
 
                 if (!noBlurBackground) {
                     document.documentElement.classList.add('overlayed');
                 }
-            };
 
-            this.safeShow = safeShow;
+                this._arrangeToBack();
+
+                mainlayout.classList.add('fm-overlay');
+                tryCatch(() => document.activeElement.blur())();
+
+                this._onEscape = typeof options.onEscape === 'function'
+                    ? options.onEscape
+                    : this._escHandler;
+
+                document.addEventListener('keydown', this._onEscape);
+            };
 
             if (safeShow) {
                 M.safeShowDialog(name, render);
@@ -233,33 +236,53 @@ class MegaSheet extends MegaOverlay {
 
             super.show();
             document.documentElement.classList.add('overlayed');
+
+            this._arrangeToBack();
+
+            mainlayout.classList.add('fm-overlay');
+            tryCatch(() => document.activeElement.blur())();
+
+            this._onEscape = this._escHandler;
+            document.addEventListener('keydown', this._onEscape);
+        }
+    }
+
+    /**
+     * Close the sheet, firing its onClose exactly once
+     *
+     * @param {String} [name] Optional dialog name to close
+     * @returns {void}
+     */
+    close(name) {
+        // Re-run guard
+        if (this._closing) {
+            return;
         }
 
-        this._arrangeToBack();
+        // Save onClose before clearing
+        const {onClose} = this;
 
-        mainlayout.classList.add('fm-overlay');
-        tryCatch(() => document.activeElement.blur())();
+        this._closing = true;
+        this.hide(name);
+        this._closing = false;
 
-        this._onEscape = options && typeof options.onEscape === 'function'
-            ? options.onEscape
-            : this._escHandler;
+        this.trigger('close');
 
-        document.addEventListener('keydown', this._onEscape);
+        if (typeof onClose === 'function') {
+            onClose();
+        }
     }
 
     hide(name) {
         mega.ui.overlay.domNode.classList.remove('arrange-to-back');
 
-        if (this.arrangedNode) {
-            this.arrangedNode.classList.remove('arrange-to-back');
-        }
-
         if ($.msgDialog && this.hasClass('msg-dialog')) {
             closeMsg(null);
         }
         else if (this.safeShow && $.dialog === (name || this.name)) {
-            closeDialog();
+            // Reset the guard before closeDialog to avoid recursing
             this.safeShow = false;
+            closeDialog();
         }
 
         this.clear();
@@ -270,6 +293,10 @@ class MegaSheet extends MegaOverlay {
     }
 
     clear() {
+        // Prevent them from being reused by a show without opts
+        this.onClose = null;
+        this.confirmClose = null;
+
         this.domNode.classList.remove(this.name, this.type, this.height);
 
         if (this.width) {
@@ -279,7 +306,11 @@ class MegaSheet extends MegaOverlay {
         delete this.domNode.megaSheetType;
         delete this.domNode.megaSheetHeight;
         delete this.domNode.megaSheetWidth;
-        delete this.arrangedNode;
+
+        if (this.arrangedNode) {
+            this.arrangedNode.classList.remove('arrange-to-back');
+            delete this.arrangedNode;
+        }
 
         super.clear();
     }
