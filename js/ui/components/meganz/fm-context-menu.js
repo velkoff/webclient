@@ -555,7 +555,7 @@
                                     for (let i = 0; i < addedNodes.length; i++) {
                                         mega.ui.toast.show(
                                             parseHTML(
-                                                escapeHTML(addedNodes[i].t ? l.folder_added : l.file_added)
+                                                addedNodes[i].t ? l.folder_added : l.file_added
                                                     .replace('%1', escapeHTML(addedNodes[i].name))
                                             )
                                         );
