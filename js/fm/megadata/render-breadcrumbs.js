@@ -551,6 +551,25 @@
     }
 
     /**
+     * Open the parent of the current folder, the same way clicking its breadcrumb does.
+     * @return {undefined}
+     */
+    MegaData.prototype.openParentFolder = function() {
+        let path = this.getPath(this.currentdirid);
+
+        if (this.onDeviceCenter) {
+            path = mega.devices.ui.getFolderChildrenPath(path);
+        }
+
+        // Skip the in-share owner, which has no breadcrumb of its own
+        const parent = path.slice(1).find(h => !this.u.hasOwnProperty(h));
+
+        if (parent) {
+            breadcrumbClickHandler.call(this, parent);
+        }
+    };
+
+    /**
      * Handles clicks on the cloud drive and search breadcrumbs.
      * Note: Must be called with context for `this` to work.
      *
