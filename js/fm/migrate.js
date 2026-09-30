@@ -12,6 +12,7 @@ lazy(mega, 'migrate', () => {
     let targetFolderParent;
     let nodeList;
     let oAuthPoll;
+    let oAuthPopup;
     let onboardingOffset = 0;
     let options = Object.create(null);
 
@@ -359,6 +360,11 @@ lazy(mega, 'migrate', () => {
                         if (prefetchId === ERATELIMIT) {
                             msgDialog('warninga', '', l.mig_fail, l.mig_rate_limit, () => navigate.goToStep(1));
                         }
+                        else if (prefetchId === EACCESS) {
+                            msgDialog('warninga', '', l.mig_oauth_failed, l.mig_oauth_retry, () => {
+                                navigate.goToStep(1);
+                            });
+                        }
                         else if (!prefetchId || Number.isInteger(prefetchId) && prefetchId < 0) {
                             msgDialog('warninga', '', l.mig_fail, l.mig_error, () => navigate.goToStep(1));
                         }
@@ -632,6 +638,14 @@ lazy(mega, 'migrate', () => {
         async runOAuthPopup(providerId) {
             const receiverId = 'storage_migration';
 
+            if (oAuthPoll) {
+                clearInterval(oAuthPoll);
+                oAuthPoll = null;
+            }
+            if (oAuthPopup && !oAuthPopup.closed) {
+                oAuthPopup.close();
+            }
+
             // Pre-open within the user gesture to avoid Safari shenanigans
             // eslint-disable-next-line local-rules/open
             const popup = window.open('', `${receiverId}_oauth_popup`, mega.migrate._popupFeatures(480, 640));
@@ -696,6 +710,7 @@ lazy(mega, 'migrate', () => {
                 }
                 return {error: l.mig_popup_blocked, message: l.mig_popup_blocked_message};
             }
+            oAuthPopup = popup;
 
             return new Promise((resolve) => {
                 // throws cross-origin while on OAuth provider; discard
