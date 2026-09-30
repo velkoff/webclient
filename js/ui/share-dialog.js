@@ -108,8 +108,7 @@ lazy(mega.ui, 'mShareDialog', () => {
          * @returns {void}
          */
         _close() {
-            sheet.trigger('close');
-            sheet.hide();
+            sheet.close();
         }
 
         /**
@@ -1257,8 +1256,7 @@ lazy(mega.ui, 'mShareDialog', () => {
          * @returns {void}
          */
         hide() {
-            sheet.trigger('close');
-            sheet.hide();
+            sheet.close();
         },
     });
 });

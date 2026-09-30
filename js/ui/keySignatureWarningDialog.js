@@ -48,8 +48,7 @@ lazy(mega.ui, 'KeySignatureWarningDialog', () => {
             parentNode: footerNode,
             text: l[148]
         }).on('click.ok', () => {
-            sheet.hide();
-            sheet.trigger('close');
+            sheet.close();
         });
 
         sheet.show({

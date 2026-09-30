@@ -415,8 +415,7 @@ function contactsInfoDialog(title, username, msg) {
         text: l.ok_button,
         componentClassname: 'slim',
     }).on('click.share', () => {
-        sheet.hide();
-        sheet.trigger('close');
+        sheet.close();
     });
 
     sheet.show({
@@ -1687,9 +1686,11 @@ function closeDialog(ev) {
         // verified status may have changed) and bring the Share dialog forward.
         mega.ui.mShareDialog.renderAccessList();
     }
-    else if ($.shareDialog) {
+    else if ($.dialog === 'share' && $.shareDialog) {
+        // Closing the Share dialog itself. Drop its routing flag first so the teardown
+        // below runs and clears $.dialog
+        delete $.shareDialog;
         mega.ui.mShareDialog.hide();
-        return false;
     }
     else if ($.dialog === 'fingerprint-dialog' && window.closeDlgMute) {
         return false;
@@ -2405,10 +2406,7 @@ function fingerprintDialog(userid, isAdminVerify, callback) {
         }
     });
 
-    const close = () => {
-        sheet.hide();
-        sheet.trigger('close');
-    };
+    const close = () => sheet.close();
 
     // Mark the contact's credentials as verified.
     const approve = () => {
