@@ -99,7 +99,8 @@ function u_checklogin3a(res, ctx) {
         r = res;
         ctx.checkloginresult(ctx, r);
     }
-    else {
+    // sid can be changed another tab while reloading, so double check it is same session
+    else if (u_sid === u_storage.sid) {
         u_attr = res;
 
         // u_attr = new Proxy(res, {
@@ -364,6 +365,9 @@ function u_checklogin3a(res, ctx) {
 
                 log99810(ex).catch(dump);
             });
+    }
+    else {
+        location.reload();
     }
 }
 

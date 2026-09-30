@@ -108,48 +108,6 @@
         }
     };
 
-    var set = storage.set = function(data) {
-        data = debloat(data);
-
-        var rsv = ['sid', 'k', 'privk', 'v', 'handle', 'fmconfig', 'attr', 'link'];
-        for (var key in data) {
-            if (!rsv.includes(key) && !key.includes('ath')) {
-                var value = data[key];
-
-
-                if (value) {
-                    if (localStorage[key] !== String(value)) {
-                        console.log('"%s" changed to "%s" from "%s"', key, value, localStorage[key]);
-                    }
-                    else {
-                        console.log('"%s" set to "%s"', key, value);
-                    }
-                    localStorage[key] = value;
-                }
-                else {
-                    if (localStorage[key]) {
-                        console.log('Removed "%s", was "%s"', key, localStorage[key]);
-                    }
-                    delete localStorage[key];
-                }
-            }
-        }
-
-        top.location = getAppBaseUrl() + '#' + (data.link || 'fm');
-    };
-
-    set.dl = function(data) {
-        data = debloat(data);
-
-        for (var key in data) {
-            if (key !== 'link') {
-                sessionStorage['dltf' + key] = data[key] || 1;
-            }
-        }
-
-        set({apipath: 'staging', link: data.link, d: 1, minLogLevel: '0', jj: !is_livesite});
-    };
-
     patchAccountData = function(data) {
         data = Object.assign({
             "mstrg": 214748364800,

@@ -64,12 +64,16 @@ body.mobile .mega-sheet .sheet .main,
     transform: translateY(0);
 }
 
-.mega-sheet.normal .main {
+.mega-sheet.normal .main,
+.mega-sheet.base .main,
+.mega-sheet.high .main {
     align-items: flex-start;
     text-align: start;
 }
 
-body.mobile .mega-sheet.normal .sheet .main {
+body.mobile .mega-sheet.normal .sheet .main,
+body.mobile .mega-sheet.base .sheet .main,
+body.mobile .mega-sheet.high .sheet .main {
     padding: 0;
 }
 
@@ -139,10 +143,20 @@ body.mobile .mega-sheet.normal .sheet .main {
 
 body.web-desktop .mega-sheet {
     justify-content: center;
+    z-index: 1111;
 }
 
-body.web-desktop .mega-sheet.node-name-dialog {
-    z-index: 1201;
+body.web-desktop .mega-sheet.high {
+    z-index: 1200;
+}
+
+body.web-desktop .mega-sheet.base,
+body.web-desktop .mega-sheet.arrange-to-back {
+    z-index: 1110;
+}
+
+body.web-desktop .mega-sheet.arrange-to-back .sheet {
+    filter: blur(0.25em);
 }
 
 body.web-desktop .mega-sheet .sheet {
@@ -190,6 +204,9 @@ body.web-desktop .mega-sheet .overlay-footer {
     margin-top: 24px;
     border-radius: 0 0 var(--mobile-border-radius-large) var(--mobile-border-radius-large);
 }
+body.web-desktop .mega-sheet.msg-dialog .overlay-footer .flex-row-reverse .nav-elem {
+    flex-shrink: 0;
+}
 
 body.web-desktop .mega-sheet.modal-dialog .actions {
     padding: 24px 48px;
@@ -228,12 +245,18 @@ body.web-desktop .mega-sheet.horizontal-actions .actions button.slim {
 body.web-desktop .mega-sheet.horizontal-actions .actions button:not(:first-of-type) {
     margin-inline-start: 16px;
 }
+body.web-desktop .mega-sheet .sheet .header-title .back-btn {
+    margin-bottom: -20px;
+    margin-top: -20px;
+}
+
 body.mobile .mega-sheet .sheet .content .qrcode {
     padding: 16px;
     background-color: rgb(255, 255, 255, 1);
     border-radius: 8px;
     align-self: center;
 }
+
 body.mobile .mega-sheet .sheet .content .qrcode canvas {
     display: block;
 }

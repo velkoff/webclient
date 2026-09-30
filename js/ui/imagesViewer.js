@@ -279,7 +279,10 @@ var slideshowid;
             }
 
             if ($overlay.hasClass('video-theatre-mode')) {
-                mega.slideshow.settings.caption.position();
+                const {caption} = mega.slideshow.settings;
+                if (caption) {
+                    caption.position();
+                }
             }
             else {
                 slideshow_imgPosition($overlay);
@@ -781,9 +784,12 @@ var slideshowid;
     function slideshow_imgPosition($overlay) {
         const $imgWrap = $('.img-wrap', $overlay);
         const $img = $('img.active', $overlay);
+        const {caption} = mega.slideshow.settings;
 
         if ($img.length === 0) {
-            mega.slideshow.settings.caption.position();
+            if (caption) {
+                caption.position();
+            }
             return false;
         }
 
@@ -837,7 +843,10 @@ var slideshowid;
         if (is_mobile && mega.ui.viewerOverlay) {
             mega.ui.viewerOverlay.zoom = imgWidth / origImgWidth * devicePixelRatio * 100;
         }
-        mega.slideshow.settings.caption.positionTo($img);
+
+        if (caption) {
+            caption.positionTo($img);
+        }
     }
 
     function detectEdgesViaCenter(img, container, buffer = 0.05) {
@@ -1713,7 +1722,11 @@ var slideshowid;
         $slideshowControlsUpper.removeClass('hidden');
         $prevNextButtons.addClass('hidden');
         $repeatButton.addClass('disabled').attr('disabled', 'disabled');
-        mega.slideshow.settings.caption.position();
+
+        const {caption} = mega.slideshow.settings;
+        if (caption) {
+            caption.position();
+        }
 
         if (isPaused) {
             const play = mCreateElement('i', { 'class': 'sprite-fm-mono icon-play-thin-solid' });
@@ -2171,10 +2184,12 @@ var slideshowid;
         $content.removeClass('hidden');
         $('.viewer-pending', $content).addClass('hidden');
 
-        const { caption } = mega.slideshow.settings;
+        const {caption} = mega.slideshow.settings;
         const media = MediaAttribute(n).data;
-        caption.positionTo($video, media);
-        $video.rebind('loadedmetadata.caption', () => caption.positionTo($video));
+        if (caption) {
+            caption.positionTo($video, media);
+            $video.rebind('loadedmetadata.caption', () => caption.positionTo($video));
+        }
 
         if (n.name) {
             var c = media && MediaAttribute.getCodecStrings(media);
@@ -2184,8 +2199,8 @@ var slideshowid;
         }
 
         if (previews[id].poster !== undefined) {
-            // $video.attr('poster', previews[id].poster);
-            $video.css('background-image', `url(${previews[id].poster})`);
+            $video.attr('poster', previews[id].poster);
+            // $video.css('background-image', `url(${previews[id].poster})`);
         }
         else if (String(n.fa).indexOf(':1*') > 0) {
             getImage(n, 1).then(function(uri) {

@@ -1,7 +1,7 @@
-.web-desktop .mega-sheet.msg-dialog {
+body.web-desktop .mega-sheet.msg-dialog {
     z-index: 1201;
 }
-.web-desktop.loading .mega-sheet.msg-dialog {
+body.web-desktop.loading .mega-sheet.msg-dialog {
     z-index: 1215;
 }
 .web-desktop .mega-sheet.msg-dialog .sheet {
@@ -24,4 +24,7 @@
 .web-desktop .mega-sheet.msg-dialog .primary-message ul:last-child {
     margin-bottom: 0;
     padding-bottom: 0;
+}
+.web-desktop .mega-sheet.msg-dialog .content .break-word {
+    overflow-wrap: break-word;
 }

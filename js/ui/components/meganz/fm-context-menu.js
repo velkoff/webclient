@@ -555,7 +555,7 @@
                                     for (let i = 0; i < addedNodes.length; i++) {
                                         mega.ui.toast.show(
                                             parseHTML(
-                                                escapeHTML(addedNodes[i].t ? l.folder_added : l.file_added)
+                                                addedNodes[i].t ? l.folder_added : l.file_added
                                                     .replace('%1', escapeHTML(addedNodes[i].name))
                                             )
                                         );
@@ -1655,9 +1655,12 @@
                 text: l[5866],
                 icon: 'sprite-fm-mono icon-log-out-02-thin-outline',
                 onClick() {
-                    if (M.isInvalidUserStatus()) {
+                    const {selectedItems = []} = mega.ui.contextMenu;
+
+                    if (M.isInvalidUserStatus() || !selectedItems.length) {
                         return;
                     }
+
                     const errHandler = ex => {
                         if (ex === EMASTERONLY) {
                             msgDialog(
@@ -1669,9 +1672,30 @@
                         }
                     };
 
-                    for (const handle of mega.ui.contextMenu.selectedItems) {
-                        M.leaveShare(handle).catch(errHandler);
-                    }
+                    const count = selectedItems.length;
+                    const title = count > 1 ? l.share_leave_x_folders_q.replace('%1', count)
+                        : escapeHTML(l.share_leave_folder_q.replace(
+                            '%1', M.getNameByHandle(selectedItems[0])
+                        ));
+                    const msg = count > 1
+                        ? l.share_folders_na_if_leave
+                        : l.share_folder_na_if_leave;
+
+                    msgDialog(
+                        `*warningb:!^${count > 1 ? l.share_leave_folders : l[5866]}!${l.msg_dlg_cancel}`,
+                        '',
+                        title,
+                        msg,
+                        res => {
+                            if (res || res === null) {
+                                return;
+                            }
+
+                            for (const handle of selectedItems) {
+                                M.leaveShare(handle).catch(errHandler);
+                            }
+                        }
+                    );
                 }
             },
             {
@@ -1831,6 +1855,10 @@
                     // otherwise this throws an error about downloading an empty folder then downloads as a zip anyway.
                     array.remove(items, '.download-standart-item');
                 }
+            },
+            '.leaveshare-item': (items, {selectedItems}) => {
+                sections.getChild('delete').getChild('leaveshare-item').text =
+                    selectedItems.length > 1 ? l.share_leave_folders : l[5866];
             },
             '.getlink-item': (items, { selectedItems, stats }) => {
                 const component = sections.getChild('share').getChild('share');

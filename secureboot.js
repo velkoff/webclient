@@ -48,6 +48,10 @@ var is_mobile = (function isMobile() {
     }
 })();
 
+if (self.is_mobile && location.search.includes('?autoplay=')) {
+    is_mobile = false;
+}
+
 var is_android = is_mobile && ua.indexOf('android') > 0;
 var is_uc_browser = is_mobile && ua.indexOf('ucbrowser') > 0;
 var is_ios = is_mobile && (ua.indexOf('iphone') > -1 || ua.indexOf('ipad') > -1 || ua.indexOf('ipod') > -1);
@@ -2114,6 +2118,7 @@ else if (!browserUpdate) {
     jsl.push({f:'js/config.js', n: 'config_js', j:1,w:5});
     jsl.push({f:'js/crypto.js', n: 'crypto_js', j:1,w:5});
     jsl.push({f:'js/account.js', n: 'user_js', j:1});
+    jsl.push({f:'js/account-switcher.js', n: 'account_switcher_js', j:1});
     jsl.push({f:'js/security.js', n: 'security_js', j: 1, w: 5});
     jsl.push({f:'js/two-factor-auth.js', n: 'two_factor_auth_js', j: 1, w: 5});
     jsl.push({f:'js/attr.js', n: 'mega_attr_js', j:1});
@@ -2413,6 +2418,10 @@ else if (!browserUpdate) {
         jsl.push({f:'js/ui/components/meganz/MTab.js', n: 'm_tab_js', j:1});
         jsl.push({f:'js/ui/components/meganz/MTabs.js', n: 'm_tabs_js', j:1});
 
+        // Temporary for desktop only
+        jsl.push({f:'js/ui/components/chip-input.js', n: 'component_chip_input_js', j: 1, w:1});
+        jsl.push({f:'js/ui/components/anchored-dropdown.js', n: 'component_anchored_dropdown_js', j: 1, w:1});
+
         jsl.push({f:'html/top.html', n: 'top', j:0});
         jsl.push({f:'css/style.css', n: 'style_css', j:2, w:30});
         jsl.push({f:'css/tree.css', n: 'tree_css', j:2, w:30});
@@ -2508,6 +2517,8 @@ else if (!browserUpdate) {
         jsl.push({f:'css/components/meganz/fm-left-pane.css', n: 'fm_left_pane_css', j:2, w:30, c:1, d:1, cache:1});
         jsl.push({f:'css/components/meganz/info-panel.css', n: 'info_panel_css', j:2, w:30, c:1, d:1, cache:1});
         jsl.push({f:'css/components/meganz/storage-block.css', n: 'storage_block_css', j:2, w:30, c:1, d:1, cache:1});
+        jsl.push({f:'css/components/chip-input.css', n: 'component_chip_input_css', j:2, w:30, c:1, d:1, cache:1});
+        jsl.push({f:'css/components/dropdown.css', n: 'component_dropdown_css', j:2, w:30, c:1, d:1, cache:1});
 
         // `Meetings` UI styles
         jsl.push({f:'css/chat-bundle.css', n: 'meetings_css', j:2, w:30});
@@ -2565,8 +2576,6 @@ else if (!browserUpdate) {
     jsl.push({f:'js/eaffiliate.js', n: 'eaffiliate_js', j: 1});
     jsl.push({f:'js/utags.js', n: 'utags_js', j: 1});
     jsl.push({f:'js/ui/share-dialog.js', n: 'fm_share_js', j: 1});
-    jsl.push({f:'js/ui/share-unverified-contacts-dialog.js', n: 'fm_share_unverified_contacts_js', j: 1});
-    jsl.push({f:'js/ui/share-collaborators-dialog.js', n: 'fm_share_collaborators_js', j: 1});
     jsl.push({f:'js/fm/message-dialog.js', n: 'fm_message-dialog_js', j: 1, w: 1});
     jsl.push({f:'js/fm/message-overlay.js', n: 'fm_message_overlay_js', j: 1, w: 1});
     jsl.push({f:'js/ui/node-name-control.js', n: 'node_name_control_js', j: 1, w: 1});
@@ -4095,6 +4104,13 @@ else if (!browserUpdate) {
                         if (sessionStorage.sid) {
                             data.k = sessionStorage.k;
                             data.sid = sessionStorage.sid;
+
+                            for (var i = sessionStorage.length; i--;) {
+                                var sk = sessionStorage.key(i);
+                                if (sk && sk.indexOf('@cc$witch!') === 0) {
+                                    (data.acc = data.acc || {})[sk] = sessionStorage.getItem(sk);
+                                }
+                            }
                         }
 
                         setTimeout(function() {
@@ -4108,6 +4124,11 @@ else if (!browserUpdate) {
                             if (value.sid) {
                                 u_storage.k = value.k;
                                 u_storage.sid = value.sid;
+                            }
+                            if (value.acc) {
+                                for (var ak in value.acc) {
+                                    sessionStorage.setItem(ak, value.acc[ak]);
+                                }
                             }
                             ack();
                         }

@@ -1,290 +1,259 @@
-(function($, scope) {
+/** @property mega.ui.CredentialsWarningDialog
+ *
+* Warning dialog when there is a fingerprint mismatch e.g. a MITM attack in progress.
+ * Triggerable with the following test code (change the user handle to one in your account's M.u):
+ * mega.ui.CredentialsWarningDialog.singleton(
+ *      '4Hlf71R5IxY',
+ *      'Ed25519',
+ *      'ABCDEF0123456789ABCDEF0123456789ABCDEF01',
+ *      'ABCDFF0123456789ABCDEE0123456788ABCDEF00'
+ * );
+*/
+lazy(mega.ui, 'CredentialsWarningDialog', () => {
+
+    'use strict';
+
+    const ce = (n, t, a) => mCreateElement(n, a, t);
+
+    // Queue of pending mismatches and the currently displayed one
+    let dialog = null;
+    let waitingList = null;
+    let currentKey = null;
+    let current = null;
 
     /**
-     * Warning dialog when there is a fingerprint mismatch e.g. a MITM attack in progress.
-     * Triggerable with the following test code (change the user handle to one in your account's M.u):
-     * mega.ui.CredentialsWarningDialog.singleton(
-     *      '4Hlf71R5IxY',
-     *      'Ed25519',
-     *      'ABCDEF0123456789ABCDEF0123456789ABCDEF01',
-     *      'ABCDFF0123456789ABCDEE0123456788ABCDEF00'
-     * );
-     *
-     * @param opts {Object}
-     * @constructor
+     * Fill a container with a grouped fingerprint
+     * @param {HTMLElement} container Target element
+     * @param {String} fingerprint Hex fingerprint to render
+     * @param {String} [other] Fingerprint to compare against for mismatches
+     * @returns {void}
      */
-    var CredentialsWarningDialog = function(opts) {
-        var self = this;
+    const fillFingerprint = (container, fingerprint, other) => {
 
-        var defaultOptions = {
-            /**
-             * Required: .dialog Class name (excl. the starting ".")
-             */
-            'className': 'credentials-warning-dialog',
+        container.textContent = '';
 
-            /**
-             * features:
-             */
-            'focusable': true,
-            'closable': false,
-            'expandable': true,
-            'requiresOverlay': true,
+        let group = null;
 
-            /**
-             * css class names
-             */
-            'expandableButtonClass': '.fm-mega-dialog-size-icon',
-            'buttonContainerClassName': '',
-            'buttonPlaceholderClassName': '',
+        for (let i = 0; i < fingerprint.length; i++) {
 
-            /**
-             * optional:
-             */
-            'title': 'Warning',
-            'buttons': [
-                {
-                    'label': l[148],
-                    'className': 'mega-button',
-                    'callback': function() {
-                        this.hide();
-                        this._hideOverlay();
-                        mega.ui.CredentialsWarningDialog.rendernext();
-                    }
-                }
-            ]
-        };
+            if (i % 4 === 0) {
+                group = ce('span', container);
+            }
 
-        mega.ui.Dialog.call(this, Object.assign({}, defaultOptions, opts));
+            const char = fingerprint.charAt(i);
 
-        self.bind("onBeforeShow", function() {
-            $('.fm-dialog-overlay').addClass('hidden');
+            if (other && char !== other.charAt(i)) {
+                ce('span', group, {class: 'mismatch'}).textContent = char;
+            }
+            else {
+                group.appendChild(document.createTextNode(char));
+            }
+        }
+    };
+
+    /**
+     * Build and show the dialog for the current mismatch
+     * @returns {void}
+     */
+    const render = () => {
+        const {sheet, sprites} = mega.ui;
+        const {
+            contactHandle: handle,
+            previousFingerprint: prev,
+            newFingerprint: next,
+            seenOrVerified,
+            contactEmail
+        } = current;
+        const seen = seenOrVerified === 'seen';
+        const emailHtml =
+            `<span class="email">${escapeHTML(contactEmail)}</span>`;
+
+        // Avatar and warning message
+        const content = ce('div', null, {class: 'content-block'});
+        const warnWrap = ce('div', content, {class: 'contact-wrap'});
+
+        MegaAvatarComponent.factory({
+            parentNode: ce('div', warnWrap, {class: 'contact-avatar'}),
+            userHandle: handle,
+            size: 64
         });
-    };
 
-    CredentialsWarningDialog.prototype = Object.create(mega.ui.Dialog.prototype);
+        const info = ce('div', warnWrap, {class: 'info'});
 
-    CredentialsWarningDialog.prototype._initGenericEvents = function() {
-        var self = this;
+        ce('span', info, {class: 'high'}).append(parseHTML(
+            (seen ? l[6881] : l[6882]).replace('%1', emailHtml)
+        ));
+        info.appendChild(document.createTextNode(` ${l[7688]}`));
 
-        // Renders the dialog details, also shows the previous and new fingerprints differences in red
-        this._renderDetails();
-        this._renderFingerprints();
+        // Step 1: previously seen/verified credentials
+        const prevBlock = ce('div', content, {class: 'creds selectable-txt'});
+        ce('p', prevBlock).textContent = `${seen ? l[6883] : l[6884]}`;
+        fillFingerprint(ce('div', prevBlock, {
+            class: 'fingerprint selectable-txt'
+        }), prev);
 
-        mega.ui.Dialog.prototype._initGenericEvents.apply(self);
-    };
+        // Step 1/2: new credentials, reset and verify actions
+        const detailBlock = ce('div', content, {
+            class: 'highlight-bg'
+        });
 
-    /**
-     * Reset state of dialog if it had previously appeared this session and they had reset credentials
-     */
-    CredentialsWarningDialog.prototype._resetToDefaultState = function() {
+        const newBlock = ce('div', detailBlock, {class: 'creds'});
+        ce('p', newBlock).textContent = `${l[6858]}`;
+        fillFingerprint(ce('div', newBlock, {
+            class: 'fingerprint selectable-txt'
+        }), next, prev);
 
-        var $dialog = $('.credentials-warning-dialog');
+        const resetBlock = ce('div', detailBlock, {class: 'reset'});
+        ce('p', resetBlock, {class: 'title'}).textContent = `${l[7689]}`;
+        ce('p', resetBlock, {class: 'description'}).textContent = l[7690];
 
-        $dialog.find('.previousCredentials').show();
-        $dialog.find('.newCredentials').show();
-        $dialog.find('.resetCredentials').show();
-        $dialog.find('.reset-credentials-button').removeClass('hidden');
-        $dialog.find('.postResetCredentials').hide();
-        $dialog.find('.verifyCredentials').hide();
-    };
+        const resetBtn = MegaButton.factory({
+            parentNode: resetBlock,
+            text: l[742],
+            icon: `${sprites.mono} icon-sync-thin-outline`,
+            componentClassname: 'reset-credentials-button'
+        });
 
-    /**
-     * Render the placeholder details in the dialog
-     */
-    CredentialsWarningDialog.prototype._renderDetails = function() {
+        // Step 2: shown after the credentials are reset
+        const postResetBlock = ce('div', detailBlock, {
+            class: 'post-reset creds hidden'
+        });
+        ce('p', postResetBlock).textContent = `${l[7691]}`;
 
-        // Change wording to seen or verified
-        var infoFirstLine = (CredentialsWarningDialog.seenOrVerified === 'seen') ? l[6881] : l[6882];
-        infoFirstLine = escapeHTML(infoFirstLine)
-            .replace('%1', `<span class="emailAddress">${escapeHTML(CredentialsWarningDialog.contactEmail)}</span>`);
-        var title = (CredentialsWarningDialog.seenOrVerified === 'seen') ? l[6883] : l[6884];
+        const postResetFp = ce('div', postResetBlock, {
+            class: 'fingerprint selectable-txt'
+        });
 
-        var $dialog = $('.credentials-warning-dialog');
-        $('.information .firstLine', $dialog).safeHTML(infoFirstLine);
-        $('.previousCredentials .title', $dialog).safeHTML(escapeHTML(title));
+        const verifyBlock = ce('div', detailBlock, {
+            class: 'verify-creds hidden'
+        });
 
-        // If the avatar exists, show it
-        if (typeof avatars[CredentialsWarningDialog.contactHandle] !== 'undefined') {
-            $dialog.find('.userAvatar img').attr('src', avatars[CredentialsWarningDialog.contactHandle].url);
-        }
-        else {
-            // Otherwise hide the avatar
-            $dialog.find('.userAvatar').hide();
-            $dialog.find('.information').addClass('noAvatar');
-        }
+        ce('p', verifyBlock, {class: 'title'}).textContent = `${l.verify_credentials}:`;
+        ce('p', verifyBlock, {class: 'description'}).textContent = l[7693];
 
-        // Reset the contact's credentials
-        $dialog.find('.reset-credentials-button').rebind('click', function() {
+        const verifyBtn = MegaButton.factory({
+            parentNode: verifyBlock,
+            text: `${l[1960]}...`,
+            icon: `${sprites.mono} icon-check-circle-thin-solid`,
+            componentClassname: 'positive verify-contact-button'
+        });
 
-            // Reset the authring for the user and show the success message
-            authring.resetFingerprintsForUser(CredentialsWarningDialog.contactHandle).catch(dump);
+        // Reset the contact's credentials and switch to the verify step
+        resetBtn.on('click.reset', () => {
+
+            authring.resetFingerprintsForUser(handle).catch(dump);
 
             // If they're already on the contact's page, reload the fingerprint info
-            if (getSitePath() === '/fm/' + CredentialsWarningDialog.contactHandle) {
-
-                // Get the user
-                var user = M.u[CredentialsWarningDialog.contactHandle];
-
-                showAuthenticityCredentials(user);
-                enableVerifyFingerprintsButton(CredentialsWarningDialog.contactHandle);
+            if (getSitePath() === `/fm/${handle}`) {
+                showAuthenticityCredentials(M.u[handle]);
+                enableVerifyFingerprintsButton(handle);
             }
 
-            // Change to verify details
-            $dialog.find('.previousCredentials').hide();
-            $dialog.find('.newCredentials').hide();
-            $dialog.find('.resetCredentials').hide();
+            prevBlock.classList.add('hidden');
+            newBlock.classList.add('hidden');
+            resetBlock.classList.add('hidden');
 
-            // Show verify details
-            $dialog.find('.postResetCredentials').show();
-            $dialog.find('.verifyCredentials').show();
+            postResetBlock.classList.remove('hidden');
+            verifyBlock.classList.remove('hidden');
 
-            // Rebuild the new credentials for the section shown after reset
-            const newCredentials = CredentialsWarningDialog.newFingerprint.replace(/.{4}/g, '<span>$&</span>');
-            $('.postResetCredentials .fingerprint', $dialog).safeHTML(newCredentials);
-
-            // Hide the current Reset button and show the Verify contact one
-            $(this).addClass('hidden');
-            $dialog.find('.verify-contact-button').removeClass('hidden');
+            // Show the new (now un-highlighted) credentials in the post-reset section
+            fillFingerprint(postResetFp, next);
         });
 
-        // Button to view the verification dialog
-        $dialog.find('.verify-contact-button').rebind('click', function() {
+        // Open the regular fingerprint dialog to verify the new credentials
+        verifyBtn.on('click.verify', () => {
+            sheet.hide();
+            fingerprintDialog(handle);
+        });
 
-            // Hide the dialog and show the regular fingerprint dialog
-            CredentialsWarningDialog._instance.hide();
-            fingerprintDialog(CredentialsWarningDialog.contactHandle);
+        // Footer: dismiss and move to the next queued warning
+        const footerNode = ce('div', null, {class: 'flex flex-row-reverse'});
+
+        MegaButton.factory({
+            parentNode: footerNode,
+            text: l[148]
+        }).on('click.ok', () => {
+            sheet.hide();
+            dialog.rendernext();
+        });
+
+        sheet.show({
+            name: 'credentials-warning-dialog',
+            title: l[882],
+            showClose: false,
+            contents: [content],
+            safeShow: !$.dialog,
+            footer: {
+                slot: [footerNode]
+            }
         });
     };
 
-    /**
-     * Renders the previous and new fingerprints showing the differences in red
-     */
-    CredentialsWarningDialog.prototype._renderFingerprints = function() {
-        var userHandle = CredentialsWarningDialog.contactHandle;
-        var keyType = CredentialsWarningDialog.keyType;
-        var previousFingerprint = CredentialsWarningDialog.previousFingerprint;
-        var newFingerprint = CredentialsWarningDialog.newFingerprint;
-        var previousFingerprintHtml = '';
-        var newFingerprintHtml = '';
+    dialog = freeze({
 
-        // Build up the fingerprint HTML
-        for (var i = 0, groupCount = 0, length = previousFingerprint.length;  i < length;  i++) {
+        /**
+         * Render next warning in the waiting list.
+         * @returns {void}
+         */
+        rendernext() {
 
-            var previousFingerprintChar = previousFingerprint.charAt(i);
-            var newFingerprintChar = '';
-
-            // If the previous fingerprint character doesn't match the new character, make it red
-            if (previousFingerprint.charAt(i) !== newFingerprint.charAt(i)) {
-                newFingerprintChar = '<span class="mismatch">' + newFingerprint.charAt(i) + '</span>';
-            }
-            else {
-                newFingerprintChar = newFingerprint.charAt(i);
+            if (!waitingList) {
+                return;
             }
 
-            // Close current group of 4 hex chars
-            if (groupCount === 3) {
-                previousFingerprintHtml += previousFingerprintChar + '</span>';
-                newFingerprintHtml += newFingerprintChar + '</span>';
-                groupCount = 0;
+            if (currentKey) {
+                delete waitingList[currentKey];
             }
 
-            // Start a new group of 4 hex chars
-            else if (groupCount === 0) {
-                previousFingerprintHtml += '<span>' + previousFingerprintChar;
-                newFingerprintHtml += '<span>' + newFingerprintChar;
-                groupCount++;
-            }
-            else {
-                // Add to existing group
-                previousFingerprintHtml += previousFingerprintChar;
-                newFingerprintHtml += newFingerprintChar;
-                groupCount++;
-            }
-        }
+            const keys = Object.keys(waitingList);
 
-        // Render new fingerprints
-        var $dialog = $('.credentials-warning-dialog');
-        $('.previousCredentials .fingerprint', $dialog).safeHTML(previousFingerprintHtml);
-        $('.newCredentials .fingerprint', $dialog).safeHTML(newFingerprintHtml);
-    };
-
-    /**
-     * Render next warning in the waiting list.
-     */
-    CredentialsWarningDialog.rendernext = function() {
-
-        if (mega.ui.CredentialsWarningDialog.waitingList) {
-            var key = mega.ui.CredentialsWarningDialog.currentKey;
-            if (key) {
-                delete mega.ui.CredentialsWarningDialog.waitingList[key];
-            }
-            var keys = Object.keys(mega.ui.CredentialsWarningDialog.waitingList);
             if (keys.length > 0) {
-                key = keys[0];
-                mega.ui.CredentialsWarningDialog.singleton(
-                        mega.ui.CredentialsWarningDialog.waitingList[key].contactHandle,
-                        mega.ui.CredentialsWarningDialog.waitingList[key].keyType,
-                        mega.ui.CredentialsWarningDialog.waitingList[key].prevFingerprint,
-                        mega.ui.CredentialsWarningDialog.waitingList[key].newFingerprint);
-
-                mega.ui.CredentialsWarningDialog._instance._renderDetails();
-                mega.ui.CredentialsWarningDialog._instance._renderFingerprints();
-                CredentialsWarningDialog.currentKey = key;
+                const key = keys[0];
+                dialog.singleton(
+                    waitingList[key].contactHandle,
+                    waitingList[key].keyType,
+                    waitingList[key].prevFingerprint,
+                    waitingList[key].newFingerprint
+                );
             }
-        }
-    };
-    /**
-     * Initialises the Credentials Warning Dialog
-     * @param {String} contactHandle The contact's user handle
-     * @param {String} keyType The key type e.g. Ed25519, RSA
-     * @param {String} prevFingerprint The previous fingerprint as a hexadecimal string
-     * @param {String} newFingerprint The current fingerprint as a hexadecimal string
-     * @returns {CredentialsWarningDialog._instance}
-     */
-    CredentialsWarningDialog.singleton = function(contactHandle, keyType, prevFingerprint, newFingerprint) {
+        },
 
-        // Set to object so can be used later
-        CredentialsWarningDialog.contactHandle = contactHandle;
-        CredentialsWarningDialog.keyType = keyType;
-        CredentialsWarningDialog.contactEmail = M.u[contactHandle].m;
-        CredentialsWarningDialog.seenOrVerified = u_authring[keyType][contactHandle].method;
-        CredentialsWarningDialog.seenOrVerified =
-            (CredentialsWarningDialog.seenOrVerified === authring.AUTHENTICATION_METHOD.SEEN) ? 'seen' : 'verified';
-        CredentialsWarningDialog.previousFingerprint = prevFingerprint;
-        CredentialsWarningDialog.newFingerprint = newFingerprint;
-        if (!CredentialsWarningDialog.waitingList) {
-            CredentialsWarningDialog.waitingList = {};
-        }
-        var key = contactHandle + keyType;
-        CredentialsWarningDialog.waitingList[key] = {
-            'contactHandle' : contactHandle,
-            'keyType' : keyType,
-            'prevFingerprint' : prevFingerprint,
-            'newFingerprint' : newFingerprint
-        };
+        /**
+         * Initialises the Credentials Warning Dialog
+         * @param {String} contactHandle The contact's user handle
+         * @param {String} keyType The key type e.g. Ed25519, RSA
+         * @param {String} prevFingerprint The previous fingerprint as a hexadecimal string
+         * @param {String} newFingerprint The current fingerprint as a hexadecimal string
+         * @returns {Object} The dialog namespace
+         */
+        singleton(contactHandle, keyType, prevFingerprint, newFingerprint) {
+            const {method} = u_authring[keyType][contactHandle];
 
-        if (!CredentialsWarningDialog._instance) {
-            CredentialsWarningDialog._instance = new CredentialsWarningDialog();
-            CredentialsWarningDialog.currentKey = key;
-        }
-        else {
-            CredentialsWarningDialog._instance._resetToDefaultState();
-            if (key !== CredentialsWarningDialog.currentKey) {
-                mega.ui.CredentialsWarningDialog._instance._renderDetails();
-                mega.ui.CredentialsWarningDialog._instance._renderFingerprints();
-                CredentialsWarningDialog.currentKey = key;
+            current = {
+                contactHandle,
+                keyType,
+                contactEmail: M.u[contactHandle].m,
+                seenOrVerified: method === authring.AUTHENTICATION_METHOD.SEEN
+                    ? 'seen' : 'verified',
+                previousFingerprint: prevFingerprint,
+                newFingerprint
+            };
+
+            if (!waitingList) {
+                waitingList = {};
             }
+
+            const key = contactHandle + keyType;
+            waitingList[key] = {contactHandle, keyType, prevFingerprint, newFingerprint};
+            currentKey = key;
+
+            render();
+
+            return dialog;
         }
+    });
 
-        CredentialsWarningDialog._instance.show();
+    return dialog;
+});
 
 
-        return CredentialsWarningDialog._instance;
-    };
-
-    // Export
-    scope.mega = scope.mega || {};
-    scope.mega.ui = scope.mega.ui || {};
-    scope.mega.ui.CredentialsWarningDialog = CredentialsWarningDialog;
-
-})(jQuery, window);

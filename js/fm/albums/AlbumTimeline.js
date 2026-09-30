@@ -178,7 +178,7 @@ lazy(mega.gallery, 'AlbumTimeline', () => {
                             clickFn(this, evt);
                         }
 
-                        const selectedItems = [];
+                        const selectedItems = ['.properties-item'];
                         const selections = Object.keys(albums.grid.timeline.selections);
                         const albumId = scope.getAlbumIdFromPath();
                         const { filterFn, at, eIds, nodes } = albums.store[albumId];
@@ -217,7 +217,7 @@ lazy(mega.gallery, 'AlbumTimeline', () => {
                             }
 
 
-                            selectedItems.push('.properties-item', '.import-item', '.report-item');
+                            selectedItems.push('.import-item', '.report-item');
                         }
                         else {
                             // 0 - Disable, 1 - Hide, 2 - Unhide
@@ -1504,7 +1504,12 @@ lazy(mega.gallery, 'AlbumTimeline', () => {
                     albums.grid.header.update(scope.getAlbumIdFromPath(), Object.keys(this.selections));
                 }
                 if (mega.ui.mInfoPanel) {
-                    mega.ui.mInfoPanel.reRenderIfVisible(Object.keys(this.selections));
+                    if (this.selCount) {
+                        mega.ui.mInfoPanel.reRenderIfVisible(Object.keys(this.selections));
+                    }
+                    else {
+                        mega.ui.mInfoPanel.hide();
+                    }
                 }
             }, 100);
         }

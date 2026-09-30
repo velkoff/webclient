@@ -54,6 +54,9 @@ mobile.fileRequestManagement = {
         const isManage = !!this.puHandleObject;
         if (isManage) {
             this.linkBanner.classList.toggle('hidden', !this.linkUpdated);
+            if (this.linkUpdated) {
+                tSleep(8).then(() => this.linkBanner.classList.add('hidden'));
+            }
             this.linkUpdated = false;
         }
 
@@ -68,6 +71,7 @@ mobile.fileRequestManagement = {
             confirmClose: () => this.confirmDiscardChanges(),
             contents: [this.container]
         });
+        this.titleMegaInput.$input.trigger('input.autoHeight');
         this.addButtons();
     },
 
@@ -126,9 +130,8 @@ mobile.fileRequestManagement = {
 
         const isManage = !!this.puHandleObject;
         // Title input field
-        const frTitleInput = document.createElement('input');
+        const frTitleInput = document.createElement('textarea');
         frTitleInput.maxLength = 80;
-        frTitleInput.type = 'text';
         frTitleInput.title = l.file_request_dialog_label_title;
         frTitleInput.className = 'fr-title-field underlinedText lengthChecker';
         frTitleInput.id = 'fr-title-field';
@@ -139,8 +142,24 @@ mobile.fileRequestManagement = {
         this.container.append(frTitleInput);
 
         this.currentTitle = frTitleInput.value;
-        this.titleMegaInput = new mega.ui.MegaInputs($(frTitleInput));
+        this.titleMegaInput = new mega.ui.MegaInputs($(frTitleInput), {
+            autoHeight: true
+        });
         this.titleMegaInput.$wrapper.addClass('box-style fr-title-field msg-left fixed-width mobile');
+
+        // Keep the title single line same as <input>
+        this.titleMegaInput.$input
+            .rebind('keydown.frTitle', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                }
+            })
+            .rebind('input.frTitle', (e) => {
+                if (/[\n\r]/.test(e.target.value)) {
+                    e.target.value = e.target.value.replace(/[\n\r]+/g, ' ');
+                    $(e.target).trigger('input.autoHeight');
+                }
+            });
 
         // Description textarea field
         const textarea = document.createElement('textarea');
@@ -218,6 +237,12 @@ mobile.fileRequestManagement = {
             }
 
             mega.ui.overlay.hide();
+            const changed = !this.puHandleObject || this.closeWarning
+                || this.titleMegaInput.$input.val() !== this.currentTitle
+                || this.descTextArea.$input.val() !== this.currentDesc;
+            if (!changed) {
+                return false;
+            }
 
             this.saveChanges().catch(tell);
         });
@@ -244,7 +269,6 @@ mobile.fileRequestManagement = {
     disableUpdateButton: function() {
         'use strict';
 
-        this.closeWarning = true;
         const titleInput = this.titleMegaInput.$input.val();
         if (typeof this.puHandleObject === 'undefined') {
             this.createUpdateFRBtn.disabled = !titleInput.length;
@@ -459,6 +483,7 @@ mobile.fileRequestManagement = {
                 if (this.passwordSwitch.checked && typeof zxcvbn === 'undefined') {
                     M.require('zxcvbn_js').done(() => this.validateSettings());
                 }
+                this.closeWarning = this.settingsChanged();
                 this.validateSettings();
             }
         });
@@ -476,7 +501,7 @@ mobile.fileRequestManagement = {
             placeholder: l.start_typing
         });
         this.passwordInput.on('input.frpwd', () => {
-            this.closeWarning = true;
+            this.closeWarning = this.settingsChanged();
             this.validatePassword();
         });
         this.passwordInput.on('blur.frpwd', () => this.validateSettings());
@@ -545,9 +570,7 @@ mobile.fileRequestManagement = {
             role: 'switch',
             onChange: () => {
                 this.settings.folder = this.folderSwitch.checked;
-                if (this.settings.folder !== this.origSettings.folder) {
-                    this.closeWarning = true;
-                }
+                this.closeWarning = this.settingsChanged();
             }
         });
         this.folderBlock.appendChild(control);
@@ -561,10 +584,15 @@ mobile.fileRequestManagement = {
         'use strict';
 
         this.settings.expiry = timestamp || false;
-        if (this.settings.expiry !== this.origSettings.expiry) {
-            this.closeWarning = true;
-        }
+        this.closeWarning = this.settingsChanged();
         this.validateSettings();
+    },
+
+    settingsChanged() {
+        'use strict';
+
+        return Object.keys(this.origSettings).some((key) => this.settings[key] !== this.origSettings[key])
+            || this.passwordSwitch.checked && !!this.passwordInput.value;
     },
 
     handleSizeInput() {
@@ -604,9 +632,7 @@ mobile.fileRequestManagement = {
         });
 
         this.settings.size = this.sizeSwitch.checked && bytes ? bytes : false;
-        if (this.settings.size !== this.origSettings.size) {
-            this.closeWarning = true;
-        }
+        this.closeWarning = this.settingsChanged();
 
         this.validateSettings();
     },
@@ -713,7 +739,10 @@ mobile.fileRequestManagement = {
 
                         loadingDialog.show('fr-link-settings');
                         this.saveSettings()
-                            .then(() => this.showFormView())
+                            .then(() => {
+                                this.closeWarning = false;
+                                this.showFormView();
+                            })
                             .catch((ex) => {
                                 loadingDialog.hide('fr-link-settings');
                                 tell(ex);
@@ -725,6 +754,8 @@ mobile.fileRequestManagement = {
             onBack: () => {
                 this.confirmDiscardChanges().then((discard) => {
                     if (discard) {
+                        this.settings = { ...this.origSettings };
+                        this.closeWarning = false;
                         this.showFormView();
                     }
                 });
@@ -754,7 +785,6 @@ mobile.fileRequestManagement = {
     async saveSettings() {
         'use strict';
 
-        const previousLink = this.puPageLink;
         const password = this.passwordSwitch.checked && this.validatePassword()
             ? this.passwordInput.value
             : '';
@@ -765,7 +795,7 @@ mobile.fileRequestManagement = {
             settings: this.settings,
             password,
         });
-        this.linkUpdated = this.puPageLink !== previousLink;
+        this.linkUpdated = true;
 
         this.puHandleObject = mega.fileRequest.storage.getPuHandleByNodeHandle(this.handle) || this.puHandleObject;
         this.frLinkInput.value = this.puPageLink || mega.fileRequest.generator.generateUrl(this.puHandleObject.p);

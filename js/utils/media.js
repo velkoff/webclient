@@ -1445,6 +1445,7 @@ FullScreenManager.prototype.enterFullscreen = function() {
                             return true;
                         }
                     });
+                    $video.removeClass('cover');
 
                     // play/pause on click
                     $video.rebind('click', function() {
@@ -2716,11 +2717,15 @@ FullScreenManager.prototype.enterFullscreen = function() {
                 var $video = $('video', $wrapper);
                 var c = MediaAttribute.getCodecStrings(node);
                 if (c) {
+                    if (!$fn.length) {
+                        $fn = $('.fileinfo .name', $wrapper);
+                    }
                     $fn.attr('title', node.name + ' (' + c + ')');
                     getImage(node, 1).then(uri => {
                         const a = !is_audio(node) && MediaAttribute(node).data || false;
                         $video[a.width > a.height ? 'addClass' : 'removeClass']('cover');
-                        $video.css('background-image', `url(${uri})`);
+                        // $video.css('background-image', `url(${uri})`);
+                        $video.attr('poster', uri);
                     }).catch(dump);
                 }
 
@@ -3990,6 +3995,9 @@ FullScreenManager.prototype.enterFullscreen = function() {
                 else if (videocodec === 'hev1' || videocodec === 'hvc1') {
                     return MediaSource.isTypeSupported('video/mp4; codecs="' + videocodec + '.1.6.L93.90"') ? 1 : 0;
                 }
+                else if (videocodec === 'dvhe' || videocodec === 'dvh1') {
+                    return MediaSource.isTypeSupported('video/mp4; codecs="hvc1.2.4.L186.B0"') ? 1 : 0;
+                }
                 return canPlayMSEAudio();
 
             case 'Matroska':
@@ -4054,6 +4062,11 @@ FullScreenManager.prototype.enterFullscreen = function() {
             var a = MediaAttribute.prototype.fromAttributeString(n.fa, n.k);
             var r = 0;
 
+            if (a && a.shortformat === 255
+                && MediaAttribute.prototype.defo(a, n.fa)) {
+
+                MediaAttribute(n).shimo(a);
+            }
             if (a && a.shortformat !== 0xff) {
                 a = MediaAttribute.getCodecStrings(a);
                 r = MediaAttribute.isTypeSupported.apply(null, a);
@@ -4075,8 +4088,14 @@ FullScreenManager.prototype.enterFullscreen = function() {
         mc = mc || MediaInfoLib.avflist;
 
         if (a instanceof MegaNode) {
+            const n = a;
             a = MediaAttribute.prototype.fromAttributeString(a.fa, a.k);
 
+            if (a && a.shortformat === 255
+                && MediaAttribute.prototype.defo(a, n.fa)) {
+
+                MediaAttribute(n).shimo(a);
+            }
             if (!a || a.shortformat === 0xff) {
                 return;
             }
@@ -4486,6 +4505,7 @@ FullScreenManager.prototype.enterFullscreen = function() {
     Object.defineProperty(MediaAttribute.prototype, 'data', {
         get: function() {
             var a = this.fa && this.fromAttributeString(this.fa);
+            this.shimo(a);
             return a && a.shortformat !== 0xff ? a : false;
         }
     });
@@ -4493,6 +4513,36 @@ FullScreenManager.prototype.enterFullscreen = function() {
     Object.defineProperty(MediaAttribute.prototype, 'avflv', {
         get: function() {
             return Object(MediaInfoLib.avflist).version | 0;
+        }
+    });
+
+    // deal with megasync giving up too early extracting mediainfo data...
+    Object.defineProperty(MediaAttribute.prototype, 'defo', {
+        value(a, fa) {
+            return a && a.shortformat === 255
+                && a.width >= MediaInfoLib.version
+                && String(fa || this.fa).includes(':1*');
+        }
+    });
+
+    // deal with megasync giving up too early extracting mediainfo data...
+    Object.defineProperty(MediaAttribute.prototype, 'shimo', {
+        value(a) {
+            if (this.defo(a)) {
+                const m = String(this.name).match(/\.m[\dakpv]+$/i);
+
+                if (m) {
+                    a.fps = 0;
+                    a.width = 0;
+                    a.height = 0;
+                    a.playtime = -1;
+                    a.shortformat = String(m[0]).slice(1).toLowerCase() === 'mkv' ? 39 : 1;
+
+                    if (self.d) {
+                        console.warn(`Ignoring possible incomplete media-attributes attached to node ${this.h}`, m);
+                    }
+                }
+            }
         }
     });
 
@@ -4510,6 +4560,11 @@ FullScreenManager.prototype.enterFullscreen = function() {
                         console.debug('Ignoring media attribute state for non-own node...', this);
                     }
                     return false;
+                }
+
+                if (this.defo(a)) {
+
+                    return true;
                 }
 
                 return a.fps < MediaInfoLib.build || a.width < MediaInfoLib.version || a.playtime < this.avflv;

@@ -1128,6 +1128,8 @@ lazy(mega.ui, 'mInfoPanel', () => {
             ev = ev.originalEvent;
             const key = ev.keyCode || ev.which;
             if (key === 13 && !ev.shiftKey && !ev.ctrlKey && !ev.altKey) {
+                // Enter saves, it must not leave a newline behind in the still-focused input
+                ev.preventDefault();
                 this.updateDescription();
             }
         }
@@ -1438,6 +1440,19 @@ lazy(mega.ui, 'mInfoPanel', () => {
         }
     }
 
+    // Re-rendering the node(s) being edited detaches the focused input, dropping the focus and any unsaved text
+    function isEditing(handles) {
+        const {activeElement} = document;
+        const block = activeElement && activeElement.matches('input, textarea')
+            && activeElement.closest('.info-panel-block');
+
+        if (!(block && block.component && block.component.handles)) {
+            return false;
+        }
+        const {removed, added} = array.diff(block.component.handles, handles);
+        return removed.length + added.length === 0;
+    }
+
     function hasThumbnail(node) {
         const nodeIcon = fileIcon(node);
         return ['image', 'video', 'raw', 'photoshop', 'vector'].includes(nodeIcon) &&
@@ -1587,7 +1602,11 @@ lazy(mega.ui, 'mInfoPanel', () => {
                     return;
                 }
                 const id = String(M.currentdirid || '').split('/').pop();
-                this.show($.selected.length ? $.selected : id ? [id] : []);
+                const handles = $.selected.length ? $.selected : id ? [id] : [];
+                if (isEditing(handles)) {
+                    return this.eventuallyUpdateSelected();
+                }
+                this.show(handles);
             });
         },
 
@@ -1597,7 +1616,7 @@ lazy(mega.ui, 'mInfoPanel', () => {
                     return;
                 }
                 if (!M.chat && $.selected && $.selected.length) {
-                    return this.show($.selected);
+                    return isEditing($.selected) ? this.smartEventuallyUpdate() : this.show($.selected);
                 }
 
                 const exist = mega.ui.flyout.flyoutMenu.domNode.componentSelector('.info-panel-block');
@@ -1621,7 +1640,7 @@ lazy(mega.ui, 'mInfoPanel', () => {
                         }
                     }
                 }
-                return this.show(toShow);
+                return isEditing(toShow) ? this.smartEventuallyUpdate() : this.show(toShow);
             });
         },
 

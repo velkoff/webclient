@@ -226,7 +226,7 @@ class MegaOverlay extends MegaComponent {
             this.trigger('close');
         });
 
-        this.addClass('active');
+        this.addClass(this.name, 'active');
 
         // if (mega.flags.ab_ads) {
             mega.commercials.updateOverlays(undefined, true);
@@ -235,7 +235,7 @@ class MegaOverlay extends MegaComponent {
 
     hide(name) {
         if (this.visible && (!name || name === this.name)) {
-            this.removeClass('active', 'pm-dialog');
+            this.removeClass('active', 'pm-dialog', this.name);
 
             if (this.addedClasses) {
                 this.removeClass(...this.addedClasses);
@@ -243,9 +243,9 @@ class MegaOverlay extends MegaComponent {
             }
 
             // Do not remove Overlayed when closing the msg dialog if any dialog is open,
-            // nor when a sheet is still shown underneath
             if (!(this.name === 'msg-dialog' && $.dialog && !document.querySelector('.page-bound'))
-                && !(mega.ui.sheet && mega.ui.sheet.visible)) {
+                && !(mega.ui.sheet && mega.ui.sheet.visible)
+                && !$.shareDialog) {
                 mainlayout.classList.remove('fm-overlay', 'pm-dialog');
                 document.documentElement.classList.remove('overlayed');
             }
@@ -328,7 +328,7 @@ class MegaOverlay extends MegaComponent {
         const btn = new MegaButton({
             parentNode: this.headerTitleNode,
             icon: 'sprite-fm-mono icon-arrow-left-regular-outline rtl-rot-180',
-            componentClassname: 'transparent-icon text-icon secondary me-2',
+            componentClassname: 'transparent-icon text-icon secondary me-2 back-btn',
             type: 'icon'
         }).on('click.dialogBack', cb.bind(null));
 
