@@ -48,6 +48,10 @@ var is_mobile = (function isMobile() {
     }
 })();
 
+if (self.is_mobile && location.search.includes('?autoplay=')) {
+    is_mobile = false;
+}
+
 var is_android = is_mobile && ua.indexOf('android') > 0;
 var is_uc_browser = is_mobile && ua.indexOf('ucbrowser') > 0;
 var is_ios = is_mobile && (ua.indexOf('iphone') > -1 || ua.indexOf('ipad') > -1 || ua.indexOf('ipod') > -1);
