@@ -236,10 +236,14 @@ RepayPage.prototype.initPage = function() {
 
         let paymentGatewayToAdd = '';
         for (let k = 0; k < list.length; k++) {
-            const payRadio = radioHtml.replace('[x]', list[k].gatewayName).replace('[Y]', list[k].gatewayId).
-                replace('[Z]', list[k].gatewayName);
-            const payText = textHtml.replace('[x]', list[k].displayName);
-            const payIcon = iconHtml.replace('[x]', icons[list[k].gatewayName]);
+            const {gatewayName, gatewayId, displayName} = list[k];
+            const name = escapeHTML(gatewayName);
+
+            // Replacer functions, so '$' patterns in API values stay literal
+            const payRadio = radioHtml.replace('[x]', () => name).replace('[Y]', () => escapeHTML(gatewayId))
+                .replace('[Z]', () => name);
+            const payText = textHtml.replace('[x]', () => escapeHTML(displayName));
+            const payIcon = iconHtml.replace('[x]', () => escapeHTML(icons[gatewayName]));
             paymentGatewayToAdd += payRadio + payText + payIcon;
         }
         if (paymentGatewayToAdd) {
