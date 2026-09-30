@@ -2416,7 +2416,7 @@ else if (!browserUpdate) {
 
         // Temporary for desktop only
         jsl.push({f:'js/ui/components/chip-input.js', n: 'component_chip_input_js', j: 1, w:1});
-        jsl.push({f:'js/ui/components/dropdown.js', n: 'component_dropdown_js', j: 1, w:1});
+        jsl.push({f:'js/ui/components/anchored-dropdown.js', n: 'component_anchored_dropdown_js', j: 1, w:1});
 
         jsl.push({f:'html/top.html', n: 'top', j:0});
         jsl.push({f:'css/style.css', n: 'style_css', j:2, w:30});

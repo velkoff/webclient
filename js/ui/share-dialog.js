@@ -189,7 +189,7 @@ lazy(mega.ui, 'mShareDialog', () => {
                 },
             });
 
-            const dropdown = new MegaDropdown({
+            const dropdown = new MegaAnchoredDropdown({
                 parentNode: wrap,
                 componentClassname: 'no-wrap',
                 position: 'attached'
@@ -628,7 +628,7 @@ lazy(mega.ui, 'mShareDialog', () => {
                 return wrap;
             }
 
-            this.permission = new MegaDropdown({
+            this.permission = new MegaAnchoredDropdown({
                 parentNode: wrap,
                 select: true,
                 value: 'read-write',
@@ -1014,7 +1014,7 @@ lazy(mega.ui, 'mShareDialog', () => {
                 ce('div', node, {class: 'access-permission-static'}).textContent = l[55];
             }
             else {
-                new MegaDropdown({
+                new MegaAnchoredDropdown({
                     parentNode: node,
                     select: true,
                     selectClassname: 'ghost sm-size',
