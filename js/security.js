@@ -1453,17 +1453,11 @@ security.login = {
 
             // Add a check that the decrypted sid and res.u aren't shorter than usual before making the comparison.
             // Otherwise, we could construct an oracle based on shortened csids with single-byte user handles.
-            if (decryptedSessionId.length !== 255) {
-                eventlog(99752, JSON.stringify([1, 13, userHandle, decryptedSessionId.length]));
+            // Then check the user handle in the Session ID matches the one sent in the 'us' response.
+            if (decryptedSessionId.length !== 255 || sessionIdUserHandle !== userHandle) {
+                eventlog(99752, JSON.stringify([1, 13, userHandle]));
 
-                throw new Error(`Incorrect length of Session ID ${decryptedSessionId.length}`);
-            }
-
-            // Check that the user handle included in the Session ID matches the one sent in the 'us' response
-            if (sessionIdUserHandle !== userHandle) {
-                eventlog(99752, JSON.stringify([1, 14, userHandle]));
-
-                throw new Error(`User handle mismatch! us-req:"${userHandle}" != session:"${sessionIdUserHandle}"`);
+                throw new Error('Invalid Session ID');
             }
 
             // Set the data
