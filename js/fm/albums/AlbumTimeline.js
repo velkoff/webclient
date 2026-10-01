@@ -447,8 +447,7 @@ lazy(mega.gallery, 'AlbumTimeline', () => {
                 return;
             }
 
-            this._winWidth = window.innerWidth;
-            this._winHeight = window.innerHeight;
+            this._elWidth = this.el.offsetWidth;
             this.setCellSize();
 
             this.dynamicList = new MegaDynamicList(this.el, {
@@ -1239,13 +1238,12 @@ lazy(mega.gallery, 'AlbumTimeline', () => {
         }
 
         onResize() {
-            if (this._winWidth === window.innerWidth && this._winHeight === window.innerHeight || !this.dynamicList) {
+            if (this._elWidth === this.el.offsetWidth || !this.dynamicList) {
                 return;
             }
 
             this.setCellSize();
-            this._winWidth = window.innerWidth;
-            this._winHeight = window.innerHeight;
+            this._elWidth = this.el.offsetWidth;
 
             const keys = Object.keys(this.dynamicList._currentlyRendered);
 
@@ -1403,7 +1401,7 @@ lazy(mega.gallery, 'AlbumTimeline', () => {
             const toFetchAttributes = [];
 
             if (this._nodes[rowKey]) {
-                const sizePx = `${this.cellSize}px`;
+                const width = `calc(${100 / this.itemsPerRow}% - ${this.columnGap}px)`;
                 const { list, monthLabel } = this._nodes[rowKey];
 
                 if (this.showMonthLabel && monthLabel) {
@@ -1418,8 +1416,7 @@ lazy(mega.gallery, 'AlbumTimeline', () => {
                 for (let i = 0; i < list.length; i++) {
                     const tCell = this.getCachedCell(list[i]);
 
-                    tCell.el.style.width = sizePx;
-                    tCell.el.style.height = sizePx;
+                    tCell.el.style.width = width;
 
                     scope.setShimmering(tCell.el);
 

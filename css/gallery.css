@@ -728,6 +728,7 @@ body.rtl .gallery-view.gallery-type-m .gallery-date-block i::before {
 }
 .album-timeline-cell {
     position: relative;
+    aspect-ratio: 1;
     margin: 4px;
     transition: background-image 1s ease;
     background-image: none;
