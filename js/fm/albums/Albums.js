@@ -1994,7 +1994,7 @@ lazy(mega.gallery, 'albums', () => {
                     );
                 },
                 containerClass: 'album-timeline-dialog px-6 py-4',
-                sidePadding: 8,
+                sidePadding: 24,
                 showMonthLabel: true,
                 skipGlobalZoom: true,
                 selectionLimit: scope.maxSelectionsCount
@@ -2146,7 +2146,7 @@ lazy(mega.gallery, 'albums', () => {
                     }, 100);
                 },
                 containerClass: 'album-timeline-dialog px-6 py-4',
-                sidePadding: this.sidePadding || 8,
+                sidePadding: this.sidePadding || 24,
                 showMonthLabel: false,
                 skipGlobalZoom: true,
                 selectionLimit: 1,
@@ -3505,7 +3505,7 @@ lazy(mega.gallery, 'albums', () => {
                 },
                 showMonthLabel: true,
                 containerClass: 'album-timeline-main px-3 py-1',
-                sidePadding: 4,
+                sidePadding: 12,
                 interactiveCells: true
             });
 
