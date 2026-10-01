@@ -2341,27 +2341,22 @@ function fingerprintDialog(userid, isAdminVerify, callback) {
     // Add log to see how often they open the verify dialog
     eventlog(99601, !!isAdminVerify);
 
-    const {sheet, sprites} = mega.ui;
+    const {sprites} = mega.ui;
     const name = 'fingerprint-dialog';
     const isMandatory = isAdminVerify === true || isAdminVerify === null;
+    const sheet = isMandatory ? fingerprintDialog.sheet : mega.ui.sheet;
 
     let titleTxt = l.verify_credentials;
     let subTitleTxt = l.contact_ver_dialog_content;
     let approveBtnTxt = l.mark_as_verified;
     let listenerToken = null;
+    let verified = false;
     window.closeDlgMute = null;
 
     if (isAdminVerify) {
         titleTxt = l.bus_admin_ver;
         subTitleTxt = l.bus_admin_ver_sub;
         approveBtnTxt = l[1960];
-        listenerToken = mBroadcaster.addListener('mega:openfolder', {
-            onBroadcast: () => {
-                fingerprintDialog(u_attr.b.mu[0], true);
-            },
-            once: true
-        });
-        window.closeDlgMute = true;
     }
 
     const ce = (n, t, a) => mCreateElement(n, a, t);
@@ -2441,6 +2436,8 @@ function fingerprintDialog(userid, isAdminVerify, callback) {
                 // Change button state to 'Verified'
                 $('.fm-verify').off('click').addClass('verified').find('span').text(l[6776]);
 
+                verified = true;
+                window.closeDlgMute = null;
                 close();
 
                 if (M.u[userid]) {
@@ -2516,16 +2513,31 @@ function fingerprintDialog(userid, isAdminVerify, callback) {
         footer: {
             slot: [footerNode]
         },
+        onShow: () => {
+            if (isAdminVerify) {
+                // Arm the listener only when the dialog is shown
+                // could leave the global mute and listener active while the wrong dialog is visible
+                listenerToken = mBroadcaster.addListener('mega:openfolder', {
+                    onBroadcast: () => {
+                        fingerprintDialog(u_attr.b.mu[0], true);
+                    },
+                    once: true
+                });
+                window.closeDlgMute = true;
+            }
+        },
         onClose: () => {
 
             window.closeDlgMute = null;
 
             if (isAdminVerify) {
-                new BusinessAccount().sendSubMKey()
-                    .then(() => {
-                        mBroadcaster.removeListener(listenerToken);
-                    })
-                    .catch(tell);
+                // Always drop the openfolder re-trigger listener, otherwise it leaks and
+                mBroadcaster.removeListener(listenerToken);
+
+                // Only push the sub-user's key once the credentials were actually verified
+                if (verified) {
+                    new BusinessAccount().sendSubMKey().catch(tell);
+                }
             }
             else {
                 (callback || mega.ui.CredentialsWarningDialog.rendernext)(userid);
@@ -2533,6 +2545,16 @@ function fingerprintDialog(userid, isAdminVerify, callback) {
         }
     });
 }
+
+lazy(fingerprintDialog, 'sheet', () => {
+    'use strict';
+
+    return new MegaSheet({
+        parentNode: document.body,
+        componentClassname: 'mega-sheet',
+        wrapperClassname: 'sheet'
+    });
+});
 
 /**
  * Implements the behavior of "File Manager - Resizable Panes":
