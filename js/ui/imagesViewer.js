@@ -1994,7 +1994,7 @@ var slideshowid;
                 }
             };
 
-            tSleep.race(20, M.gfsfetch(n.link || n.h, 0, -1, progress)).then((data) => {
+            tSleep.race(240, M.gfsfetch(n.link || n.h, 0, -1, progress)).then((data) => {
                 if (data === ETEMPUNAVAIL) {
                     // timed out
                     throw data;
@@ -2016,8 +2016,6 @@ var slideshowid;
                     $progressBar.addClass('vo-hidden');
                 }
                 else if (slideshowplay && ex === ETEMPUNAVAIL) {
-                    // rather than leaving the user waiting, move to the closest image already cached...if any.
-                    const {forward, backward} = slideshowsteps();
 
                     preqs[n.h] = null;
                     if (slideshowpause) {
@@ -2026,16 +2024,9 @@ var slideshowid;
                         }
                         return;
                     }
-                    for (let blk = [forward, backward], j = 0; j < 2; ++j) {
-                        for (let i = 0; i < blk[j].length; ++i) {
-                            if (previews[blk[j][i]]) {
-                                return slideshow(blk[j][i]);
-                            }
-                        }
-                    }
                 }
 
-                if (loadPreview || isCached) {
+                if (slideshowplay || loadPreview || isCached) {
 
                     loadend(n.h);
                 }
