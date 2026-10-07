@@ -1018,6 +1018,110 @@ class MegaGallery {
     }
 
     addToAllGroup(n, ts) {
+        const monthKey = ts.toFixed(5);
+        const month = this.groups.a[monthKey];
+
+        if (month) {
+            const sortFn = M.sortByModTimeFn();
+            const getNode = h => mega.gallery.getNodeCache(h) || this.updNode[h];
+            let chunkKey = monthKey;
+            let chunk = month;
+
+            // Skip to the right chunk
+            while (chunk.n.length && sortFn(n, getNode(chunk.n[chunk.n.length - 1]), -1) >= 0) {
+                const nextKey = (chunkKey - 0.00001).toFixed(5);
+
+                if (!this.groups.a[nextKey]) {
+                    break;
+                }
+
+                chunkKey = nextKey;
+                chunk = this.groups.a[nextKey];
+            }
+
+            // Binary search to find the position within it
+            let low = 0;
+            let high = chunk.n.length;
+            while (low < high) {
+                const mid = low + high >> 1;
+                if (sortFn(n, getNode(chunk.n[mid]), -1) < 0) {
+                    high = mid;
+                }
+                else {
+                    low = mid + 1;
+                }
+            }
+
+            chunk.n.splice(low, 0, n.h);
+            month.c++;
+
+            const row = this.renderCache[`a${chunkKey}`];
+            if (row) {
+                const cell = this.renderNode(n.h);
+                if (cell) {
+                    const cells = row.getElementsByClassName('data-block-view');
+                    row.querySelector('.content-block').insertBefore(cell, cells[low] || null);
+                }
+                else {
+                    this.clearRenderCache(`a${chunkKey}`);
+                    this.throttledListChange(chunkKey);
+                }
+            }
+
+            let overflowed = false;
+            // Push nodes into next chunks to stop gaps
+            while (chunk.n.length > GalleryNodeBlock.maxGroupChunkSize) {
+                overflowed = true;
+                const moved = chunk.n.pop();
+                const nextKey = (chunkKey - 0.00001).toFixed(5);
+                const curRow = this.renderCache[`a${chunkKey}`];
+                const curCells = curRow && curRow.getElementsByClassName('data-block-view');
+                const cell = curCells && curCells[curCells.length - 1];
+
+                if (!this.groups.a[nextKey]) {
+                    this.groups.a[nextKey] = {l: '', c: 0, n: []};
+                    if (this.dynamicList && this.mode === 'a' && !this.dynamicList.items.includes(nextKey)) {
+                        this.dynamicList.insert(chunkKey, nextKey, this.onpage);
+                    }
+                }
+                this.groups.a[nextKey].n.unshift(moved);
+
+                const nextRow = this.renderCache[`a${nextKey}`];
+                if (cell && nextRow) {
+                    const cells = nextRow.getElementsByClassName('data-block-view');
+                    nextRow.querySelector('.content-block').insertBefore(cell, cells[0] || null);
+                }
+                else if (cell) {
+                    cell.remove();
+                }
+
+                chunkKey = nextKey;
+                chunk = this.groups.a[nextKey];
+            }
+
+            if (overflowed && mega.gallery.hasWebAnimationsApi) {
+                delay('gallery.shimmer-sync', () => {
+                    const cells = this.galleryBlock.getElementsByClassName('shimmer');
+                    for (let i = cells.length; i--;) {
+                        const anims = cells[i].getAnimations();
+                        for (let j = anims.length; j--;) {
+                            anims[j].startTime = 0;
+                        }
+                    }
+                });
+            }
+
+            delay(`gallery.month-count-${monthKey}`, () => {
+                const header = this.renderCache[`a${monthKey}`];
+                const title = header && header.querySelector('.timeline-date-title');
+
+                if (title && title.lastElementChild) {
+                    title.lastElementChild.textContent = mega.icu.format(l.items_count, month.c);
+                }
+            });
+            return;
+        }
+
         const flatNodes = this.flatTargetAllGroup(ts);
 
         flatNodes.push(n.h);
@@ -3508,21 +3612,21 @@ lazy(mega.gallery, 'sections', () => {
             path: 'photos',
             icon: 'photos',
             root: 'photos',
-            filterFn: () => true,
+            filterFn: (n) => M.isGalleryNode(n),
             title: l.gallery_all_locations
         },
         [mega.gallery.secKeys.cuphotos]: {
             path: mega.gallery.secKeys.cuphotos,
             icon: 'photos',
             root: 'photos',
-            filterFn: (n, cameraTree) => cameraTree && cameraTree.includes(n.p),
+            filterFn: (n, cameraTree) => M.isGalleryNode(n) && cameraTree && cameraTree.includes(n.p),
             title: l.gallery_camera_uploads
         },
         [mega.gallery.secKeys.cdphotos]: {
             path: mega.gallery.secKeys.cdphotos,
             icon: 'photos',
             root: 'photos',
-            filterFn: (n, cameraTree) => !cameraTree || !cameraTree.includes(n.p),
+            filterFn: (n, cameraTree) => M.isGalleryNode(n) && (!cameraTree || !cameraTree.includes(n.p)),
             title: l.gallery_from_cloud_drive
         },
         images: {

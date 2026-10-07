@@ -48,6 +48,10 @@ var is_mobile = (function isMobile() {
     }
 })();
 
+if (self.is_mobile && location.search.includes('?autoplay=')) {
+    is_mobile = false;
+}
+
 var is_android = is_mobile && ua.indexOf('android') > 0;
 var is_uc_browser = is_mobile && ua.indexOf('ucbrowser') > 0;
 var is_ios = is_mobile && (ua.indexOf('iphone') > -1 || ua.indexOf('ipad') > -1 || ua.indexOf('ipod') > -1);
@@ -339,9 +343,25 @@ function getCleanSitePath(path) {
     if (path === undefined) {
         path = getSitePath();
 
-        if (location.search && path.indexOf('#') < 0) {
-            location.search.replace(/\w+=[^&]+/g, function(m) {
-                path += '/' + m;
+        var search = location.search;
+        var query = self.hashLogic ? path.search(/\?\w+=/) : -1;
+
+        if (query > 0) {
+            var hash = path.indexOf('#', query);
+
+            search = hash < 0 ? path.substr(query) : path.substring(query, hash);
+            path = path.substr(0, query) + (hash < 0 ? '' : path.substr(hash));
+        }
+
+        if (search) {
+            // parameters honoured even when the URL holds a fragment, such as a public-link key
+            var hashedSearchParams = ['autoplay'];
+            var hashless = !path.includes('#');
+
+            search.replace(/(\w+)=[^&]+/g, function(m, name) {
+                if (hashless || hashedSearchParams.includes(name)) {
+                    path += '/' + m;
+                }
             });
         }
     }
@@ -434,6 +454,9 @@ function getCleanSitePath(path) {
         if (path.mct) {
             window.uTagMCT = path.mct;
         }
+        if (path.mctp) {
+            window.uTagMCTP = path.mctp;
+        }
         if (path.miojid) {
             window.uTagMJID = path.miojid;
         }
@@ -445,6 +468,10 @@ function getCleanSitePath(path) {
         }
         if (path.kbCatId) {
             window.kbCatId = path.kbCatId;
+        }
+
+        if (path.autoplay !== undefined) {
+            window.autoplayOptions = String(path.autoplay).replace(/[^\w,=-]/g, '').substr(0, 100);
         }
 
         if (path.next) {
@@ -1223,14 +1250,17 @@ var isStaticPage = function(page) {
 
 if (hashLogic) {
     // legacy support:
-    page = getCleanSitePath(document.location.hash);
+    page = getCleanSitePath();
+    if (window.autoplayOptions !== undefined) {
+        pushHistoryState(true, {subpage: page, autoplay: window.autoplayOptions});
+    }
 }
 else if ((page = isPublicLink())) {
     // folder or file link: always keep the hash URL to ensure that keys remain client side
     // history.replaceState so that back button works in new URL paradigm
     dl_res = !!page.dl;
     page = String(page.link || page);
-    pushHistoryState(true, page);
+    pushHistoryState(true, {subpage: page, autoplay: window.autoplayOptions});
 }
 else {
     if (document.location.hash.length > 0) {
@@ -2088,6 +2118,7 @@ else if (!browserUpdate) {
     jsl.push({f:'js/config.js', n: 'config_js', j:1,w:5});
     jsl.push({f:'js/crypto.js', n: 'crypto_js', j:1,w:5});
     jsl.push({f:'js/account.js', n: 'user_js', j:1});
+    jsl.push({f:'js/account-switcher.js', n: 'account_switcher_js', j:1});
     jsl.push({f:'js/security.js', n: 'security_js', j: 1, w: 5});
     jsl.push({f:'js/two-factor-auth.js', n: 'two_factor_auth_js', j: 1, w: 5});
     jsl.push({f:'js/attr.js', n: 'mega_attr_js', j:1});
@@ -2387,6 +2418,10 @@ else if (!browserUpdate) {
         jsl.push({f:'js/ui/components/meganz/MTab.js', n: 'm_tab_js', j:1});
         jsl.push({f:'js/ui/components/meganz/MTabs.js', n: 'm_tabs_js', j:1});
 
+        // Temporary for desktop only
+        jsl.push({f:'js/ui/components/chip-input.js', n: 'component_chip_input_js', j: 1, w:1});
+        jsl.push({f:'js/ui/components/anchored-dropdown.js', n: 'component_anchored_dropdown_js', j: 1, w:1});
+
         jsl.push({f:'html/top.html', n: 'top', j:0});
         jsl.push({f:'css/style.css', n: 'style_css', j:2, w:30});
         jsl.push({f:'css/tree.css', n: 'tree_css', j:2, w:30});
@@ -2482,6 +2517,8 @@ else if (!browserUpdate) {
         jsl.push({f:'css/components/meganz/fm-left-pane.css', n: 'fm_left_pane_css', j:2, w:30, c:1, d:1, cache:1});
         jsl.push({f:'css/components/meganz/info-panel.css', n: 'info_panel_css', j:2, w:30, c:1, d:1, cache:1});
         jsl.push({f:'css/components/meganz/storage-block.css', n: 'storage_block_css', j:2, w:30, c:1, d:1, cache:1});
+        jsl.push({f:'css/components/chip-input.css', n: 'component_chip_input_css', j:2, w:30, c:1, d:1, cache:1});
+        jsl.push({f:'css/components/dropdown.css', n: 'component_dropdown_css', j:2, w:30, c:1, d:1, cache:1});
 
         // `Meetings` UI styles
         jsl.push({f:'css/chat-bundle.css', n: 'meetings_css', j:2, w:30});
@@ -2537,9 +2574,8 @@ else if (!browserUpdate) {
     jsl.push({f:'html/js/megasync.js', n: 'megasync_js', j: 1});
     jsl.push({f:'js/fm/linkinfohelper.js', n: 'fm_linkinfohelper_js', j: 1});
     jsl.push({f:'js/eaffiliate.js', n: 'eaffiliate_js', j: 1});
+    jsl.push({f:'js/utags.js', n: 'utags_js', j: 1});
     jsl.push({f:'js/ui/share-dialog.js', n: 'fm_share_js', j: 1});
-    jsl.push({f:'js/ui/share-unverified-contacts-dialog.js', n: 'fm_share_unverified_contacts_js', j: 1});
-    jsl.push({f:'js/ui/share-collaborators-dialog.js', n: 'fm_share_collaborators_js', j: 1});
     jsl.push({f:'js/fm/message-dialog.js', n: 'fm_message-dialog_js', j: 1, w: 1});
     jsl.push({f:'js/fm/message-overlay.js', n: 'fm_message_overlay_js', j: 1, w: 1});
     jsl.push({f:'js/ui/node-name-control.js', n: 'node_name_control_js', j: 1, w: 1});
@@ -2967,6 +3003,7 @@ else if (!browserUpdate) {
         'pdfviewercss': {f:'css/pdf.viewer.css', n: 'pdfviewercss', j:4 },
         'pdfviewerjs': {f:'js/vendor/pdf.viewer.js', n: 'pdfviewerjs', j:4 },
         'filerequest': {f:'html/filerequest.html', n: 'filerequest', j:0 },
+        'filerequest_css': {f:'css/filerequest.css', n: 'filerequest_css', j:2, w:5 },
         'businessAcc_js': {f:'js/fm/megadata/businessaccount.js', n: 'businessAcc_js', j:1 },
         'businessAccUI_js': {f:'js/fm/businessAccountUI.js', n: 'businessAccUI_js', j:1 },
         'charts_js': {f:'js/vendor/Chart.js', n: 'charts_js', j:1},
@@ -3240,7 +3277,7 @@ else if (!browserUpdate) {
         'recover': ['reset', 'reset_js'],
         'redeem': ['redeem', 'redeem_js'],
         'unsub': ['unsub', 'unsub_js'],
-        'filerequest': ['filerequest', 'filerequest_upload_js']
+        'filerequest': ['filerequest', 'filerequest_upload_js', 'filerequest_css']
     };
 
     if (is_mobile) {
@@ -4076,6 +4113,13 @@ else if (!browserUpdate) {
                         if (sessionStorage.sid) {
                             data.k = sessionStorage.k;
                             data.sid = sessionStorage.sid;
+
+                            for (var i = sessionStorage.length; i--;) {
+                                var sk = sessionStorage.key(i);
+                                if (sk && sk.indexOf('@cc$witch!') === 0) {
+                                    (data.acc = data.acc || {})[sk] = sessionStorage.getItem(sk);
+                                }
+                            }
                         }
 
                         setTimeout(function() {
@@ -4089,6 +4133,11 @@ else if (!browserUpdate) {
                             if (value.sid) {
                                 u_storage.k = value.k;
                                 u_storage.sid = value.sid;
+                            }
+                            if (value.acc) {
+                                for (var ak in value.acc) {
+                                    sessionStorage.setItem(ak, value.acc[ak]);
+                                }
                             }
                             ack();
                         }
@@ -4205,6 +4254,10 @@ function pushHistoryState(page, state) {
         state = Object.assign({}, page, state);
         page = state.subpage || state.fmpage || location.hash;
 
+        if (state.autoplay === undefined && Object(history.state).subpage === state.subpage) {
+            state.autoplay = Object(history.state).autoplay;
+        }
+
         if (page.substr(0, 9) === 'fm/search') {
             state.searchString = page.substr(9) || state.searchString;
 
@@ -4221,7 +4274,16 @@ function pushHistoryState(page, state) {
             console.warn('duplicate push state attempt.');
         }
 
-        history[method](state, '', (self.hashLogic || page[1] === '!' ? '#' : '/') + page);
+        var prefix = self.hashLogic || page[1] === '!' ? '#' : '/';
+
+        if (typeof state.autoplay === 'string') {
+            var hash = page.indexOf('#');
+            var param = '?autoplay=' + state.autoplay;
+
+            page = hash < 0 ? page + param : page.substr(0, hash) + param + page.substr(hash);
+        }
+
+        history[method](state, '', prefix + page);
     }
     catch (ex) {
         console.warn(ex);
@@ -4429,69 +4491,6 @@ mBroadcaster.once('startMega', function() {
         delete sessionStorage.sitet;
         onIdle(function() {
             M.transferFromMegaCoNz(data);
-        });
-    }
-
-    if (window.uTagMT) {
-        var mt = window.uTagMT;
-        delete window.uTagMT;
-
-        onIdle(function() {
-            api.req({a: 'mrt', t: mt}).dump('uTagMT');
-        });
-    }
-
-    if (window.uTagMCT) {
-        onIdle(function() {
-            eventlog(99988, window.uTagMCT);
-
-            var mctRec = tryCatch(function() {
-                if (localStorage.mctRec) {
-                    var stored = JSON.parse(localStorage.mctRec);
-                    if (Array.isArray(stored)) {
-                        return stored;
-                    }
-                }
-            }, false)() || [];
-
-            var tagEntry = null;
-
-            for (var i = 0; i < mctRec.length; i++) {
-                if (mctRec[i] && mctRec[i].tag === window.uTagMCT) {
-                    tagEntry = mctRec[i];
-                    break;
-                }
-            }
-
-            if (!tagEntry) {
-                tagEntry = {tag: window.uTagMCT};
-                mctRec.push(tagEntry);
-
-                if (mctRec.length > 20) {
-                    mctRec.shift();
-                }
-            }
-
-            if (!Array.isArray(tagEntry.ts)) {
-                tagEntry.ts = [];
-            }
-
-            tagEntry.ts.push(Date.now());
-
-            if (tagEntry.ts.length > 5) {
-                tagEntry.ts.shift();
-            }
-
-            localStorage.mctRec = JSON.stringify(mctRec);
-
-            delete window.uTagMCT;
-        });
-    }
-
-    if (window.uTagMJID && self.u_attr) {
-        onIdle(function() {
-            api.req({ a: 'log', e: 500674, j: window.uTagMJID }).dump('miojid');
-            delete window.uTagMJID;
         });
     }
 

@@ -23,6 +23,7 @@ function FileManager() {
     this.columnsWidth.cloud.owner = { max: 180, min: 130, curr: 130, viewed: false };
     this.columnsWidth.cloud.numFolders = { max: 280, min: 130, curr: 200, viewed: false };
     this.columnsWidth.cloud.hbtime = { max: 180, min: 130, curr: 130, viewed: false };
+    this.columnsWidth.cloud.fru = { max: 220, min: 130, curr: 180, viewed: false };
 
     this.columnsWidth.makeNameColumnStatic = function() {
 
@@ -113,6 +114,8 @@ function FileManager() {
             M.columnsWidth.cloud.label.disabled = true;
             M.columnsWidth.cloud.accessCtrl.viewed = false;
             M.columnsWidth.cloud.accessCtrl.disabled = true;
+            M.columnsWidth.cloud.fru.viewed = false;
+            M.columnsWidth.cloud.fru.disabled = true;
 
             if (String(M.currentdirid).startsWith('search/')) {
                 M.columnsWidth.cloud.fileLoc.viewed = true;
@@ -138,7 +141,9 @@ function FileManager() {
             if (storedColumnsPreferences === undefined) {
                 // restore default columns (to show/hide columns)
                 const defaultColumnShow = new Set(['fav', 'fname', 'size', 'type', 'timeAd', 'extras', 'accessCtrl']);
-                const defaultColumnHidden = new Set(['label', 'timeMd', 'versions', 'playtime', 'fileLoc', 'owner']);
+                const defaultColumnHidden = new Set(
+                    ['label', 'timeMd', 'versions', 'playtime', 'fileLoc', 'owner', 'fru']
+                );
 
                 for (const col in M.columnsWidth.cloud) {
                     if (defaultColumnShow.has(col)) {
@@ -217,6 +222,15 @@ function FileManager() {
             else {
                 M.columnsWidth.cloud.accessCtrl.viewed = false;
                 M.columnsWidth.cloud.accessCtrl.disabled = true;
+            }
+
+            if (M.currentrootid === 'file-requests' && M.currentdirid !== M.currentrootid) {
+                M.columnsWidth.cloud.fru.viewed = true;
+                M.columnsWidth.cloud.fru.disabled = false;
+            }
+            else {
+                M.columnsWidth.cloud.fru.viewed = false;
+                M.columnsWidth.cloud.fru.disabled = true;
             }
         }
 
@@ -620,8 +634,6 @@ FileManager.prototype.initFileManagerUI = function() {
             || $.dialog === 'stripe-pay'
             || $.dialog === 'start-meeting-dialog'
             || $.dialog === 'meetings-call-consent'
-            || $.dialog === 'fingerprint-dialog'
-            || $.dialog === 'fingerprint-admin-dlg'
             || $.dialog === 'meetings-schedule-dialog'
             || $.dialog === 'upgrade-to-pro-dialog'
             || String($.dialog).startsWith('verify-email')
@@ -1045,9 +1057,10 @@ FileManager.prototype.initFileManagerUI = function() {
             'js-selectable-text',
             'nw-conversations-name',
             'albums-grid',
+            'chip-editor',
         ];
         var ALLOWED_PARENTS =
-            '#startholder, .fm-account-main, .export-link-item, .contact-fingerprint-txt, .fm-breadcrumbs, ' +
+            '#startholder, .fm-account-main, .export-link-item, .fingerprint, .fm-breadcrumbs, ' +
             '.text-editor-container, .media-viewer .img-wrap';
         var ALLOWED_CLOSEST =
             '.multiple-input, .create-folder-input-bl, .content-panel.conversations, ' +
@@ -1749,7 +1762,7 @@ FileManager.prototype.updFileManagerUI = async function() {
         await renderPromise;
     }
 
-    if (UItree && this.nodeRemovalUIRefresh.pending !== this.currentdirid) {
+    if (UItree && !this.albums && this.nodeRemovalUIRefresh.pending !== this.currentdirid) {
         this.onTreeUIOpen(this.currentdirid);
     }
 
@@ -2037,16 +2050,16 @@ FileManager.prototype.initFileAndFolderSelectDialog = async function(type) {
     const diag = freeze({
         'create-new-link': {
             title: l[20667],
-            className: 'no-incoming', // Hide incoming share tab
             selectLabel: l[1523],
-            folderSelectable: true
+            folderSelectable: true,
+            hideIncoming: true,
         },
         'open-file': {
             title: l[22666],
-            className: 'no-incoming', // Hide incoming share tab
             selectLabel: l[865],
             folderSelectNotAllowed: true,
             folderSelectable: false, // Can select folder(s)
+            hideIncoming: true,
             customFilterFn(node) {
                 if (node.t) {
                     return true;
@@ -2077,7 +2090,7 @@ FileManager.prototype.initFileAndFolderSelectDialog = async function(type) {
         title: l[8011],
         selectLabel: l[1523],
         folderSelectable: true,
-        className: 'no-incoming',
+        hideIncoming: true,
         onClose: () => {
             doClose();
         },
@@ -2319,6 +2332,9 @@ FileManager.prototype.initUIKeyEvents = function() {
                         $elm.trigger('click').trigger('dblclick');
                     }
                     else {
+                        if (is_video(n)) {
+                            $.autoplay = n.h;
+                        }
                         slideshow($.selected[0]);
                     }
                 }
@@ -2343,7 +2359,7 @@ FileManager.prototype.initUIKeyEvents = function() {
         }
         else if (e.keyCode == 27 && $.dialog) {
             if ($.dialog === 'share-add' || $.dialog === 'share' || $.dialog === 'meetings-schedule-dialog' ||
-                $.fingerprintDialog) {
+                $.msgDialog === 'switch-limit') {
                 return false;
             }
             closeDialog();
@@ -3496,14 +3512,18 @@ FileManager.prototype.getLinkAction = function(selNodes, isEmbed) {
 
         const mdList = mega.fileRequestCommon.storage.isDropExist(selNodes);
         if (mdList.length) {
-            const fldName = mdList.length > 1 ? l[17626] :
-                l[17403].replace('%1', escapeHTML(M.getNodeByHandle(mdList[0]).name));
-
-            msgDialog('confirmation', l[1003], fldName, l[18229], function(e) {
-                if (e) {
-                    mega.fileRequest.removeList(mdList, true).then(showDialog).catch(dump);
-                }
-            });
+            msgDialog(
+                `warninga:!^${l.file_request_action_remove_prompt_button}!${l[82]}`,
+                l[1003],
+                l.file_request_action_remove_prompt_title,
+                mdList.length > 1 ? l.fr_action_links_cancel : l.fr_action_link_cancel,
+                (e) => {
+                    if (e === false) {
+                        mega.fileRequest.removeList(mdList, true).then(showDialog).catch(dump);
+                    }
+                },
+                1
+            );
         }
         else {
             showDialog();
@@ -3672,7 +3692,18 @@ FileManager.prototype.initStatusBarLinks = function() {
             openMoveDialog();
         }
         else if (this.classList.contains('info')) {
-            mega.ui.mInfoPanel.show($.selected);
+            if (M.isAlbumsPage()) {
+                if (
+                    mega.gallery.albums.grid &&
+                    mega.gallery.albums.grid.timeline &&
+                    mega.gallery.albums.grid.timeline.selections
+                ) {
+                    mega.ui.mInfoPanel.show(Object.keys(mega.gallery.albums.grid.timeline.selections));
+                }
+            }
+            else {
+                mega.ui.mInfoPanel.show($.selected);
+            }
             if (M.isGalleryPage()) {
                 eventlog(501107);
             }
@@ -3789,11 +3820,6 @@ FileManager.prototype.cameraUploadUI = function() {
         'confirm-account-dialog': ['languages'],
         selectFolder: ['create-folder', 's4-create-bucket'],
         saveAs: ['create-folder', 's4-create-bucket'],
-        share: [
-            'share-with-unverified-contacts', 'fingerprint-dialog', 'contact-info', 'share-access-contacts-dialog'
-        ],
-        'share-with-unverified-contacts': ['fingerprint-dialog'],
-        'share-access-contacts-dialog': ['fingerprint-dialog'],
         'stripe-pay': ['stripe-pay-success', 'stripe-pay-failure'],
         'sendToChat': ['start-group-chat'],
     };

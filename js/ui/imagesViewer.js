@@ -278,7 +278,13 @@ var slideshowid;
                 }
             }
 
-            if (!$overlay.is('.video-theatre-mode')) {
+            if ($overlay.hasClass('video-theatre-mode')) {
+                const {caption} = mega.slideshow.settings;
+                if (caption) {
+                    caption.position();
+                }
+            }
+            else {
                 slideshow_imgPosition($overlay);
             }
 
@@ -778,8 +784,12 @@ var slideshowid;
     function slideshow_imgPosition($overlay) {
         const $imgWrap = $('.img-wrap', $overlay);
         const $img = $('img.active', $overlay);
+        const {caption} = mega.slideshow.settings;
 
         if ($img.length === 0) {
+            if (caption) {
+                caption.position();
+            }
             return false;
         }
 
@@ -832,6 +842,10 @@ var slideshowid;
 
         if (is_mobile && mega.ui.viewerOverlay) {
             mega.ui.viewerOverlay.zoom = imgWidth / origImgWidth * devicePixelRatio * 100;
+        }
+
+        if (caption) {
+            caption.positionTo($img);
         }
     }
 
@@ -1669,7 +1683,7 @@ var slideshowid;
         slideshow_timereset(rv);
     }
 
-    function slideshow_playMode(isAuto) {
+    function slideshow_playMode(isAuto, isPaused) {
         if (!isAuto) {
             delete mega.slideshow.settings.override;
         }
@@ -1708,6 +1722,46 @@ var slideshowid;
         $slideshowControlsUpper.removeClass('hidden');
         $prevNextButtons.addClass('hidden');
         $repeatButton.addClass('disabled').attr('disabled', 'disabled');
+
+        const {caption} = mega.slideshow.settings;
+        if (caption) {
+            caption.position();
+        }
+
+        if (isPaused) {
+            const play = mCreateElement('i', { 'class': 'sprite-fm-mono icon-play-thin-solid' });
+            const overlay = mCreateElement('div', { 'class': 'autoplay-overlay theme-dark-forced' }, [
+                play
+            ]);
+            const blockTyping = (ev) => {
+                ev.stopPropagation();
+                if (ev.key === 'Enter' || ev.key === ' ') {
+                    ev.preventDefault();
+                    play.click();
+                }
+            };
+            const dismiss = () => {
+                overlay.remove();
+                document.removeEventListener('keydown', blockTyping, true);
+                $overlay.removeClass('autoplay-overlayed');
+            };
+            play.addEventListener('click', () => {
+                dismiss();
+                slideshow_toggle_pause($('.sl-btn.playpause', $slideshowControls));
+
+                if (fullScreenManager) {
+                    fullScreenManager.enterFullscreen();
+                }
+                if (is_video(slideshow_node(slideshow_handle()))) {
+                    $('.play-video-button', $overlay).trigger('click');
+                }
+            });
+            mBroadcaster.once('slideshow:close', dismiss);
+            document.addEventListener('keydown', blockTyping, true);
+            document.body.appendChild(overlay);
+            $overlay.addClass('autoplay-overlayed');
+            slideshow_toggle_pause($('.sl-btn.playpause', $slideshowControls));
+        }
 
         if (zoomPan) {
             zoomPan.reset();
@@ -1940,7 +1994,7 @@ var slideshowid;
                 }
             };
 
-            tSleep.race(20, M.gfsfetch(n.link || n.h, 0, -1, progress)).then((data) => {
+            tSleep.race(240, M.gfsfetch(n.link || n.h, 0, -1, progress)).then((data) => {
                 if (data === ETEMPUNAVAIL) {
                     // timed out
                     throw data;
@@ -1962,8 +2016,6 @@ var slideshowid;
                     $progressBar.addClass('vo-hidden');
                 }
                 else if (slideshowplay && ex === ETEMPUNAVAIL) {
-                    // rather than leaving the user waiting, move to the closest image already cached...if any.
-                    const {forward, backward} = slideshowsteps();
 
                     preqs[n.h] = null;
                     if (slideshowpause) {
@@ -1972,16 +2024,9 @@ var slideshowid;
                         }
                         return;
                     }
-                    for (let blk = [forward, backward], j = 0; j < 2; ++j) {
-                        for (let i = 0; i < blk[j].length; ++i) {
-                            if (previews[blk[j][i]]) {
-                                return slideshow(blk[j][i]);
-                            }
-                        }
-                    }
                 }
 
-                if (loadPreview || isCached) {
+                if (slideshowplay || loadPreview || isCached) {
 
                     loadend(n.h);
                 }
@@ -2130,16 +2175,23 @@ var slideshowid;
         $content.removeClass('hidden');
         $('.viewer-pending', $content).addClass('hidden');
 
+        const {caption} = mega.slideshow.settings;
+        const media = MediaAttribute(n).data;
+        if (caption) {
+            caption.positionTo($video, media);
+            $video.rebind('loadedmetadata.caption', () => caption.positionTo($video));
+        }
+
         if (n.name) {
-            var c = MediaAttribute.getCodecStrings(n);
+            var c = media && MediaAttribute.getCodecStrings(media);
             if (c) {
                 $('header .file-name', $overlay).attr('title', c);
             }
         }
 
         if (previews[id].poster !== undefined) {
-            // $video.attr('poster', previews[id].poster);
-            $video.css('background-image', `url(${previews[id].poster})`);
+            $video.attr('poster', previews[id].poster);
+            // $video.css('background-image', `url(${previews[id].poster})`);
         }
         else if (String(n.fa).indexOf(':1*') > 0) {
             getImage(n, 1).then(function(uri) {
@@ -2161,6 +2213,19 @@ var slideshowid;
         previews[id].poster = previews[id].poster || '';
 
         if ($.autoplay === id) {
+            if ($.autoplayMuted) {
+                const video = $video[0];
+                video.muted = true;
+                if (!video.autoplayUnmuteBound) {
+                    video.autoplayUnmuteBound = true;
+                    video.addEventListener('volumechange', (ev) => {
+                        if (!ev.currentTarget.muted) {
+                            delete $.autoplayMuted;
+                        }
+                    });
+                }
+            }
+
             queueMicrotask(() => {
                 $playVideoButton.trigger('click');
             });

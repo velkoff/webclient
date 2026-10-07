@@ -88,7 +88,7 @@ function addNewContact($addButton, cd) {
             // after all process is done, and there is added email(s), show invitation sent dialog.
             Promise.allSettled(promises).always(() => {
                 const shareFolderName = $.dialog === 'share'
-                    && $('.share-dialog-folder-name', '.mega-dialog.share-dialog').text();
+                    && $('.info-wrap .name', '.mega-sheet.share-dialog').text();
 
                 if (addedEmails.length > 0) {
                     title = mega.icu.format(l.contacts_invited_title, addedEmails.length);
@@ -396,40 +396,44 @@ function initAddDialogMultiInputPlugin() {
  * @param {String} msg Dialog message
  * @param {Boolean} close Dialog parameter
  */
-function contactsInfoDialog(title, username, msg, close) {
+function contactsInfoDialog(title, username, msg) {
     'use strict';
 
-    var $d = $('.mega-dialog.contact-info');
-    var $msg = $('.new-contact-info', $d);
+    const name = 'contact-info';
+    const {sheet, mShareDialog} = mega.ui;
 
-    // Hide
-    if (close) {
-        closeDialog();
-        return true;
-    }
+    msg = username && msg
+        ? msg.replace(/%1|\[X]/g, `<span>${escapeHTML(username)}</span>`)
+        : escapeHTML(msg || '');
 
-    if (title) {
-        $('#contact-info-title', $d).text(title);
-    }
-    else {
-        $('#contact-info-title', $d).text('');
-    }
+    title = title || l[19126];
 
-    if (username && msg) {
-        $msg.safeHTML(msg.replace(/%1|\[X\]/g, '<span>' + username + '</span>'));
-    }
-    else if (msg) {
-        $msg.text(msg);
-    }
+    const footerNode = mCreateElement('div', {class: 'flex flex-row-reverse'});
 
-    $('button.js-close, button.ok', $d).rebind('click', function() {
-        contactsInfoDialog(undefined, undefined, undefined, 1);
+    MegaButton.factory({
+        parentNode: footerNode,
+        text: l.ok_button,
+        componentClassname: 'slim',
+    }).on('click.share', () => {
+        sheet.close();
     });
 
-    // Set dialog name - used in overall closeDialog() logic
-    $.contactInfoDialog = 'contact-info';
-
-    M.safeShowDialog('contact-info', $d);
+    sheet.show({
+        name,
+        title,
+        icon: 'icon-email-link-3d',
+        showClose: true,
+        safeShow: $.dialog !== 'share',
+        contents: [msg],
+        footer: {
+            slot: [footerNode]
+        },
+        onClose: () => {
+            if ($.dialog === 'share') {
+                mShareDialog.renderAccessList();
+            }
+        }
+    });
 }
 
 /**
@@ -672,6 +676,7 @@ function fmtopUI() {
             !(
                 M.onDeviceCenter ||
                 M.currentdirid === 'shares' ||
+                M.currentdirid === 'file-requests' ||
                 M.currentdirid === M.RubbishID ||
                 M.currentdirid === 'faves' ||
                 M.currentdirid === 'recents'
@@ -781,7 +786,7 @@ function fmtopUI() {
             $('.fm-right-files-block', document).addClass('visible-notification');
 
             if (M.currentdirid === M.currentrootid) {
-                primary = '.fm-new-file-request';
+                primary = M.v.length ? '.fm-new-file-request' : false;
                 mega.ui.secondaryNav.hideBreadcrumb();
                 mega.ui.secondaryNav.domNode.classList.add('no-small-content');
             }
@@ -1236,6 +1241,14 @@ function FMShortcuts() {
             !M.gallery &&
             !M.albums
         ) {
+            // Backspace goes one level up, Ctrl/Cmd+Backspace still removes
+            if (!e.ctrlKey && !e.metaKey) {
+                if (!$.msgDialog && !(e.originalEvent && e.originalEvent.repeat)) {
+                    M.openParentFolder();
+                }
+                return false;
+            }
+
             if (M.isInvalidUserStatus() || $.msgDialog === 'remove') {
                 return;
             }
@@ -1509,31 +1522,6 @@ function openContactInfoLink(contactLink) {
 }
 
 /**
- * updateDialogDropDownList
- *
- * Extract id from list of emails, preparing it for extrusion,
- * fill multi-input dropdown list with not used emails.
- *
- * @param {String} dialog multi-input dialog class name.
- */
-function updateDialogDropDownList(dialog) {
-
-    var listOfEmails = M.getContactsEMails(),
-        allEmails = [],
-        contacts;
-
-    // Loop through email list and extrude id
-    for (var i in listOfEmails) {
-        if (listOfEmails.hasOwnProperty(i)) {
-            allEmails.push(listOfEmails[i].id);
-        }
-    }
-
-    contacts = excludeIntersected($.sharedTokens, allEmails);
-    addToMultiInputDropDownList(dialog, contacts);
-}
-
-/**
  * checkMultiInputPermission
  *
  * Check DOM element permission level class name.
@@ -1665,7 +1653,8 @@ function closeDialog(ev) {
         tryCatch(mega.onCloseDialogDispatcher)();
     }
 
-    if ($('.mega-dialog.incoming-call-dialog').is(':visible') === true || $.dialog === 'download-pre-warning') {
+    if ($('.mega-dialog.incoming-call-dialog').is(':visible') === true || $.dialog === 'download-pre-warning'
+        || $.msgDialog === 'switch-limit') {
         // managing dialogs should be done properly in the future, so that we won't need ^^ bad stuff like this one
         return false;
     }
@@ -1691,67 +1680,20 @@ function closeDialog(ev) {
         fm_showoverlay();
         delete $.dialog;
     }
-    else if ($.dialog === 'fingerprint-dialog' && $.shareCollaboratorsDialog && $.shareDialog) {
-
-        // Update rendering to account for new contact verified status
-        mega.ui.mShareCollaboratorsDialog.render();
-
-        // Close FP fialog, put Share Collaborators dialog back to the front and Share dialog should be behind it
-        $('.fingerprint-dialog').addClass('hidden');
-        $('.share-access-contacts-dialog').removeClass('arrange-to-back hidden');
-        $('.share-dialog').addClass('arrange-to-back');
-    }
-    else if ($.dialog === 'fingerprint-dialog' && $.shareWithUnverifiedDialog && $.shareDialog) {
-
-        // Close FP fialog, put Unverified Contacts dialog back to front and Share dialog should be behind it
-        $('.fingerprint-dialog').addClass('hidden');
-        $('.share-with-unverified-contacts').removeClass('arrange-to-back hidden');
-        $('.share-dialog').addClass('arrange-to-back');
-    }
     else if ($.dialog === 'fingerprint-dialog' && $.shareDialog) {
-        document.querySelector('.fingerprint-dialog').classList.add('hidden');
+
+        // Returning from the fingerprint dialog: refresh the access list (the
+        // verified status may have changed) and bring the Share dialog forward.
+        mega.ui.mShareDialog.renderAccessList();
     }
-    else if ($.dialog === 'fingerprint-admin-dlg' && window.closeDlgMute) {
+    else if ($.dialog === 'share' && $.shareDialog) {
+        // Closing the Share dialog itself. Drop its routing flag first so the teardown
+        // below runs and clears $.dialog
+        delete $.shareDialog;
+        mega.ui.mShareDialog.hide();
+    }
+    else if ($.dialog === 'fingerprint-dialog' && window.closeDlgMute) {
         return false;
-    }
-    else if ($.dialog === 'share' && $('#msgDialog').not('.hidden').length === 1) {
-
-        // If they were on the Share With Non-Contact confirm dialog, bring the Share dialog back to the forefront
-        $('#msgDialog').addClass('hidden');
-        $('.share-dialog').removeClass('arrange-to-back hidden');
-    }
-    else if ($.dialog === 'contact-info' && $.shareDialog) {
-
-        // Close the Contact/s Invited dialog and show the Share dialog again
-        $('.contact-info').addClass('hidden');
-        $('.share-dialog').removeClass('arrange-to-back hidden');
-
-        // Update the Access list
-        mega.ui.mShareDialog.renderAccessList();
-
-        delete $.contactInfoDialog;
-    }
-    else if ($.dialog === 'share-access-contacts-dialog' && $.shareDialog) {
-
-        // Hide the Share Collaborators dialog and bring the Share dialog back to the front
-        $('.mega-dialog.share-access-contacts-dialog').addClass('hidden');
-        $('.share-dialog').removeClass('arrange-to-back hidden');
-
-        // Update the Access list
-        mega.ui.mShareDialog.renderAccessList();
-
-        delete $.shareCollaboratorsDialog;
-    }
-    else if ($.dialog === 'share-with-unverified-contacts' && $.shareDialog) {
-
-        // When returning to the main Share dialog (render any avatar updates made in the meantime)
-        mega.ui.mShareUnverifiedsDialog.close();
-
-        // Hide the Unverified Contacts dialog and bring the Share dialog back to the front
-        $('.mega-dialog.share-with-unverified-contacts').addClass('hidden');
-        $('.share-dialog').removeClass('arrange-to-back hidden');
-
-        delete $.shareWithUnverifiedDialog;
     }
     else if (($.dialog === 'pro-login-dialog' || $.dialog === 'pro-register-dialog' ||
         $.dialog === 'confirm-account-dialog') && mega.ui.auth && mega.ui.auth.dialogComponent) {
@@ -1779,18 +1721,6 @@ function closeDialog(ev) {
         $('.add-contact-multiple-input').tokenInput("clearOnCancel");
         $('.share-multiple-input').tokenInput("clearOnCancel");
 
-        if ($.dialog === 'share') {
-            // share dialog
-            $('.share-dialog-access-node').remove();
-            mega.ui.mShareDialog.hidePermissionsMenu();
-
-            delete $.sharedTokens;
-            delete $.contactPickerSelected;
-            delete $.addContactsToShare;
-            delete $.changedPermissions;
-            delete $.removedContactsFromShare;
-        }
-
         delete $.copyDialog;
         delete $.moveDialog;
         delete $.copyToShare;
@@ -1799,7 +1729,6 @@ function closeDialog(ev) {
         delete $.selectFolderDialog;
         delete $.saveAsDialog;
         delete $.nodeSaveAs;
-        delete $.shareDialog;
         delete $.fileRequestNew;
         onIdle(() => {
             delete $.albumUpload;
@@ -1889,28 +1818,12 @@ function closeDialog(ev) {
         $.dialog = $.copyDialog || $.moveDialog || $.selectFolderDialog || $.saveAsDialog || $.sendToChatDialog;
     }
 
-    if ($.fingerprintDialog && $.shareCollaboratorsDialog && $.shareDialog) {
+    if ($.shareDialog) {
 
-        // Fingerprint dialog will be closed, then Share Collaborators dialog put to front and Share dialog behind it
-
-        // eslint-disable-next-line local-rules/hints
-        $.dialog = $.shareCollaboratorsDialog;
-    }
-    else if ($.fingerprintDialog && $.shareWithUnverifiedDialog && $.shareDialog) {
-
-        // Fingerprint dialog will be closed, then Unverified Contacts dialog put to front and Share dialog behind it
-
-        // eslint-disable-next-line local-rules/hints
-        $.dialog = $.shareWithUnverifiedDialog;
-    }
-    else if ($.shareDialog) {
-
-        // If the Share Collaborators / Unverified Contacts / Contact Info dialog were closed, return to share dialog
+        // After a nested dialog (fingerprint / contact info) closes, return to the Share dialog
         // eslint-disable-next-line local-rules/hints
         $.dialog = $.shareDialog;
     }
-
-    delete $.fingerprintDialog;
 
     mBroadcaster.sendMessage('closedialog');
 }
@@ -2428,112 +2341,70 @@ function fingerprintDialog(userid, isAdminVerify, callback) {
     // Add log to see how often they open the verify dialog
     eventlog(99601, !!isAdminVerify);
 
-    const $dialog = $('.fingerprint-dialog');
-    const $backgroundOverlay = $('.fm-dialog-overlay', 'body');
+    const {sprites} = mega.ui;
+    const name = 'fingerprint-dialog';
+    const isMandatory = isAdminVerify === true || isAdminVerify === null;
+    const sheet = isMandatory ? fingerprintDialog.sheet : mega.ui.sheet;
 
-    $dialog.toggleClass('e-modal', isAdminVerify === null);
-    $dialog.toggleClass('admin-verify', isAdminVerify === true);
     let titleTxt = l.verify_credentials;
     let subTitleTxt = l.contact_ver_dialog_content;
     let approveBtnTxt = l.mark_as_verified;
-    let credentialsTitle = l[6780];
     let listenerToken = null;
+    let verified = false;
     window.closeDlgMute = null;
 
     if (isAdminVerify) {
         titleTxt = l.bus_admin_ver;
         subTitleTxt = l.bus_admin_ver_sub;
         approveBtnTxt = l[1960];
-        credentialsTitle = l.bus_admin_cred;
-        listenerToken = mBroadcaster.addListener('mega:openfolder', {
-            onBroadcast: () => {
-                fingerprintDialog(u_attr.b.mu[0], true);
-            },
-            once: true
-        });
-        window.closeDlgMute = true;
     }
 
-    $('header h2', $dialog).text(titleTxt);
-    $('.content-block p.sub-title-txt', $dialog).text(subTitleTxt);
-    $('.footer-container .dialog-approve-button span', $dialog).text(approveBtnTxt);
-    $('.fingerprint-code .contact-fingerprint-title', $dialog).text(credentialsTitle);
+    const ce = (n, t, a) => mCreateElement(n, a, t);
+    const content = ce('div', null, {class: 'content-block'});
 
-    const closeFngrPrntDialog = () => {
+    ce('p', content).textContent = subTitleTxt;
 
-        window.closeDlgMute = null;
-        closeDialog();
-        $('button.js-close', $dialog).off('click');
-        $('.dialog-approve-button', $dialog).off('click');
-        $('.dialog-skip-button', $dialog).off('click');
-        $backgroundOverlay.off('click.closeMsgDialog');
+    const contactData = ce('div', content, {class: 'contact-data'});
+    const contactBody = ce('div', contactData, {class: 'contact-body'});
 
-        if (!isAdminVerify) {
-            callback = callback || mega.ui.CredentialsWarningDialog.rendernext;
-            callback(userid);
-        }
-        else {
-            const bus = new BusinessAccount();
-            bus.sendSubMKey()
-                .then(() => {
-                    mBroadcaster.removeListener(listenerToken);
-                })
-                .catch(tell);
-        }
-    };
+    MegaAvatarComponent.factory({
+        parentNode: ce('div', contactBody, {class: 'contact-avatar'}),
+        userHandle: userid,
+        size: 64
+    });
 
-    $('.fingerprint-avatar', $dialog).empty()
-        .append($(useravatar.contact(userid, 'semi-mid-avatar')));
+    const contactInfo = ce('div', contactBody, {class: 'contact-info selectable-txt'});
+    ce('div', contactInfo, {class: 'name'}).textContent = M.getNameByHandle(user.u);
+    ce('div', contactInfo, {class: 'email'}).textContent = user.m;
 
-    $('.contact-details-user-name', $dialog)
-        .text(M.getNameByHandle(user.u)) // escape HTML things
-        .end()
-        .find('.contact-details-email')
-        .text(user.m); // escape HTML things
+    const contactCreads = ce('div', contactData, {class: 'creds selectable-txt'});
+    ce('p', contactCreads).textContent = l.contacts_creds_lbl;
 
-    $('.fingerprint-txt', $dialog).empty();
+    const note = ce('div', content, {class: 'note'});
+    ce('i', note, {class: `${sprites.mono} icon-info-thin-outline`});
+    ce('span', note).textContent = l.contact_ver_dialog_banner;
 
+    const ownCreads = ce('div', content, {class: 'creds selectable-txt'});
+    ce('p', ownCreads).textContent = l.own_creds_lbl;
+
+    // Own credentials
     userFingerprint(u_handle, (fprint) => {
-        const target = $('.fingerprint-bott-txt .fingerprint-txt');
-        fprint.forEach(function(v) {
-            $('<span>').text(v).appendTo(target);
-        });
+        for (const word of fprint) {
+            ce('span', ownCreads).textContent = word;
+        }
     });
 
+    // Contact credentials
     userFingerprint(user, (fprint) => {
-        let offset = 0;
-        $dialog.find('.fingerprint-code .fingerprint-txt').each(function() {
-            let that = $(this);
-
-            fprint.slice(offset, offset + 5).forEach(function(v) {
-                $('<span>').text(v).appendTo(that);
-                offset++;
-            });
-        });
+        for (const word of fprint) {
+            ce('span', contactCreads).textContent = word;
+        }
     });
 
-    // The Skip or Close functionality
-    const skipOrCloseFunction = () => {
+    const close = () => sheet.close();
 
-        // Run the regular behaviour for Skip (or Close button)
-        if (isAdminVerify) {
-            return;
-        }
-        closeFngrPrntDialog();
-        return false;
-    };
-
-    $('button.js-close, .dialog-skip-button', $dialog).rebind('click', skipOrCloseFunction);
-
-    // On clicking the background overlay
-    $backgroundOverlay.rebind('click.closeMsgDialog', () => {
-        if (isAdminVerify === null || isAdminVerify === true) {
-            return false;
-        }
-        return skipOrCloseFunction();
-    });
-
-    $('.dialog-approve-button', $dialog).rebind('click', () => {
+    // Mark the contact's credentials as verified.
+    const approve = () => {
 
         // Add log to see how often they verify the fingerprints
         api_req({ a: 'log', e: 99602, m: 'Fingerprint verification approved' });
@@ -2565,7 +2436,9 @@ function fingerprintDialog(userid, isAdminVerify, callback) {
                 // Change button state to 'Verified'
                 $('.fm-verify').off('click').addClass('verified').find('span').text(l[6776]);
 
-                closeFngrPrntDialog();
+                verified = true;
+                window.closeDlgMute = null;
+                close();
 
                 if (M.u[userid]) {
                     M.u[userid].trackDataChange(M.u[userid], "fingerprint");
@@ -2587,15 +2460,8 @@ function fingerprintDialog(userid, isAdminVerify, callback) {
 
                     if ($.dialog === 'share') {
 
-                        const contact = document.querySelector(`.share-dialog-access-list [id="${userid}"]`);
-
-                        if (contact) {
-
-                            contact.classList.remove('unverified-contact');
-                            contact.querySelector('.avatar-wrapper').classList.add('verified');
-                        }
-
-                        mega.ui.mShareDialog.contentCheck();
+                        // Re-render the access list to reflect the new verified status.
+                        mega.ui.mShareDialog.renderAccessList();
                     }
                 }
             })
@@ -2616,12 +2482,79 @@ function fingerprintDialog(userid, isAdminVerify, callback) {
             .finally(() => {
                 loadingDialog.hide();
             });
+    };
+
+    // Footer buttons
+    const footerNode = ce('div', null, {class: 'flex flex-row-reverse'});
+
+    MegaButton.factory({
+        parentNode: footerNode,
+        text: approveBtnTxt,
+        componentClassname: 'mx-2'
+    }).on('click.approve', approve);
+
+    if (!isMandatory) {
+        MegaButton.factory({
+            parentNode: footerNode,
+            text: l[1379],
+            componentClassname: 'secondary mx-2'
+        }).on('click.skip', () => {
+            close();
+        });
+    }
+
+    sheet.show({
+        name,
+        title: titleTxt,
+        showClose: !isMandatory,
+        preventBgClosing: isMandatory,
+        safeShow: $.dialog !== 'share',
+        contents: [content],
+        footer: {
+            slot: [footerNode]
+        },
+        onShow: () => {
+            if (isAdminVerify) {
+                // Arm the listener only when the dialog is shown
+                // could leave the global mute and listener active while the wrong dialog is visible
+                listenerToken = mBroadcaster.addListener('mega:openfolder', {
+                    onBroadcast: () => {
+                        fingerprintDialog(u_attr.b.mu[0], true);
+                    },
+                    once: true
+                });
+                window.closeDlgMute = true;
+            }
+        },
+        onClose: () => {
+
+            window.closeDlgMute = null;
+
+            if (isAdminVerify) {
+                // Always drop the openfolder re-trigger listener, otherwise it leaks and
+                mBroadcaster.removeListener(listenerToken);
+
+                // Only push the sub-user's key once the credentials were actually verified
+                if (verified) {
+                    new BusinessAccount().sendSubMKey().catch(tell);
+                }
+            }
+            else {
+                (callback || mega.ui.CredentialsWarningDialog.rendernext)(userid);
+            }
+        }
     });
-
-    $.fingerprintDialog = 'fingerprint-dialog';
-
-    M.safeShowDialog(isAdminVerify ? 'fingerprint-admin-dlg' : 'fingerprint-dialog', $dialog);
 }
+
+lazy(fingerprintDialog, 'sheet', () => {
+    'use strict';
+
+    return new MegaSheet({
+        parentNode: document.body,
+        componentClassname: 'mega-sheet',
+        wrapperClassname: 'sheet'
+    });
+});
 
 /**
  * Implements the behavior of "File Manager - Resizable Panes":

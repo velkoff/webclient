@@ -231,6 +231,48 @@ body.pwm-ui .mega-header .top-block {
     width: calc(100% + 32px);
     margin-inline-start: -16px;
 }
+
+/* Account switcher submenu: round avatar + single-line (ellipsis) name/email */
+.mega-header .sub-menu.accounts .switch-account-avatar {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+}
+.mega-header .sub-menu.accounts .switch-account-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.mega-header .sub-menu.accounts .switch-account-session .text-box-wrapper {
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+}
+.mega-header .sub-menu.accounts .switch-account-session .primary-text,
+.mega-header .sub-menu.accounts .switch-account-session .sub-text {
+    display: block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mega-header .sub-menu.accounts .switch-account-delete {
+    cursor: pointer;
+    background-color: var(--mobile-page-background);
+    padding: 4px;
+    border-radius: 4px;
+}
+.mega-header .sub-menu.accounts .switch-account-delete:hover {
+    background-color: var(--mobile-button-outline-background-hover);
+}
 .mega-header div.header-dropdown-menu .nav-elem.normal.link:hover span {
     color: inherit;
 }

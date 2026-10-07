@@ -41,7 +41,7 @@ Object.defineProperties(window, {
 
 // @see {@link fm_fullreload}
 Object.defineProperty(mega, 'halt', {
-    async value(reason) {
+    async value(reason, data) {
         'use strict';
 
         if (self.fminitialized) {
@@ -54,7 +54,7 @@ Object.defineProperty(mega, 'halt', {
             }
 
             mBroadcaster.crossTab.leave();
-            watchdog.notify(`halt(${reason})`);
+            watchdog.notify(`halt(${reason})`, data);
 
             // stop further SC processing
             window.execsc = nop;
@@ -1638,6 +1638,10 @@ scparser.$add('sqac', (a) => {
         console.info(a.a, [a]);
     }
 
+    if (self.accountSwitcher) {
+        accountSwitcher.onPlanChange();
+    }
+
     if (ulmanager.ulOverStorageQuota) {
         eventlog(99701, a.a, true);
 
@@ -1950,13 +1954,9 @@ scparser.$finalize = async() => {
             }
 
             if ($.dialog === 'share') {
+
                 // Re-render the content of the Access list in the Share dialog
                 mega.ui.mShareDialog.renderAccessList();
-            }
-
-            if ($.dialog === 'share-access-contacts-dialog') {
-                // Re-render the contents of the Share Collaborators dialog and its Access list
-                mega.ui.mShareCollaboratorsDialog.render();
             }
         });
 
@@ -3542,6 +3542,12 @@ function process_suba(suba, ignoreDB) {
     "use strict";
     if (!suba || !suba.length) {
         return;
+    }
+
+    // In memory now: the catch-up ssc packets run before fm:initialized and must update these
+    // objects, not be overwritten by this older snapshot once the parsing below runs.
+    for (let i = suba.length; i--;) {
+        M.suba[suba[i].u] = suba[i];
     }
 
     M.onFileManagerReady(() => {

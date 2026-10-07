@@ -1,127 +1,81 @@
-(function($, scope) {
+/** @property mega.ui.KeySignatureWarningDialog
+ *
+ * Warning dialog when a public key's signature does not verify.
+ * Triggerable with the following test code:
+ * mega.ui.KeySignatureWarningDialog.singleton('4Hlf71R5IxY', 'RSA');
+*/
+lazy(mega.ui, 'KeySignatureWarningDialog', () => {
+
+    'use strict';
+
+    const ce = (n, t, a) => mCreateElement(n, a, t);
+
+    let dialog = null;
 
     /**
-     * Warning dialog when a public key's signature does not verify.
-     * Triggerable with the following test code:
-     * mega.ui.KeySignatureWarningDialog.singleton('4Hlf71R5IxY', 'RSA');
-     *
-     * @param opts {Object}
-     * @constructor
+     * Build and show the dialog.
+     * @param {String} handle The contact's user handle
+     * @param {String} keyType The type of key for authentication
+     * @returns {void}
      */
-    var KeySignatureWarningDialog = function(opts) {
-        var self = this;
+    const render = (handle, keyType) => {
+        const {sheet} = mega.ui;
+        const email = M.u[handle] ? M.u[handle].m : handle;
+        const emailHtml = `<span class="email">${escapeHTML(email)}</span>`;
 
-        var defaultOptions = {
-            /**
-             * Required: .dialog Class name (excl. the starting ".")
-             */
-            'className': 'key-signature-warning-dialog',
+        const messageBlock = ce('div', null, {class: 'content-block'});
+        const warnWrap = ce('div', messageBlock, {class: 'contact-wrap'});
 
-            /**
-             * features:
-             */
-            'focusable': true,
-            'closable': false,
-            'expandable': true,
-            'requiresOverlay': true,
+        MegaAvatarComponent.factory({
+            parentNode: ce('div', warnWrap, {class: 'contact-avatar'}),
+            userHandle: handle,
+            size: 64
+        });
 
-            /**
-             * css class names
-             */
-            'expandableButtonClass': '.fm-mega-dialog-size-icon',
-            'buttonContainerClassName': '',
-            'buttonPlaceholderClassName': '',
+        const info = ce('div', warnWrap, {class: 'info'});
 
-            /**
-             * optional:
-             */
-            'title': 'Warning',
-            'buttons': [
-                {
-                    'label': l[148],
-                    'className': 'mega-button',
-                    'callback': function() {
-                        this.hide();
-                        this._hideOverlay();
-                    }
-                }
-            ]
-        };
+        ce('span', info, {class: 'high'}).append(parseHTML(
+            l[7585].replace('%1', escapeHTML(keyType)).replace('%2', emailHtml)
+        ));
+        ce('span', info, {class: 'normal'}).append(parseHTML(
+            l[8436].replace('%1', emailHtml)
+        ));
 
-        mega.ui.Dialog.call(this, Object.assign({}, defaultOptions, opts));
+        // Footer: dismiss
+        const footerNode = ce('div', null, {class: 'flex flex-row-reverse'});
 
-        self.bind("onBeforeShow", function() {
-            $('.fm-dialog-overlay').addClass('hidden');
+        MegaButton.factory({
+            parentNode: footerNode,
+            text: l[148]
+        }).on('click.ok', () => {
+            sheet.close();
+        });
+
+        sheet.show({
+            name: 'key-signature-warning-dialog',
+            title: l[882],
+            showClose: false,
+            contents: [messageBlock],
+            safeShow: !$.dialog,
+            footer: {
+                slot: [footerNode]
+            }
         });
     };
 
-    KeySignatureWarningDialog.prototype = Object.create(mega.ui.Dialog.prototype);
+    dialog = freeze({
 
-    KeySignatureWarningDialog.prototype._initGenericEvents = function() {
-        var self = this;
-
-        // Renders the dialog details.
-        this._renderDetails();
-
-        mega.ui.Dialog.prototype._initGenericEvents.apply(self);
-    };
-
-    /**
-     * Render the placeholder details in the dialog
-     */
-    KeySignatureWarningDialog.prototype._renderDetails = function() {
-
-        // Change wording to seen or verified
-        let infoFirstLine = escapeHTML(l[7585]);
-        var contactEmail = KeySignatureWarningDialog.contactHandle;
-        if (M.u[KeySignatureWarningDialog.contactHandle]) {
-            contactEmail = M.u[KeySignatureWarningDialog.contactHandle].m;
+        /**
+         * Initialises the Key Signature Warning Dialog.
+         * @param {String} contactHandle The contact's user handle
+         * @param {String} keyType The type of key for authentication
+         * @returns {Object} The dialog namespace
+         */
+        singleton(contactHandle, keyType) {
+            render(contactHandle, keyType);
+            return dialog;
         }
-        const emailStr = `<span class="emailAddress">${escapeHTML(contactEmail)}</span>`;
-        infoFirstLine = infoFirstLine.replace('%1', KeySignatureWarningDialog.keyType);
-        infoFirstLine = infoFirstLine.replace('%2', emailStr);
+    });
 
-        const $dialog = $('.key-signature-warning-dialog');
-        $('.information .firstLine', $dialog).safeHTML(infoFirstLine);
-
-        $('.information .description', $dialog).safeHTML(l[8436].replace('%1', emailStr));
-
-        // If the avatar exists, show it
-        if (typeof avatars[KeySignatureWarningDialog.contactHandle] !== 'undefined') {
-            $('.userAvatar img', $dialog).attr('src', avatars[KeySignatureWarningDialog.contactHandle].url);
-            $('.userAvatar', $dialog).show();
-        }
-        else {
-            // Otherwise hide the avatar
-            $dialog.find('.userAvatar').hide();
-        }
-    };
-
-    /**
-     * Initialises the Key Signature Warning Dialog.
-     *
-     * @param {string} contactHandle The contact's user handle
-     * @param {string} keyType The type of key for authentication.
-     * @returns {KeySignatureWarningDialog._instance}
-     */
-    KeySignatureWarningDialog.singleton = function(contactHandle, keyType) {
-
-        // Set to object so can be used later
-        KeySignatureWarningDialog.contactHandle = contactHandle;
-        KeySignatureWarningDialog.keyType = keyType;
-
-        if (!KeySignatureWarningDialog._instance) {
-            KeySignatureWarningDialog._instance = new KeySignatureWarningDialog();
-        }
-
-        KeySignatureWarningDialog._instance.show();
-
-        return KeySignatureWarningDialog._instance;
-    };
-
-    // Export
-    scope.mega = scope.mega || {};
-    scope.mega.ui = scope.mega.ui || {};
-    scope.mega.ui.KeySignatureWarningDialog = KeySignatureWarningDialog;
-
-})(jQuery, window);
+    return dialog;
+});

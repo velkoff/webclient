@@ -142,6 +142,9 @@ class MegaInteractable extends MegaComponent {
                 `sprite-fm-${sprite}-after`,
                 this.loaderIcon || 'icon-loader-throbber-light-outline-after'
             );
+            if (typeof stateBool === 'string') {
+                this.addClass('load-text');
+            }
         }
         else {
             this.removeClass(
@@ -149,7 +152,8 @@ class MegaInteractable extends MegaComponent {
                 'sprite-fm-theme-after',
                 'sprite-fm-uni-after',
                 'icon-loader-throbber-light-outline-after',
-                this.loaderIcon
+                this.loaderIcon,
+                'load-text'
             );
         }
     }
@@ -238,7 +242,7 @@ class MegaInteractable extends MegaComponent {
             elm = document.createElement('i');
 
             this.domNode.appendChild(elm);
-            this.domNode.rightIcon = {};
+            this.domNode.rightIcon = {elm};
         }
         if (iconClass === false) {
             elm.remove();

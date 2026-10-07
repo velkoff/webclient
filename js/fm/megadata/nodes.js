@@ -1244,7 +1244,7 @@ MegaData.prototype.copyNodes = async function(cn, t, del, tree, extra) {
                                     const message = `${l[6949]}, ${this.getNamedPath(cn[i])}: ${reason}`;
 
                                     console.error(message);
-                                    showToast('warning', escapeHTML(message));
+                                    showToast('warning', message);
                                 }
                             }
                             dump(res);
@@ -2220,8 +2220,18 @@ MegaData.prototype.nodeUpdated = function(n, ignoreDB) {
             }
 
             if (mega.gallery.nodeUpdated !== -0xFEEDFACE) {
-                // @todo 'n' references a node that may NOT be in M.d[] YET, fix gallery-related code.
-                delay(`gallery:node-update(${n.h})`, () => mega.gallery.handleNodeUpdate(n));
+                const queue = mega.gallery.pendingNodeUpdates || (mega.gallery.pendingNodeUpdates = new Set());
+                queue.add(n.h);
+                delay('gallery:node-update', () => {
+                    delete mega.gallery.pendingNodeUpdates;
+                    const handles = [...queue];
+                    for (let i = handles.length; i--;) {
+                        const node = M.getNodeByHandle(handles[i]);
+                        if (node) {
+                            mega.gallery.handleNodeUpdate(node);
+                        }
+                    }
+                }, 80);
             }
 
             if (M.recentsRender && M.currentdirid !== 'recents') {
