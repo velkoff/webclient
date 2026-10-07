@@ -2115,7 +2115,7 @@ let conversationpanel_dec, _dec2, conversationpanel_class;
 const Call = (0,external_React_.lazy)(() => REQ_.e( 987).then(() => REQ_(8402)));
 const Loading = (0,external_React_.lazy)(() => REQ_.e( 987).then(() => REQ_(2914)));
 const Join = (0,external_React_.lazy)(() => REQ_.e( 987).then(() => REQ_(7128)));
-const CloudBrowserDialog = (0,external_React_.lazy)(() => REQ_.e( 313).then(() => REQ_(6961)));
+const CloudBrowserDialog = (0,external_React_.lazy)(() => REQ_.e( 313).then(() => REQ_(9512)));
 const WaitingRoom = (0,external_React_.lazy)(() => REQ_.e( 752).then(() => REQ_(2659)));
 const ENABLE_GROUP_CALLING_FLAG = true;
 const MAX_USERS_CHAT_PRIVATE = 100;

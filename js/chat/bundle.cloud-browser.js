@@ -2,7 +2,7 @@
 "use strict";
 (self.webpackChunk_meganz_webclient = self.webpackChunk_meganz_webclient || []).push([[313],{
 
- 6961
+ 9512
 (_, EXP_, REQ_) {
 
 // ESM COMPAT FLAG
@@ -18,37 +18,6 @@ const external_React_ = REQ_(1594);
 const REaCt = REQ_.n(external_React_);
 // EXTERNAL MODULE: ./js/ui/modalDialogs.jsx + 1 modules
 const modalDialogs = REQ_(8120);
-;// ./js/ui/jsx/fm/viewModeSelector.jsx
-
-const VIEW_MODE = {
-  'GRID': 1,
-  'LIST': undefined
-};
-const ViewModeSelector = ({
-  viewMode,
-  onChange
-}) => {
-  return JSX_("div", {
-    className: "chat-fm-view-mode-selector"
-  }, JSX_("i", {
-    className: `
-                    sprite-fm-mono
-                    icon-view-medium-list
-                    ${viewMode ? '' : 'active'}
-                `,
-    title: l[5553],
-    onClick: () => onChange == null ? void 0 : onChange(VIEW_MODE.LIST)
-  }), JSX_("i", {
-    className: `
-                    sprite-fm-mono
-                    icon-view-grid
-                    ${viewMode ? " active" : ""}
-                `,
-    title: l[5552],
-    onClick: () => onChange == null ? void 0 : onChange(VIEW_MODE.GRID)
-  }));
-};
- const viewModeSelector = ViewModeSelector;
 // EXTERNAL MODULE: ./js/chat/mixins.js
 const mixins = REQ_(8264);
 ;// ./js/ui/jsx/fm/breadcrumbs.jsx
@@ -89,14 +58,7 @@ class Breadcrumbs extends mixins.w9 {
         className: "crumb-drop-link",
         key: `drop_link_${  item.nodeId}`,
         onClick: e => this.onBreadcrumbNodeClick(e, item.nodeId)
-      }, JSX_("i", {
-        className: `sprite-fm-mono icon24 ${{
-          'cloud-drive': 'icon-cloud',
-          'backups': 'icon-database-filled',
-          's4-object-storage': 'icon-bucket-triangle-thin-solid',
-          's4-buckets': 'icon-bucket-outline'
-        }[item.type] || 'folder'}`
-      }), JSX_("span", null, item.name)));
+      }, JSX_("span", null, item.name)));
     }
     return contents;
   }
@@ -194,12 +156,12 @@ class Breadcrumbs extends mixins.w9 {
               key: nodeId,
               onClick: e => this.onBreadcrumbNodeClick(e, nodeId)
             }, JSX_("span", {
-              className: `right-arrow-bg simpletip`,
+              className: "right-arrow-bg simpletip selectable-txt",
               "data-simpletip": nodeName
             }, JSX_("span", {
               className: "selectable-txt"
             }, nodeName)), k !== 0 && JSX_("i", {
-              className: "next-arrow sprite-fm-mono icon-arrow-right icon16"
+              className: "sprite-fm-mono icon-chevron-right-thin-outline"
             })));
           } else {
             folderType = nodeId === M.RootID ? 'cloud-drive' : folderType;
@@ -251,15 +213,17 @@ const fmView = REQ_(872);
 
 
 
-
 const MIN_SEARCH_LENGTH = 2;
 class CloudBrowserDialog extends modalDialogs.A.SafeShowDialogController {
-  static getFilterFunction(customFilterFn) {
+  static getFilterFunction(customFilterFn, skipIncoming) {
     return tryCatch(n => {
       if (n.s4 && n.p === M.RootID && M.getS4NodeType(n) === 'container') {
         return false;
       }
       if (!n.name || missingkeys[n.h] || M.getNodeShare(n).down) {
+        return false;
+      }
+      if (skipIncoming && n.su) {
         return false;
       }
       return !customFilterFn || customFilterFn(n);
@@ -286,17 +250,8 @@ class CloudBrowserDialog extends modalDialogs.A.SafeShowDialogController {
     this.onSelected = this.onSelected.bind(this);
     this.onHighlighted = this.onHighlighted.bind(this);
     this.handleTabChange = this.handleTabChange.bind(this);
-    this.onViewModeSwitch = this.onViewModeSwitch.bind(this);
     this.onBreadcrumbNodeClick = this.onBreadcrumbNodeClick.bind(this);
     this.onExpand = this.onExpand.bind(this);
-  }
-  onViewModeSwitch(newMode) {
-    const currentViewMode = mega.config.get('cbvm') | 0;
-    if (newMode === currentViewMode) {
-      return;
-    }
-    mega.config.set('cbvm', newMode);
-    this.forceUpdate();
   }
   getHeaderButtonsClass() {
     const classes = ['fm-header-buttons'];
@@ -305,8 +260,18 @@ class CloudBrowserDialog extends modalDialogs.A.SafeShowDialogController {
     }
     return classes.join(' ');
   }
+  getSearchPlaceholder() {
+    switch (this.state.selectedTab) {
+      case 's4':
+        return l.dlg_search_s4;
+      case 'shares':
+        return l.dlg_search_share;
+      default:
+        return l.dlg_search_cd;
+    }
+  }
   getSearchIconClass() {
-    const classes = ['sprite-fm-mono', 'icon-preview-reveal'];
+    const classes = ['sprite-fm-mono', 'icon-search-light-outline', 'left-icon'];
     if (this.state.isActiveSearch && this.state.searchText.length > 0) {
       classes.push('disabled');
     }
@@ -403,8 +368,8 @@ class CloudBrowserDialog extends modalDialogs.A.SafeShowDialogController {
   clearSelectionAndHighlight() {
     this.onSelected([]);
     this.onHighlighted([]);
-    if (selectionManager) {
-      selectionManager.clear_selection();
+    if (this.fmView && this.fmView.selectionManager) {
+      this.fmView.selectionManager.clear_selection();
     }
   }
   onPopupDidMount(elem) {
@@ -440,14 +405,13 @@ class CloudBrowserDialog extends modalDialogs.A.SafeShowDialogController {
   render() {
     assert(this.dialogBecameVisible);
     const self = this;
-    const viewMode = mega.config.get('cbvm') | 0;
-    const classes = `add-from-cloud ${self.props.className} dialog-template-tool `;
+    const classes = `dialog-template-tool item-picker-type ${self.props.className}`;
     let folderIsHighlighted = false;
     let share = false;
     let isS4Cn = false;
     const isSearch = this.state.currentlyViewedEntry === 'search';
     const entryId = isSearch ? self.state.highlighted[0] : self.state.currentlyViewedEntry;
-    const filterFn = CloudBrowserDialog.getFilterFunction(this.props.customFilterFn);
+    const filterFn = CloudBrowserDialog.getFilterFunction(this.props.customFilterFn, !!this.props.hideIncoming);
     const isIncomingShare = M.getNodeRoot(entryId) === "shares";
     this.state.highlighted.forEach(nodeId => {
       if (M.getNodeByHandle(nodeId).t) {
@@ -459,9 +423,10 @@ class CloudBrowserDialog extends modalDialogs.A.SafeShowDialogController {
       share = M.getNodeShare(nodeId);
     });
     const buttons = [{
-      "label": this.props.cancelLabel,
-      "key": "cancel",
-      "onClick": e => {
+      label: this.props.cancelLabel,
+      key: 'cancel',
+      defaultClassname: 'nav-elem normal button action secondary',
+      onClick: e => {
         e.preventDefault();
         e.stopPropagation();
         if (this.props.onCancel) {
@@ -478,9 +443,10 @@ class CloudBrowserDialog extends modalDialogs.A.SafeShowDialogController {
       const highlightedNode = highlighted && highlighted.length && highlighted[0];
       const allowAttachFolders = this.props.allowAttachFolders && !isIncomingShare && !isS4Cn;
       buttons.push({
-        "label": this.props.openLabel,
-        "key": "select",
-        className: `positive ${className} ${highlighted.length > 1 ? 'disabled' : ''}`,
+        label: this.props.openLabel,
+        key: 'select',
+        className: `${className} ${highlighted.length > 1 ? 'disabled' : ''}`,
+        defaultClassname: 'nav-elem normal button action',
         onClick: e => {
           e.preventDefault();
           e.stopPropagation();
@@ -499,9 +465,10 @@ class CloudBrowserDialog extends modalDialogs.A.SafeShowDialogController {
           });
         }
       }, allowAttachFolders ? {
-        "label": l[8023],
-        "key": "attach",
-        className: `positive ${  className}`,
+        label: l[8023],
+        key: 'attach',
+        defaultClassname: 'nav-elem normal button action secondary',
+        className,
         onClick: () => {
           this.props.onClose();
           onIdle(() => {
@@ -529,16 +496,16 @@ class CloudBrowserDialog extends modalDialogs.A.SafeShowDialogController {
               this.props.onAttachClicked();
             }
             if (frs.length) {
-              const fldName = frs.length > 1 ? l[17626] : l[17403].replace('%1', escapeHTML(M.getNameByHandle(frs[0])) || l[1049]);
-              msgDialog('confirmation', l[1003], fldName, l[18229], e => {
-                if (e) {
+              const fldName = frs.length > 1 ? l.fr_action_links_cancel : l.fr_action_link_cancel;
+              msgDialog(`warninga:!^${l.file_request_action_remove_prompt_button}!${l[82]}`, l[1003], l.file_request_action_remove_prompt_title, fldName, e => {
+                if (e === false) {
                   mega.fileRequest.removeList(frs).then(() => {
                     for (let i = 0; i < frs.length; i++) {
                       createPublicLink(frs[i]);
                     }
                   }).catch(dump);
                 }
-              });
+              }, 1);
             }
           });
         }
@@ -546,10 +513,11 @@ class CloudBrowserDialog extends modalDialogs.A.SafeShowDialogController {
     }
     if (!folderIsHighlighted || this.props.folderSelectable && (!this.props.noShareFolderAttach || !(isIncomingShare && folderIsHighlighted))) {
       buttons.push({
-        "label": this.props.selectLabel,
-        "key": "select",
-        "className": `positive ${  this.state.selected.length === 0 || share && share.down || isS4Cn ? "disabled" : ""}`,
-        "onClick": e => {
+        label: this.props.selectLabel,
+        key: 'select',
+        defaultClassname: 'nav-elem normal button action',
+        className: this.state.selected.length === 0 || share && share.down || isS4Cn ? "disabled" : "",
+        onClick: e => {
           if (this.state.selected.length > 0) {
             this.props.onSelected(this.state.selected);
             this.props.onAttachClicked();
@@ -562,7 +530,7 @@ class CloudBrowserDialog extends modalDialogs.A.SafeShowDialogController {
     let clearSearchBtn = null;
     if (self.state.searchText.length >= MIN_SEARCH_LENGTH) {
       clearSearchBtn = JSX_("i", {
-        className: "sprite-fm-mono icon-close-component",
+        className: "sprite-fm-mono icon-dialog-close-thin",
         onClick: () => {
           self.onClearSearchIconClick();
         }
@@ -570,51 +538,62 @@ class CloudBrowserDialog extends modalDialogs.A.SafeShowDialogController {
     }
     const breadcrumbPath = M.getPath(entryId);
     return JSX_(modalDialogs.A.ModalDialog, {
-      title: self.props.title || l[8011],
-      className: classes + (isSearch && this.state.selected.length > 0 ? 'has-breadcrumbs-bottom' : '') + this.dialogName,
+      className: `${classes} ${this.dialogName}`,
       onClose: () => {
         self.props.onClose(self);
       },
-      dialogName: "add-from-cloud-dialog dialog-template-tool",
+      dialogName: "attach-cloud-dialog",
       popupDidMount: self.onPopupDidMount,
+      hideCloseBtn: true,
+      viewMode: 0,
       buttons
     }, JSX_("section", {
+      className: "left-panel"
+    }, JSX_("div", {
+      className: "fm-picker-dialog-tree-panel"
+    }, JSX_("button", {
+      className: `nav-elem text-only full-width` + `${self.state.selectedTab === 'quick-access' ? ' active' : ''}`,
+      onClick: () => self.handleTabChange('quick-access')
+    }, JSX_("i", {
+      className: "sprite-fm-mono icon-clock-thin-solid"
+    }), JSX_("div", {
+      className: "text-box-wrapper"
+    }, JSX_("span", {
+      className: "primary-text"
+    }, l.frequent_access))), JSX_("button", {
+      className: `nav-elem text-only full-width` + `${self.state.selectedTab === M.RootID ? ' active' : ''}`,
+      onClick: () => self.handleTabChange(M.RootID)
+    }, JSX_("i", {
+      className: "sprite-fm-mono icon-cloud-thin-outline"
+    }), JSX_("div", {
+      className: "text-box-wrapper"
+    }, JSX_("span", {
+      className: "primary-text"
+    }, l[164]))), !self.props.hideIncoming && JSX_("button", {
+      className: `nav-elem text-only full-width` + `${self.state.selectedTab === 'shares' ? ' active' : ''}`,
+      onClick: () => self.handleTabChange('shares')
+    }, JSX_("i", {
+      className: "sprite-fm-mono icon-folder-users-thin-outline"
+    }), JSX_("div", {
+      className: "text-box-wrapper"
+    }, JSX_("span", {
+      className: "primary-text"
+    }, l[5542]))), JSX_("button", {
+      className: `nav-elem text-only full-width` + `${self.state.selectedTab === 's4' ? ' active' : ''}` + `${u_attr.s4 ? '' : ' hidden'}`,
+      onClick: () => self.handleTabChange('s4')
+    }, JSX_("i", {
+      className: "sprite-fm-mono icon-bucket-triangle-thin-outline"
+    }), JSX_("div", {
+      className: "text-box-wrapper"
+    }, JSX_("span", {
+      className: "primary-text"
+    }, l.obj_storage))))), JSX_("section", {
       ref: this.domRef,
       className: "content"
     }, JSX_("div", {
-      className: "content-block"
-    }, JSX_("div", {
-      className: "fm-dialog-tabs"
-    }, JSX_("div", {
-      className: `
-                                    fm-dialog-tab cloud
-                                    ${self.state.selectedTab === M.RootID ? 'active' : ''}
-                                `,
-      onClick: () => self.handleTabChange(M.RootID)
-    }, l[164]), JSX_("div", {
-      className: `
-                                    fm-dialog-tab incoming
-                                    ${self.state.selectedTab === 'shares' ? 'active' : ''}
-                                `,
-      onClick: () => self.handleTabChange('shares')
-    }, l[5542]), JSX_("div", {
-      className: `
-                                    fm-dialog-tab s4
-                                    ${self.state.selectedTab === 's4' ? 'active' : ''}
-                                    ${u_attr.s4 ? '' : 'hidden'}
-                                `,
-      onClick: () => self.handleTabChange('s4')
-    }, l.obj_storage), JSX_("div", {
-      className: "clear"
-    })), JSX_("div", {
-      className: "fm-picker-header"
-    }, JSX_("div", {
-      className: self.getHeaderButtonsClass()
-    }, JSX_(viewModeSelector, {
-      viewMode,
-      onChange: this.onViewModeSwitch
-    }), JSX_("div", {
-      className: "fm-files-search"
+      className: "content-block header"
+    }, JSX_("h2", null, self.props.title || l[8011]), self.state.selectedTab !== 'quick-access' && JSX_("div", {
+      className: "search-bar mega-input pm box-style"
     }, JSX_("i", {
       className: self.getSearchIconClass(),
       onClick: () => {
@@ -625,15 +604,17 @@ class CloudBrowserDialog extends modalDialogs.A.SafeShowDialogController {
         this.searchInput = input;
       },
       type: "search",
-      placeholder: l[102],
+      placeholder: self.getSearchPlaceholder(),
       value: self.state.searchText,
       onChange: self.onSearchChange,
       onBlur: () => {
         self.onSearchBlur();
       }
-    }), clearSearchBtn), JSX_("div", {
-      className: "clear"
-    })), !isSearch && JSX_(Breadcrumbs, {
+    }), clearSearchBtn)), JSX_("div", {
+      className: "content-block breadcrumbs"
+    }, JSX_("div", {
+      className: "body"
+    }, breadcrumbPath.length > 0 && JSX_(Breadcrumbs, {
       className: "add-from-cloud",
       nodeId: entryId,
       path: breadcrumbPath,
@@ -641,7 +622,12 @@ class CloudBrowserDialog extends modalDialogs.A.SafeShowDialogController {
       isSearch,
       highlighted: this.state.highlighted,
       currentlyViewedEntry: this.state.currentlyViewedEntry
-    })), JSX_(fmView.A, {
+    }))), JSX_("div", {
+      className: "content-block folder-container"
+    }, JSX_(fmView.A, {
+      ref: fmView => {
+        this.fmView = fmView;
+      },
       nodeLoading: this.state.nodeLoading,
       sortFoldersFirst: true,
       currentlyViewedEntry: this.state.currentlyViewedEntry,
@@ -654,28 +640,18 @@ class CloudBrowserDialog extends modalDialogs.A.SafeShowDialogController {
       initialSelected: this.state.selected,
       initialHighlighted: this.state.highlighted,
       searchValue: this.state.searchValue,
+      searchScope: this.state.selectedTab,
+      showOwner: true,
+      megaListItemHeight: 34,
       minSearchLength: MIN_SEARCH_LENGTH,
       onExpand: this.onExpand,
-      viewMode,
+      viewMode: 0,
+      shortGrid: this.props.shortGrid || true,
+      hideIncoming: this.props.hideIncoming,
       initialSortBy: ['name', 'asc'],
       fmConfigSortEnabled: true,
       fmConfigSortId: "cbd"
-    }), isSearch && breadcrumbPath.length > 0 && JSX_("div", {
-      className: `
-                            fm-breadcrumbs-wrapper add-from-cloud breadcrumbs-bottom
-                        `
-    }, JSX_("div", {
-      className: "fm-breadcrumbs-block"
-    }, JSX_(Breadcrumbs, {
-      nodeId: entryId,
-      path: breadcrumbPath,
-      onNodeClick: this.onBreadcrumbNodeClick,
-      isSearch,
-      highlighted: this.state.highlighted,
-      currentlyViewedEntry: this.state.currentlyViewedEntry
-    }), JSX_("div", {
-      className: "clear"
-    }))))));
+    }))));
   }
 }
 CloudBrowserDialog.defaultProps = {
@@ -926,7 +902,7 @@ class MegaList2 extends mixins.w9 {
     if (this.thumbsThatRequireLoading.size) {
       delay('chat:mega-list2:thumb-loader', () => this.enqueueThumbnailRetrieval(), 20);
     }
-    this._firstRender = this._firstRender || this.props.viewmode !== M.viewmode;
+    this._firstRender = this._firstRender || this.props.viewMode !== M.viewmode;
     if (this._firstRender && this.domRef) {
       let _this$domRef;
       this._firstRender = false;
@@ -1116,7 +1092,7 @@ class GenericGrid extends genericNodePropsComponent.B {
     }, JSX_("i", {
       className: "sprite-fm-mono icon-versions-previous"
     })), JSX_("i", {
-      className: "sprite-fm-mono icon-link"
+      className: "sprite-fm-mono icon-link-thin-outline"
     })), JSX_("span", {
       className: `item-type-icon-90 icon-${  this.nodeProps.icon  }-90`
     }, image), JSX_("div", {
@@ -1142,6 +1118,7 @@ class GenericTableHeader extends mixins.w9 {
       sortBy,
       columns
     } = this.props;
+    const headerSortable = this.props.sortable !== false;
     const columnsRendered = [];
     for (let i = 0; i < columns.length; i++) {
       var _colProps;
@@ -1151,19 +1128,18 @@ class GenericTableHeader extends mixins.w9 {
         colProps = col[1];
         col = col[0];
       }
+      const colSortable = col.sortable && headerSortable;
       let sortable;
-      if (col.sortable) {
+      if (colSortable) {
         let classes = "";
         if (sortBy[0] === col.id) {
-          const ordClass = sortBy[1] === "desc" ? "icon-arrow-down" : "icon-arrow-up";
+          const ordClass = sortBy[1] === "desc" ? "asc" : "desc";
           classes = `${classes} ${ordClass}`;
         }
         if (col.id === 'fav') {
           classes += ' hidden';
         }
-        sortable = JSX_("i", {
-          className: `sprite-fm-mono ${col.id} ${classes}`
-        });
+        sortable = `arrow sprite-fm-mono icon-arrow-left-thin-solid ${col.id} ${classes}`;
       }
       columnsRendered.push(JSX_("th", {
         megatype: col.megatype,
@@ -1171,13 +1147,15 @@ class GenericTableHeader extends mixins.w9 {
         key: `${col.id  }_${  i}`,
         onClick: e => {
           e.preventDefault();
-          if (col.sortable) {
+          if (colSortable) {
             this.props.onClick(col.id);
           }
         }
-      }, JSX_("span", null, ((_colProps = colProps) == null ? void 0 : _colProps.label) || col.label), col.icon && JSX_("i", {
+      }, JSX_("span", {
+        className: sortable || ''
+      }, ((_colProps = colProps) == null ? void 0 : _colProps.label) || col.label), col.icon && JSX_("i", {
         className: `sprite-fm-mono ${  col.icon}`
-      }), sortable));
+      })));
     }
     return JSX_("thead", {
       ref: this.domRef
@@ -1468,7 +1446,10 @@ Tooltip.defaultProps = {
   Handler,
   Contents
 };
+// EXTERNAL MODULE: ./js/chat/ui/contacts.jsx
+const contacts = REQ_(8022);
 ;// ./js/ui/jsx/fm/nodes/columns/columnNodeName.jsx
+
 
 
 
@@ -1485,8 +1466,35 @@ class ColumnNodeName extends genericNodePropsComponent.B {
   componentDidMount() {
     super.componentDidMount();
   }
+  _renderOwner() {
+    const {
+      showOwner,
+      nodeAdapter
+    } = this.props;
+    const {
+      node
+    } = nodeAdapter.props;
+    if (!showOwner || !node.su) {
+      return null;
+    }
+    const owner = M.getUserByHandle(node.su);
+    if (!owner) {
+      return null;
+    }
+    return JSX_("span", {
+      className: "node-owner simpletip",
+      "data-simpletip": owner.m,
+      "data-simpletipposition": "top"
+    }, JSX_(contacts.eu, {
+      contact: owner.h,
+      className: "avatar-wrapper"
+    }), JSX_("span", {
+      className: "node-owner-name"
+    }, owner.name || owner.m));
+  }
   render() {
     const {
+      showOwner,
       nodeAdapter
     } = this.props;
     const {
@@ -1496,6 +1504,8 @@ class ColumnNodeName extends genericNodePropsComponent.B {
     const src = this.state.src || thumbnails.get(node.fa);
     return JSX_("td", {
       megatype: ColumnNodeName.megatype
+    }, JSX_("div", {
+      className: showOwner ? 'owner-wrap' : ''
     }, src || is_image2(node) || is_video(node) ? JSX_(tooltips.Tooltip, {
       withArrow: true,
       className: "tooltip-handler-container",
@@ -1522,11 +1532,11 @@ class ColumnNodeName extends genericNodePropsComponent.B {
       src: node.fa || src ? src || `${staticpath}/images/mega/ajax-loader-tiny.gif` : window.noThumbURI
     })))) : JSX_("span", {
       className: `
-                            item-type-icon icon-${fileIcon(node)}-24
-                        `
+                                item-type-icon icon-${fileIcon(node)}-24
+                            `
     }), JSX_("span", {
       className: "tranfer-filetype-txt"
-    }, nodeAdapter.nodeProps.title));
+    }, nodeAdapter.nodeProps.title), this._renderOwner()));
   }
 }
 ColumnNodeName.sortable = true;
@@ -1585,7 +1595,7 @@ class ColumnExtras extends genericNodePropsComponent.B {
     }, JSX_("i", {
       className: "sprite-fm-mono icon-versions-previous"
     })), JSX_("i", {
-      className: "sprite-fm-mono icon-link"
+      className: "sprite-fm-mono icon-link-thin-outline"
     }));
   }
 }
@@ -1920,52 +1930,97 @@ class BrowserEntries extends mixins.w9 {
     this.setState(newState);
     this.props.onSortByChanged(newState.sortBy);
   }
-  render() {
-    const {viewMode} = this.props;
-    const listAdapterOpts = this.props.listAdapterOpts || {};
-    if (!viewMode) {
-      listAdapterOpts.columns = [columnFavIcon.$, ColumnNodeName, ColumnSize, ColumnTimeAdded, ColumnExtras];
+  _getEmptyState() {
+    const {
+      currentlyViewedEntry: cve,
+      searchScope: section
+    } = this.props;
+    if (cve === 'search') {
+      return {
+        icon: 'glass-details',
+        title: l.no_search_results,
+        subtitle: l.search_again
+      };
     }
-    if (this.props.listAdapterColumns) {
-      listAdapterOpts.columns = this.props.listAdapterColumns;
+    if (cve === 'quick-access') {
+      return {
+        icon: 'glass-clock',
+        title: l.dlg_empty_title_frequents,
+        subtitle: l.dlg_empty_text_frequents
+      };
+    }
+    if (cve === 'shares') {
+      return {
+        icon: 'glass-shared-folder',
+        title: l[6871],
+        subtitle: l.dlg_empty_text_share
+      };
+    }
+    if (cve === M.RootID) {
+      return {
+        icon: 'glass-cloud-circle',
+        title: l.empty_cloud_title
+      };
+    }
+    if (section === 's4') {
+      const type = M.getS4NodeType(cve);
+      if (type === 'container' || type === 'bucket') {
+        return {
+          icon: 'glass-object-bucket',
+          title: {
+            container: l.dlg_empty_title_s4,
+            bucket: l.dlg_empty_title_bucket
+          }[type]
+        };
+      }
+    }
+    return {
+      icon: 'glass-folder',
+      title: M.u[cve] ? l[6787] : l[782]
+    };
+  }
+  _renderEmptyState({
+    icon,
+    title,
+    subtitle
+  }) {
+    return JSX_("div", {
+      className: 'dialog-empty-block active'
+    }, JSX_("div", {
+      className: "image"
+    }, JSX_("i", {
+      className: icon
+    })), JSX_("div", {
+      className: "title"
+    }, JSX_("h1", null, title)), subtitle && JSX_("div", {
+      className: "subtitle"
+    }, subtitle));
+  }
+  render() {
+    const {
+      shortGrid,
+      listAdapterColumns,
+      listAdapterOpts = {},
+      viewMode
+    } = this.props;
+    if (!viewMode) {
+      const nameColumn = this.props.showOwner ? [ColumnNodeName, {
+        showOwner: true
+      }] : ColumnNodeName;
+      listAdapterOpts.columns = shortGrid ? [nameColumn, ColumnExtras] : [columnFavIcon.$, nameColumn, ColumnSize, ColumnTimeAdded, ColumnExtras];
+    }
+    if (listAdapterColumns) {
+      listAdapterOpts.columns = listAdapterColumns;
     }
     if (this.props.isLoading) {
-      return JSX_("div", {
-        className: "dialog-empty-block active dialog-fm folder"
-      }, JSX_("div", {
-        className: "dialog-empty-pad"
-      }, JSX_("i", {
-        className: "sprite-fm-mono icon-cloud-drive"
-      }), JSX_("div", {
-        className: "dialog-empty-header"
-      }, l[5533])));
-    } else if (!this.props.entries.length && this.props.currentlyViewedEntry === 'search') {
-      return JSX_("div", {
-        className: "dialog-empty-block active dialog-fm folder"
-      }, JSX_("div", {
-        className: "dialog-empty-pad"
-      }, JSX_("i", {
-        className: "sprite-fm-mono icon-preview-reveal"
-      }), JSX_("div", {
-        className: "dialog-empty-header"
-      }, l[978])));
+      return this._renderEmptyState({
+        icon: 'loader sprite-fm-mono icon-loader-grad-small-regular-outline',
+        title: l[5533]
+      });
     } else if (!this.props.entries.length) {
       const nilComp = this.props.NilComponent;
-      return nilComp && (typeof nilComp === "function" ? nilComp() : nilComp) || JSX_("div", {
-        className: "dialog-empty-block active dialog-fm folder"
-      }, this.props.currentlyViewedEntry === 'shares' ? JSX_("div", {
-        className: "dialog-empty-pad"
-      }, JSX_("i", {
-        className: "sprite-fm-mono icon-folder-incoming-share-filled"
-      }), JSX_("div", {
-        className: "dialog-empty-header"
-      }, l[6871])) : JSX_("div", {
-        className: "dialog-empty-pad"
-      }, JSX_("i", {
-        className: "sprite-fm-mono icon-folder-filled"
-      }), JSX_("div", {
-        className: "dialog-empty-header"
-      }, this.props.currentlyViewedEntry === M.RootID ? l[1343] : M.u[this.props.currentlyViewedEntry] ? l[6787] : l[782])));
+      const nil = this.props.currentlyViewedEntry !== 'search' && nilComp && (typeof nilComp === "function" ? nilComp() : nilComp);
+      return nil || this._renderEmptyState(this._getEmptyState());
     }
     return JSX_(MegaList2, {
       viewMode,
@@ -1998,6 +2053,7 @@ class BrowserEntries extends mixins.w9 {
       header: !viewMode && JSX_(GenericTableHeader, {
         columns: listAdapterOpts.columns,
         sortBy: this.state.sortBy,
+        sortable: this.props.currentlyViewedEntry !== 'quick-access',
         onClick: this.toggleSortBy,
         headerContainerClassName: this.props.headerContainerClassName
       }),
@@ -2113,6 +2169,27 @@ class FMView extends mixins.w9 {
     this.props.onHighlighted(highlighted);
     $.selected = highlighted;
   }
+  _quickAccessDataSource() {
+    const dataSource = Object.create(null);
+    const top = mega.quickAccessLocations.top();
+    for (let i = 0; i < top.length; i++) {
+      const n = this.getDataSourceNode(top[i]);
+      if (n) {
+        if (this.props.hideIncoming && n.su) {
+          continue;
+        }
+        dataSource[top[i]] = n;
+      }
+    }
+    return dataSource;
+  }
+  _searchFilter(searchValue, scope) {
+    const searchFilter = M.getFilterBySearchFn(searchValue);
+    if (!scope) {
+      return searchFilter;
+    }
+    return n => searchFilter(n) && M.getNodeRoot(n.h) === scope;
+  }
   getEntries(newState) {
     const self = this;
     const sortBy = newState && newState.sortBy || self.state.sortBy;
@@ -2126,7 +2203,9 @@ class FMView extends mixins.w9 {
         ...M.tnd,
         ...M.d
       };
-      filterFunc = M.getFilterBySearchFn(self.props.searchValue);
+      filterFunc = this._searchFilter(self.props.searchValue, self.props.searchScope);
+    } else if (self.props.currentlyViewedEntry === 'quick-access') {
+      dataSource = this._quickAccessDataSource();
     } else {
       const tmp = M.getChildren(self.props.currentlyViewedEntry) || M.tree[self.props.currentlyViewedEntry] || this.props.dataSource;
       dataSource = Object.create(null);
@@ -2147,6 +2226,9 @@ class FMView extends mixins.w9 {
       if (s && (!customFilterFn || customFilterFn(n)) && (!filterFunc || filterFunc(n))) {
         entries.push(n);
       }
+    }
+    if (self.props.currentlyViewedEntry === 'quick-access') {
+      return entries;
     }
     if (sortBy[0] === "name") {
       sortFunc = M.getSortByNameFn();
@@ -2255,6 +2337,18 @@ class FMView extends mixins.w9 {
         });
         return;
       }
+      if (handle === 'quick-access') {
+        newState.isLoading = true;
+        this.setState(newState);
+        (async () => {
+          await mega.quickAccessLocations.load();
+          const top = mega.quickAccessLocations.top();
+          if (top.length) {
+            await dbfetch.geta(top);
+          }
+        })().catch(dump).finally(() => this.finishedLoading(newState));
+        return;
+      }
       if (this.getDataSourceNode(handle).t && !M.getChildren(handle)) {
         this.setState({
           'isLoading': true
@@ -2347,6 +2441,7 @@ class FMView extends mixins.w9 {
       isLoading: this.state.isLoading || this.props.nodeLoading,
       currentlyViewedEntry: this.props.currentlyViewedEntry,
       entries: this.state.entries || [],
+      searchScope: this.props.searchScope,
       onExpand: node => {
         this.setState({
           'selected': [],
@@ -2358,6 +2453,8 @@ class FMView extends mixins.w9 {
       folderSelectNotAllowed: this.props.folderSelectNotAllowed,
       onAttachClicked: this.onAttachClicked,
       viewMode: this.props.viewMode,
+      showOwner: this.props.showOwner,
+      shortGrid: this.props.shortGrid,
       selected: this.state.selected,
       highlighted: this.state.highlighted,
       onContextMenu: this.props.onContextMenu || this.onContextMenu,

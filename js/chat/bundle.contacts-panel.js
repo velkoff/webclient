@@ -1660,7 +1660,7 @@ class MegaList2 extends mixins.w9 {
     if (this.thumbsThatRequireLoading.size) {
       delay('chat:mega-list2:thumb-loader', () => this.enqueueThumbnailRetrieval(), 20);
     }
-    this._firstRender = this._firstRender || this.props.viewmode !== M.viewmode;
+    this._firstRender = this._firstRender || this.props.viewMode !== M.viewmode;
     if (this._firstRender && this.domRef) {
       let _this$domRef;
       this._firstRender = false;
@@ -1850,7 +1850,7 @@ class GenericGrid extends genericNodePropsComponent.B {
     }, JSX_("i", {
       className: "sprite-fm-mono icon-versions-previous"
     })), JSX_("i", {
-      className: "sprite-fm-mono icon-link"
+      className: "sprite-fm-mono icon-link-thin-outline"
     })), JSX_("span", {
       className: `item-type-icon-90 icon-${  this.nodeProps.icon  }-90`
     }, image), JSX_("div", {
@@ -1876,6 +1876,7 @@ class GenericTableHeader extends mixins.w9 {
       sortBy,
       columns
     } = this.props;
+    const headerSortable = this.props.sortable !== false;
     const columnsRendered = [];
     for (let i = 0; i < columns.length; i++) {
       var _colProps;
@@ -1885,19 +1886,18 @@ class GenericTableHeader extends mixins.w9 {
         colProps = col[1];
         col = col[0];
       }
+      const colSortable = col.sortable && headerSortable;
       let sortable;
-      if (col.sortable) {
+      if (colSortable) {
         let classes = "";
         if (sortBy[0] === col.id) {
-          const ordClass = sortBy[1] === "desc" ? "icon-arrow-down" : "icon-arrow-up";
+          const ordClass = sortBy[1] === "desc" ? "asc" : "desc";
           classes = `${classes} ${ordClass}`;
         }
         if (col.id === 'fav') {
           classes += ' hidden';
         }
-        sortable = JSX_("i", {
-          className: `sprite-fm-mono ${col.id} ${classes}`
-        });
+        sortable = `arrow sprite-fm-mono icon-arrow-left-thin-solid ${col.id} ${classes}`;
       }
       columnsRendered.push(JSX_("th", {
         megatype: col.megatype,
@@ -1905,13 +1905,15 @@ class GenericTableHeader extends mixins.w9 {
         key: `${col.id  }_${  i}`,
         onClick: e => {
           e.preventDefault();
-          if (col.sortable) {
+          if (colSortable) {
             this.props.onClick(col.id);
           }
         }
-      }, JSX_("span", null, ((_colProps = colProps) == null ? void 0 : _colProps.label) || col.label), col.icon && JSX_("i", {
+      }, JSX_("span", {
+        className: sortable || ''
+      }, ((_colProps = colProps) == null ? void 0 : _colProps.label) || col.label), col.icon && JSX_("i", {
         className: `sprite-fm-mono ${  col.icon}`
-      }), sortable));
+      })));
     }
     return JSX_("thead", {
       ref: this.domRef
@@ -2202,7 +2204,10 @@ Tooltip.defaultProps = {
   Handler,
   Contents
 };
+// EXTERNAL MODULE: ./js/chat/ui/contacts.jsx
+const contacts = REQ_(8022);
 ;// ./js/ui/jsx/fm/nodes/columns/columnNodeName.jsx
+
 
 
 
@@ -2219,8 +2224,35 @@ class ColumnNodeName extends genericNodePropsComponent.B {
   componentDidMount() {
     super.componentDidMount();
   }
+  _renderOwner() {
+    const {
+      showOwner,
+      nodeAdapter
+    } = this.props;
+    const {
+      node
+    } = nodeAdapter.props;
+    if (!showOwner || !node.su) {
+      return null;
+    }
+    const owner = M.getUserByHandle(node.su);
+    if (!owner) {
+      return null;
+    }
+    return JSX_("span", {
+      className: "node-owner simpletip",
+      "data-simpletip": owner.m,
+      "data-simpletipposition": "top"
+    }, JSX_(contacts.eu, {
+      contact: owner.h,
+      className: "avatar-wrapper"
+    }), JSX_("span", {
+      className: "node-owner-name"
+    }, owner.name || owner.m));
+  }
   render() {
     const {
+      showOwner,
       nodeAdapter
     } = this.props;
     const {
@@ -2230,6 +2262,8 @@ class ColumnNodeName extends genericNodePropsComponent.B {
     const src = this.state.src || thumbnails.get(node.fa);
     return JSX_("td", {
       megatype: ColumnNodeName.megatype
+    }, JSX_("div", {
+      className: showOwner ? 'owner-wrap' : ''
     }, src || is_image2(node) || is_video(node) ? JSX_(tooltips.Tooltip, {
       withArrow: true,
       className: "tooltip-handler-container",
@@ -2256,11 +2290,11 @@ class ColumnNodeName extends genericNodePropsComponent.B {
       src: node.fa || src ? src || `${staticpath}/images/mega/ajax-loader-tiny.gif` : window.noThumbURI
     })))) : JSX_("span", {
       className: `
-                            item-type-icon icon-${fileIcon(node)}-24
-                        `
+                                item-type-icon icon-${fileIcon(node)}-24
+                            `
     }), JSX_("span", {
       className: "tranfer-filetype-txt"
-    }, nodeAdapter.nodeProps.title));
+    }, nodeAdapter.nodeProps.title), this._renderOwner()));
   }
 }
 ColumnNodeName.sortable = true;
@@ -2319,7 +2353,7 @@ class ColumnExtras extends genericNodePropsComponent.B {
     }, JSX_("i", {
       className: "sprite-fm-mono icon-versions-previous"
     })), JSX_("i", {
-      className: "sprite-fm-mono icon-link"
+      className: "sprite-fm-mono icon-link-thin-outline"
     }));
   }
 }
@@ -2654,52 +2688,97 @@ class BrowserEntries extends mixins.w9 {
     this.setState(newState);
     this.props.onSortByChanged(newState.sortBy);
   }
-  render() {
-    const {viewMode} = this.props;
-    const listAdapterOpts = this.props.listAdapterOpts || {};
-    if (!viewMode) {
-      listAdapterOpts.columns = [columnFavIcon.$, ColumnNodeName, ColumnSize, ColumnTimeAdded, ColumnExtras];
+  _getEmptyState() {
+    const {
+      currentlyViewedEntry: cve,
+      searchScope: section
+    } = this.props;
+    if (cve === 'search') {
+      return {
+        icon: 'glass-details',
+        title: l.no_search_results,
+        subtitle: l.search_again
+      };
     }
-    if (this.props.listAdapterColumns) {
-      listAdapterOpts.columns = this.props.listAdapterColumns;
+    if (cve === 'quick-access') {
+      return {
+        icon: 'glass-clock',
+        title: l.dlg_empty_title_frequents,
+        subtitle: l.dlg_empty_text_frequents
+      };
+    }
+    if (cve === 'shares') {
+      return {
+        icon: 'glass-shared-folder',
+        title: l[6871],
+        subtitle: l.dlg_empty_text_share
+      };
+    }
+    if (cve === M.RootID) {
+      return {
+        icon: 'glass-cloud-circle',
+        title: l.empty_cloud_title
+      };
+    }
+    if (section === 's4') {
+      const type = M.getS4NodeType(cve);
+      if (type === 'container' || type === 'bucket') {
+        return {
+          icon: 'glass-object-bucket',
+          title: {
+            container: l.dlg_empty_title_s4,
+            bucket: l.dlg_empty_title_bucket
+          }[type]
+        };
+      }
+    }
+    return {
+      icon: 'glass-folder',
+      title: M.u[cve] ? l[6787] : l[782]
+    };
+  }
+  _renderEmptyState({
+    icon,
+    title,
+    subtitle
+  }) {
+    return JSX_("div", {
+      className: 'dialog-empty-block active'
+    }, JSX_("div", {
+      className: "image"
+    }, JSX_("i", {
+      className: icon
+    })), JSX_("div", {
+      className: "title"
+    }, JSX_("h1", null, title)), subtitle && JSX_("div", {
+      className: "subtitle"
+    }, subtitle));
+  }
+  render() {
+    const {
+      shortGrid,
+      listAdapterColumns,
+      listAdapterOpts = {},
+      viewMode
+    } = this.props;
+    if (!viewMode) {
+      const nameColumn = this.props.showOwner ? [ColumnNodeName, {
+        showOwner: true
+      }] : ColumnNodeName;
+      listAdapterOpts.columns = shortGrid ? [nameColumn, ColumnExtras] : [columnFavIcon.$, nameColumn, ColumnSize, ColumnTimeAdded, ColumnExtras];
+    }
+    if (listAdapterColumns) {
+      listAdapterOpts.columns = listAdapterColumns;
     }
     if (this.props.isLoading) {
-      return JSX_("div", {
-        className: "dialog-empty-block active dialog-fm folder"
-      }, JSX_("div", {
-        className: "dialog-empty-pad"
-      }, JSX_("i", {
-        className: "sprite-fm-mono icon-cloud-drive"
-      }), JSX_("div", {
-        className: "dialog-empty-header"
-      }, l[5533])));
-    } else if (!this.props.entries.length && this.props.currentlyViewedEntry === 'search') {
-      return JSX_("div", {
-        className: "dialog-empty-block active dialog-fm folder"
-      }, JSX_("div", {
-        className: "dialog-empty-pad"
-      }, JSX_("i", {
-        className: "sprite-fm-mono icon-preview-reveal"
-      }), JSX_("div", {
-        className: "dialog-empty-header"
-      }, l[978])));
+      return this._renderEmptyState({
+        icon: 'loader sprite-fm-mono icon-loader-grad-small-regular-outline',
+        title: l[5533]
+      });
     } else if (!this.props.entries.length) {
       const nilComp = this.props.NilComponent;
-      return nilComp && (typeof nilComp === "function" ? nilComp() : nilComp) || JSX_("div", {
-        className: "dialog-empty-block active dialog-fm folder"
-      }, this.props.currentlyViewedEntry === 'shares' ? JSX_("div", {
-        className: "dialog-empty-pad"
-      }, JSX_("i", {
-        className: "sprite-fm-mono icon-folder-incoming-share-filled"
-      }), JSX_("div", {
-        className: "dialog-empty-header"
-      }, l[6871])) : JSX_("div", {
-        className: "dialog-empty-pad"
-      }, JSX_("i", {
-        className: "sprite-fm-mono icon-folder-filled"
-      }), JSX_("div", {
-        className: "dialog-empty-header"
-      }, this.props.currentlyViewedEntry === M.RootID ? l[1343] : M.u[this.props.currentlyViewedEntry] ? l[6787] : l[782])));
+      const nil = this.props.currentlyViewedEntry !== 'search' && nilComp && (typeof nilComp === "function" ? nilComp() : nilComp);
+      return nil || this._renderEmptyState(this._getEmptyState());
     }
     return JSX_(MegaList2, {
       viewMode,
@@ -2732,6 +2811,7 @@ class BrowserEntries extends mixins.w9 {
       header: !viewMode && JSX_(GenericTableHeader, {
         columns: listAdapterOpts.columns,
         sortBy: this.state.sortBy,
+        sortable: this.props.currentlyViewedEntry !== 'quick-access',
         onClick: this.toggleSortBy,
         headerContainerClassName: this.props.headerContainerClassName
       }),
@@ -2847,6 +2927,27 @@ class FMView extends mixins.w9 {
     this.props.onHighlighted(highlighted);
     $.selected = highlighted;
   }
+  _quickAccessDataSource() {
+    const dataSource = Object.create(null);
+    const top = mega.quickAccessLocations.top();
+    for (let i = 0; i < top.length; i++) {
+      const n = this.getDataSourceNode(top[i]);
+      if (n) {
+        if (this.props.hideIncoming && n.su) {
+          continue;
+        }
+        dataSource[top[i]] = n;
+      }
+    }
+    return dataSource;
+  }
+  _searchFilter(searchValue, scope) {
+    const searchFilter = M.getFilterBySearchFn(searchValue);
+    if (!scope) {
+      return searchFilter;
+    }
+    return n => searchFilter(n) && M.getNodeRoot(n.h) === scope;
+  }
   getEntries(newState) {
     const self = this;
     const sortBy = newState && newState.sortBy || self.state.sortBy;
@@ -2860,7 +2961,9 @@ class FMView extends mixins.w9 {
         ...M.tnd,
         ...M.d
       };
-      filterFunc = M.getFilterBySearchFn(self.props.searchValue);
+      filterFunc = this._searchFilter(self.props.searchValue, self.props.searchScope);
+    } else if (self.props.currentlyViewedEntry === 'quick-access') {
+      dataSource = this._quickAccessDataSource();
     } else {
       const tmp = M.getChildren(self.props.currentlyViewedEntry) || M.tree[self.props.currentlyViewedEntry] || this.props.dataSource;
       dataSource = Object.create(null);
@@ -2881,6 +2984,9 @@ class FMView extends mixins.w9 {
       if (s && (!customFilterFn || customFilterFn(n)) && (!filterFunc || filterFunc(n))) {
         entries.push(n);
       }
+    }
+    if (self.props.currentlyViewedEntry === 'quick-access') {
+      return entries;
     }
     if (sortBy[0] === "name") {
       sortFunc = M.getSortByNameFn();
@@ -2989,6 +3095,18 @@ class FMView extends mixins.w9 {
         });
         return;
       }
+      if (handle === 'quick-access') {
+        newState.isLoading = true;
+        this.setState(newState);
+        (async () => {
+          await mega.quickAccessLocations.load();
+          const top = mega.quickAccessLocations.top();
+          if (top.length) {
+            await dbfetch.geta(top);
+          }
+        })().catch(dump).finally(() => this.finishedLoading(newState));
+        return;
+      }
       if (this.getDataSourceNode(handle).t && !M.getChildren(handle)) {
         this.setState({
           'isLoading': true
@@ -3081,6 +3199,7 @@ class FMView extends mixins.w9 {
       isLoading: this.state.isLoading || this.props.nodeLoading,
       currentlyViewedEntry: this.props.currentlyViewedEntry,
       entries: this.state.entries || [],
+      searchScope: this.props.searchScope,
       onExpand: node => {
         this.setState({
           'selected': [],
@@ -3092,6 +3211,8 @@ class FMView extends mixins.w9 {
       folderSelectNotAllowed: this.props.folderSelectNotAllowed,
       onAttachClicked: this.onAttachClicked,
       viewMode: this.props.viewMode,
+      showOwner: this.props.showOwner,
+      shortGrid: this.props.shortGrid,
       selected: this.state.selected,
       highlighted: this.state.highlighted,
       onContextMenu: this.props.onContextMenu || this.onContextMenu,
